@@ -2,6 +2,7 @@
 import os
 cur_path = os.getcwd()
 sqlite3_db_path = os.path.join(cur_path, 'sqlite3_db')
+media_root_path = os.path.join(cur_path, 'uploaded_file')
 # endcode
 
 # Django settings for prototype project.
@@ -56,12 +57,12 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = media_root_path
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://example.com/media/", "http://media.example.com/"
-MEDIA_URL = ''
+MEDIA_URL = 'uploaded/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -131,6 +132,10 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'user_status',
+    'file_info',
+    'group_info',
+    'project_info',
+
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
