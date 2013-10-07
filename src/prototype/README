@@ -1,0 +1,6 @@
+# env. use "pip install -r pip_freeze" to synchronize the dev environment. 
+pip freeze > pip_freeze
+
+# use sqltie3 as debug database.
+
+
