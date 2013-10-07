@@ -1,7 +1,5 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
-# generate two file, for auto active virtualenv environemet
-
 import os
 import sys
 
