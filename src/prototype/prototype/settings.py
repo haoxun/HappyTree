@@ -130,6 +130,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'user_status',
 )
 
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
@@ -162,3 +163,18 @@ LOGGING = {
         },
     }
 }
+
+# added
+
+# LOGIN_URL
+# Default: '/accounts/login/'
+# The URL where requests are redirected for login, especially when using the login_required() decorator.
+LOGIN_URL = '/login/'
+
+# LOGIN_REDIRECT_URL
+# Default: '/accounts/profile/'
+# The URL where requests are redirected after login when the contrib.auth.login view gets no next parameter.
+# This is used by the login_required() decorator, for example.
+# Changed in Django 1.5.
+# This setting now also accepts view function names and named URL patterns which can be used to reduce configuration duplication since you no longer have to define the URL in two places (settings and URLconf). For backward compatibility reasons the default remains unchanged.
+LOGIN_REDIRECT_URL = '/'
