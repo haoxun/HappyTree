@@ -168,27 +168,58 @@ def show_group_management(request, group_info_id):
                   'group_info/group_management_page.html',
                   render_data_dict)
 
+
+
+def check_user_in_group_manager(user, group_info, flag):
+    p = bool(group_info.manager_user.filter(username=user.username))
+    q = bool(flag)
+    if (not p and q) or (not q and p):
+        raise Http404
+
+def extract_from_GET(GET):
+    group_info_id = GET.get('group_info_id', None)
+    user_info_id = GET.get('user_info_id', None)
+    if not all([group_info_id, user_info_id]):
+        raise Http404
+    group_info_id = int(group_info_id)
+    user_info_id = int(user_info_id)
+    return group_info_id, user_info_id
+
 @login_required
 @set_group_info_id_from_GET_to_kwargs
 @require_user_in_group(True)
 @require_user_is_manager(True)
-def delete_user_from_group(request):
+def delete_user_from_group(request, *args, **kwargs):
     # authentication
-    group_info_id = request.GET.get('group_info_id', None)
-    username = request.GET.get('username', None)
-    if not all([group_info_id, username]):
+    group_info_id, user_info_id = extract_from_GET(request.GET)
+    delete_user_info = get_object_or_404(UserInfo, id=user_info_id)
+    group_info = get_object_or_404(GroupInfo, id=group_info_id)
+    # manager can not be remove from group
+    check_user_in_group_manager(delete_user_info.user, group_info, False)
+    # delete user
+    group_info.group.user_set.remove(delete_user_info.user)
+    return redirect('group_management_page',
+                    group_info_id=group_info_id)
+
+@login_required
+@set_group_info_id_from_GET_to_kwargs
+@require_user_in_group(True)
+@require_user_is_manager(True)
+def remove_user_from_group_manager(request, *args, **kwargs):
+    # authentication
+    group_info_id, user_info_id = extract_from_GET(request.GET)
+    delete_user_info = get_object_or_404(UserInfo, id=user_info_id)
+    group_info = get_object_or_404(GroupInfo, id=group_info_id)
+    # manager can not be remove from group
+    check_user_in_group_manager(delete_user_info.user, group_info, True)
+    # remove manager
+    if group_info.manager_user.count() > 1:
+        group_info.manager_user.remove(delete_user_info.user)
+    else:
         raise Http404
-    group_info_id = int(group_info_id)
-    delete_user = get_object_or_404(User, username=username)
-    group_info = get_object_or_404(Group, id=group_info_id)
+    return redirect('group_management_page',
+                    group_info_id=group_info_id)
+
     
-
-
-
-
-
-
-
-
 
 
