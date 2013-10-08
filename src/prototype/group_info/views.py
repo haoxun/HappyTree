@@ -61,12 +61,15 @@ def show_group_page(request, group_info_id):
     # extract infomation for rendering
     # extract user name list, should change to link when finished user page dev
     user_set = group_info.group.user_set
+    manager_user = group_info.manager_user
     user_name_list = [user.username for user in user_set.all()]
+    manager_name_list = [manager.username for manager in manager_user.all()]
     is_manager_user = True \
             if request.user in group_info.manager_user.all() else False
     render_data_dict = {
             'group_name': group_info.group.name,
             'group_description': group_info.group_description,
+            'group_manager': manager_name_list,
             'group_member': user_name_list,
             'is_manager_user': is_manager_user,
             'group_info_id': group_info_id,
@@ -111,7 +114,8 @@ def show_group_management(request, group_info_id):
     if request.method == 'POST':
         form_group_name = GroupNameHandlerForm(request.POST)
         form_group_description = GroupDescriptionHandlerForm(request.POST)
-        form_add_user = AddUserForm(request.POST)
+        form_add_user = AddUserForm(request.POST, prefix='normal')
+        form_add_manager = AddUserForm(request.POST, prefix='manager')
 
         if form_group_name.is_valid():
             # update group info, short-circuit
@@ -139,10 +143,23 @@ def show_group_management(request, group_info_id):
             return redirect('group_management_page',
                             group_info_id=group_info_id)
 
+        if form_add_manager.is_valid():
+            username = form_add_manager.cleaned_data['username']
+            user = User.objects.get(username=username)
+            if user not in group.user_set.all():
+                form_add_manager._errors = {
+                        'username': [u'{} not in the group!'.format(username)], 
+                }
+            else:
+                group_info.manager_user.add(user)
+                return redirect('group_management_page',
+                                group_info_id=group_info_id)
+
     else:
         form_group_name = GroupNameHandlerForm()
         form_group_description = GroupDescriptionHandlerForm()
-        form_add_user = AddUserForm()
+        form_add_user = AddUserForm(prefix='normal')
+        form_add_manager = AddUserForm(prefix='manager')
 
     # rendering    
     render_data_dict = {
@@ -150,6 +167,7 @@ def show_group_management(request, group_info_id):
             'form_group_description': form_group_description,
             'form_add_user': form_add_user,
             'group_info_id': group_info_id,
+            'form_add_manager': form_add_manager,
     }
     return render(request,
                   'group_info/group_management_page.html',

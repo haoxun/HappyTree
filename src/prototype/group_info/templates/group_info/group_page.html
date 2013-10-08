@@ -5,6 +5,14 @@
 		<h1 id="group_name">Group Name: {{group_name}}</h1>
 		<h2 id="group_description">Description: {{group_description}}</h2>
 	</div>
+	<div id="group_manager">
+		<h2>Manager List:</h2>
+		<ul>
+		{% for manager in group_manager %}
+			<li>{{manager}}</li>	
+		{% endfor %}
+		</ul>
+	</div>
 	<div id="group_menber">
 		<h2>Member List:</h2>
 		<ul>

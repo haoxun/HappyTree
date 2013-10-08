@@ -33,7 +33,12 @@ class AddUserForm(forms.Form):
     username = forms.CharField(required=True)
     
     def clean(self):
-        username = self.cleaned_data['username']
+        username = self.cleaned_data.get('username', None)
+        # see https://github.com/django/django/blob/master/django/forms/forms.py
+        # for explanation.
+        if username == None:
+            return
+        # validate user
         try:
             User.objects.get(username=username)
         except User.DoesNotExist:

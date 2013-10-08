@@ -19,6 +19,14 @@
 		</div>
 		
 	</div>
+	<div id="add_manager">
+		<h2>Add Manager</h2>
+		<form method="post" action={% url 'group_management_page' group_info_id=group_info_id %}>
+			{% csrf_token %}
+			{{form_add_manager.as_p}}
+			<input type="submit" value="Submit" />
+		</form>	
+	</div>
 	<div id="add_user">
 		<h2>Add User</h2>
 		<form method="post" action={% url 'group_management_page' group_info_id=group_info_id %}>
