@@ -14,8 +14,9 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', 'user_status.views.show_root'),
+    url(r'^$', 'user_status.views.show_root', name='root_page'),
     url(r'^login/$', 'django.contrib.auth.views.login', name='login_page'),
     url(r'^logout/$', 'user_status.views.logout_user', name='logout_page'),
     url(r'^create_group_page/$', 'group_info.views.create_group', name='create_group_page'),
+    url(r'^group_page/(?P<group_info_id>\d+)/$', 'group_info.views.show_group_page', name='group_page')
 )

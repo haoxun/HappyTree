@@ -5,6 +5,9 @@
 		Hello {{user.username}}!
 	</li>
 	<li>
+		<a href={% url 'root_page' %}>Main Page</a>
+	</li>
+	<li>
 		<a href="{% url 'logout_page' %}">Logout</a> 
 	</li>
 </ul>

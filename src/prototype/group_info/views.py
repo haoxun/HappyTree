@@ -1,9 +1,11 @@
 # Create your views here.
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import Http404
 
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
+
 from user_status.models import UserInfo
 from group_info.models import GroupInfo
 from .forms import CreateGroupForm
@@ -25,9 +27,35 @@ def create_group(request):
             # relate user to group
             request.user.groups.add(created_group)
             # redirect to group page
-            pass
+            return redirect('group_page', group_info_id=created_group_info.id)
     else:
         form = CreateGroupForm()
-    return render(request, 'group_info/create_group_page.html', 
-                  {'form' : form})
+    render_data_dict = {
+            'form': form,            
+    }
+    return render(request,'group_info/create_group_page.html', render_data_dict)
+
+@login_required
+def show_group_page(request, group_info_id):
+    '''
+    recive GroupInfo id as the paremeter.
+    '''
+    # authentication
+    group_info = get_object_or_404(GroupInfo, id=int(group_info_id))
+    if group_info.group not in request.user.groups.all():
+        raise Http404
+    if not group_info.real_group:
+        raise Http404
+    
+    # extract infomation for rendering
+    # extract user name list, should change to link when finished user page dev
+    user_set = group_info.group.user_set
+    user_name_list = [user.username for user in user_set.all()]
+    render_data_dict = {
+            'group_name': group_info.group.name,
+            'group_description': group_info.group_description,
+            'group_member': user_name_list,
+    }
+    return render(request, 'group_info/group_page.html', render_data_dict)
+
 
