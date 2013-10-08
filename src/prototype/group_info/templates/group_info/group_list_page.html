@@ -1,16 +1,24 @@
 {% extends 'base_with_navigation.html' %}
 
 {% block content %}
-{% if user_group_list %}
+{% if display_groups %}
 	{# links to group page #}
+	<div id="group_list">
+		<h2>Group List:</h2>
+	<ul>
+	{% for group_info_id, group_name in display_groups.items %}
+		<li><a href={% url 'group_page' group_info_id=group_info_id %}>{{group_name}}</a></li>
+	{% endfor %}
+	</ul>
+	</div>
 {% else %}
 	<div id="error_no_group_list">
-		<p>There's not related group for you.</p>
+		<h2>There's not related group for you.</h2>
 	</div>
 {% endif %}
 
 	<div id="creat_group">
-		<a href={% url 'create_group' %}>Create Group</a>
+		<a href={% url 'create_group_page' %}>Create Group</a>
 	</div>
 
 {% endblock %}

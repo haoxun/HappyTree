@@ -3,9 +3,10 @@
 {% block content %}
 	<div id="group_info">
 		<h1 id="group_name">Group Name: {{group_name}}</h1>
-		<p id="group_description">Description: {{group_description}}</p>
+		<h2 id="group_description">Description: {{group_description}}</h2>
 	</div>
 	<div id="group_menber">
+		<h2>Member List:</h2>
 		<ul>
 		{% for member in group_member %}
 			<li>{{member}}</li>	

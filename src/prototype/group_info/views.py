@@ -41,9 +41,9 @@ def create_group(request):
 
 @login_required
 def show_group_page(request, group_info_id):
-    '''
+    """
     recive GroupInfo id as the paremeter.
-    '''
+    """
     # authentication
     group_info = get_object_or_404(GroupInfo, id=int(group_info_id))
     if group_info.group not in request.user.groups.all():
@@ -63,5 +63,23 @@ def show_group_page(request, group_info_id):
     return render(request, 
                   'group_info/group_page.html', 
                   render_data_dict)
+
+@login_required
+def show_group_list(request):
+    """
+    show groups related to the user
+    """
+    group_list = request.user.groups.all()
+    group_info_list = [group.groupinfo for group in group_list]
+    # construct dictionary for rendering
+    display_groups = {}
+    for group, group_info in zip(group_list, group_info_list):
+        display_groups[group_info.id] = group.name
+    return render(request, 
+                  'group_info/group_list_page.html',
+                  {'display_groups': display_groups})
+
+
+
 
 

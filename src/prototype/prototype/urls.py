@@ -18,5 +18,6 @@ urlpatterns = patterns('',
     url(r'^login/$', 'django.contrib.auth.views.login', name='login_page'),
     url(r'^logout/$', 'user_status.views.logout_user', name='logout_page'),
     url(r'^create_group_page/$', 'group_info.views.create_group', name='create_group_page'),
-    url(r'^group_page/(?P<group_info_id>\d+)/$', 'group_info.views.show_group_page', name='group_page')
+    url(r'^group_page/(?P<group_info_id>\d+)/$', 'group_info.views.show_group_page', name='group_page'),
+    url(r'^group_list_page/$', 'group_info.views.show_group_list', name="group_list_page"),
 )
