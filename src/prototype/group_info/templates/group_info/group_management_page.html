@@ -1,0 +1,30 @@
+{% extends 'base_with_navigation.html' %}
+{% block content %}
+	<div id="group_basic_info">
+		<div id="modify_group_name">
+		<h2>Modify Group Name</h2>
+		<form method="post" action={% url 'group_management_page' group_info_id=group_info_id %}>
+			{% csrf_token %}
+			{{form_group_name.as_p}}
+			<input type="submit" value="Submit" />
+		</form>	
+		</div>
+		<div id="modify_group_name">
+		<h2>Modify Group Name</h2>
+		<form method="post" action={% url 'group_management_page' group_info_id=group_info_id %}>
+			{% csrf_token %}
+			{{form_group_description.as_p}}
+			<input type="submit" value="Submit" />
+		</form>	
+		</div>
+		
+	</div>
+	<div id="add_user">
+		<h2>Add User</h2>
+		<form method="post" action={% url 'group_management_page' group_info_id=group_info_id %}>
+			{% csrf_token %}
+			{{form_add_user.as_p}}
+			<input type="submit" value="Submit" />
+		</form>	
+	</div>
+{% endblock %}

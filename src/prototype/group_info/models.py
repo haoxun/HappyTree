@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 
 # Create your models here.
 class GroupInfo(models.Model):
@@ -13,5 +13,6 @@ class GroupInfo(models.Model):
     
     # relationship
     group = models.OneToOneField(Group)
+    manager_user = models.ManyToManyField(User)
     # normal_in_project
     # super_in_project
