@@ -9,6 +9,10 @@ from django.contrib.auth.models import Group
 from user_status.models import UserInfo
 from group_info.models import GroupInfo
 from .forms import GroupNameHandlerForm, GroupDescriptionHandlerForm, AddUserForm
+from .decorators import require_user_in_group, require_user_is_manager, \
+                        set_group_info_id_from_GET_to_kwargs
+
+
 
 @login_required
 def create_group(request):
@@ -46,18 +50,13 @@ def create_group(request):
                   render_data_dict)
 
 @login_required
+@require_user_in_group(True)
 def show_group_page(request, group_info_id):
     """
     recive GroupInfo id as the paremeter.
     """
-    # authentication
     group_info_id = int(group_info_id)
     group_info = get_object_or_404(GroupInfo, id=group_info_id)
-    if group_info.group not in request.user.groups.all():
-        raise Http404
-    if not group_info.real_group:
-        raise Http404
-    
     # extract infomation for rendering
     # extract user name list, should change to link when finished user page dev
     user_set = group_info.group.user_set
@@ -65,7 +64,8 @@ def show_group_page(request, group_info_id):
     user_name_list = [user.username for user in user_set.all()]
     manager_name_list = [manager.username for manager in manager_user.all()]
     is_manager_user = True \
-            if request.user in group_info.manager_user.all() else False
+            if group_info.manager_user.filter(username=request.user.username) \
+                else False
     render_data_dict = {
             'group_name': group_info.group.name,
             'group_description': group_info.group_description,
@@ -94,21 +94,16 @@ def show_group_list(request):
                   {'display_groups': display_groups})
 
 @login_required
+@require_user_in_group(True)
+@require_user_is_manager(True)
 def show_group_management(request, group_info_id):
     """
     show management page of a group
     """
     # to int
     group_info_id = int(group_info_id)
-    # authentication
     group_info = get_object_or_404(GroupInfo, id=group_info_id)
     group = group_info.group
-    if request.user not in group_info.manager_user.all():
-        raise Http404
-    if group_info.group not in request.user.groups.all():
-        raise Http404
-    if not group_info.real_group:
-        raise Http404
     
     # process form
     if request.method == 'POST':
@@ -132,7 +127,7 @@ def show_group_management(request, group_info_id):
             group_description = \
                     form_group_description.cleaned_data['group_description']
             group_info.group_description = group_description
-            group_info.group_description.save()
+            group_info.save()
             return redirect('group_management_page',
                             group_info_id=group_info_id)
 
@@ -172,6 +167,24 @@ def show_group_management(request, group_info_id):
     return render(request,
                   'group_info/group_management_page.html',
                   render_data_dict)
+
+@login_required
+@set_group_info_id_from_GET_to_kwargs
+@require_user_in_group(True)
+@require_user_is_manager(True)
+def delete_user_from_group(request):
+    # authentication
+    group_info_id = request.GET.get('group_info_id', None)
+    username = request.GET.get('username', None)
+    if not all([group_info_id, username]):
+        raise Http404
+    group_info_id = int(group_info_id)
+    delete_user = get_object_or_404(User, username=username)
+    group_info = get_object_or_404(Group, id=group_info_id)
+    
+
+
+
 
 
 
