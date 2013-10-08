@@ -21,19 +21,23 @@ def create_group(request):
             created_group = Group(name=group_name)
             created_group.save()
             # create related group info
-            created_group_info = GroupInfo(group_description=group_description,
-                                           group=created_group)
+            created_group_info = GroupInfo(
+                    group_description=group_description,
+                    group=created_group)
             created_group_info.save()
             # relate user to group
             request.user.groups.add(created_group)
             # redirect to group page
-            return redirect('group_page', group_info_id=created_group_info.id)
+            return redirect('group_page',
+                            group_info_id=created_group_info.id)
     else:
         form = CreateGroupForm()
     render_data_dict = {
             'form': form,            
     }
-    return render(request,'group_info/create_group_page.html', render_data_dict)
+    return render(request,
+                  'group_info/create_group_page.html',
+                  render_data_dict)
 
 @login_required
 def show_group_page(request, group_info_id):
@@ -56,6 +60,8 @@ def show_group_page(request, group_info_id):
             'group_description': group_info.group_description,
             'group_member': user_name_list,
     }
-    return render(request, 'group_info/group_page.html', render_data_dict)
+    return render(request, 
+                  'group_info/group_page.html', 
+                  render_data_dict)
 
 

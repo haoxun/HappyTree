@@ -1,0 +1,15 @@
+
+{% extends 'base_with_navigation.html' %}
+{% block content %}
+	<div id="group_info">
+		<h1 id="group_name">Group Name: {{group_name}}</h1>
+		<p id="group_description">Description: {{group_description}}</p>
+	</div>
+	<div id="group_menber">
+		<ul>
+		{% for member in group_member %}
+			<li>{{member}}</li>	
+		{% endfor %}
+		</ul>
+	</div>
+{% endblock %}
