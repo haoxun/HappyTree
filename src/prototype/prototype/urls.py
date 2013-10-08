@@ -16,5 +16,6 @@ urlpatterns = patterns('',
     # url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'user_status.views.show_root'),
     url(r'^login/$', 'django.contrib.auth.views.login', name='login_page'),
-    url(r'^logout/$', 'user_status.views.logout_user', name='logout_page')
+    url(r'^logout/$', 'user_status.views.logout_user', name='logout_page'),
+    url(r'^create_group_page/$', 'group_info.views.create_group', name='create_group_page'),
 )
