@@ -23,8 +23,6 @@ def require_user_in_group(flag):
             group_info_id = kwargs.get('group_info_id')
             group_info_id = int(group_info_id)
             group_info = get_object_or_404(GroupInfo, id=group_info_id)
-            if not group_info.real_group:
-                raise Http404
             # exclusive or
             p = bool(flag)
             q = bool(request.user.groups.filter(name=group_info.group.name))

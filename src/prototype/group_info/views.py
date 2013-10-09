@@ -89,7 +89,9 @@ def show_group_list(request):
     # construct dictionary for rendering
     display_groups = {}
     for group, group_info in zip(group_list, group_info_list):
-        display_groups[group_info.id] = group.name
+        # only display the 'real' group
+        if group_info.real_group:
+            display_groups[group_info.id] = group.name
     return render(request, 
                   'group_info/group_list_page.html',
                   {'display_groups': display_groups})
