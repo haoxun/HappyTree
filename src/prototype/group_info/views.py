@@ -7,15 +7,13 @@ from django.http import Http404
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 
-import urllib
-
 from user_status.models import UserInfo
 from group_info.models import GroupInfo
 from .forms import GroupNameHandlerForm, GroupDescriptionHandlerForm, AddUserForm
+from .utils import url_with_querystring, check_user_in_group_manager, \
+                   extract_from_GET
 from .decorators import require_user_in_group, require_user_is_manager, \
                         set_group_info_id_from_GET_to_kwargs
-
-
 
 @login_required
 def create_group(request):
@@ -95,11 +93,6 @@ def show_group_list(request):
     return render(request, 
                   'group_info/group_list_page.html',
                   {'display_groups': display_groups})
-
-
-
-def url_with_querystring(path, **kwargs):
-    return path + '?' + urllib.urlencode(kwargs)
 
 @login_required
 @require_user_in_group(True)
@@ -189,8 +182,6 @@ def show_group_management(request, group_info_id):
         group_user[normal_user.username] = url_with_querystring(
                                                 remove_user_url,
                                                 **query)
-
-
     # rendering    
     render_data_dict = {
             'form_group_name': form_group_name,            
@@ -204,23 +195,6 @@ def show_group_management(request, group_info_id):
     return render(request,
                   'group_info/group_management_page.html',
                   render_data_dict)
-
-
-
-def check_user_in_group_manager(user, group_info, flag):
-    p = bool(group_info.manager_user.filter(username=user.username))
-    q = bool(flag)
-    if (not p and q) or (not q and p):
-        raise Http404
-
-def extract_from_GET(GET):
-    group_info_id = GET.get('group_info_id', None)
-    user_info_id = GET.get('user_info_id', None)
-    if not all([group_info_id, user_info_id]):
-        raise Http404
-    group_info_id = int(group_info_id)
-    user_info_id = int(user_info_id)
-    return group_info_id, user_info_id
 
 @login_required
 @set_group_info_id_from_GET_to_kwargs
@@ -256,8 +230,3 @@ def remove_user_from_group_manager(request, *args, **kwargs):
         raise Http404
     return redirect('group_management_page',
                     group_info_id=group_info_id)
-
-
-    
-
-

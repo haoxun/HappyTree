@@ -1,5 +1,8 @@
 {% extends 'base_with_navigation.html' %}
 {% block content %}
+	<div id="link_to_group_page">
+		<a href={% url 'group_page' group_info_id=group_info_id %}>To Group Page</a>
+	</div>
 	<div id="remove_manager">
 		<h2>Manager List:</h2>
 		<div>
