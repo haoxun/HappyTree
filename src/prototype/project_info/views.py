@@ -20,10 +20,19 @@ def show_project_list(request):
     display_project_act_as_normaluser = {}
     display_project_act_as_manager = {} 
     for group_info in group_info_set:
-        for project in group_info.normal_in_project.all():
+        # get projects
+        normal_project_set = {project \
+                for project in group_info.normal_in_project.all()}
+        manager_project_set = {project \
+                for project in group_info.super_in_project.all()}
+        # considering the project group models, 
+        # a set exclusive operation is needed.
+        normal_project_set = normal_project_set - manager_project_set
+
+        for project in normal_project_set:
             display_project_act_as_normaluser[project.id] = project.name
         
-        for project in group_info.super_in_project.all():
+        for project in manager_project_set:
             display_project_act_as_manager[project.id] = project.name
 
     # rendering
@@ -85,8 +94,9 @@ def create_project(request):
             request.user.groups.add(default_group)
 
             # add super_group info to project info
+            # notice that the default group is treated as a normal group.
             project_info.super_group.add(super_group_info)
-            project_info.default_group.add(default_group_info)
+            project_info.normal_group.add(default_group_info)
             return redirect('project_page',
                              project_info_id=project_info.id)
     else:
