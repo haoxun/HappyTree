@@ -1,10 +1,13 @@
 # Create your views here.
+from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404
 
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
+
+import urllib
 
 from user_status.models import UserInfo
 from group_info.models import GroupInfo
@@ -93,6 +96,11 @@ def show_group_list(request):
                   'group_info/group_list_page.html',
                   {'display_groups': display_groups})
 
+
+
+def url_with_querystring(path, **kwargs):
+    return path + '?' + urllib.urlencode(kwargs)
+
 @login_required
 @require_user_in_group(True)
 @require_user_is_manager(True)
@@ -155,6 +163,33 @@ def show_group_management(request, group_info_id):
         form_group_description = GroupDescriptionHandlerForm()
         form_add_user = AddUserForm(prefix='normal')
         form_add_manager = AddUserForm(prefix='manager')
+    
+    # process link
+    # manager
+    remove_manager_url = reverse('delete_manager_from_group')
+    manager_user_set = group_info.manager_user.all()
+    group_manager = {}
+    for manager_user in manager_user_set:
+        query = {
+            'group_info_id': group_info_id,
+            'user_info_id': manager_user.id,
+        }
+        group_manager[manager_user.username] = url_with_querystring(
+                                                    remove_manager_url, 
+                                                    **query)
+    # user
+    remove_user_url = reverse('delete_user_from_group')
+    normal_user_set = group.user_set.all()
+    group_user = {}
+    for normal_user in normal_user_set:
+        query = {
+            'group_info_id': group_info_id,
+            'user_info_id': normal_user.userinfo.id,
+        }
+        group_user[normal_user.username] = url_with_querystring(
+                                                remove_user_url,
+                                                **query)
+
 
     # rendering    
     render_data_dict = {
@@ -163,6 +198,8 @@ def show_group_management(request, group_info_id):
             'form_add_user': form_add_user,
             'group_info_id': group_info_id,
             'form_add_manager': form_add_manager,
+            'group_manager': group_manager,
+            'group_user': group_user,
     }
     return render(request,
                   'group_info/group_management_page.html',
@@ -219,6 +256,7 @@ def remove_user_from_group_manager(request, *args, **kwargs):
         raise Http404
     return redirect('group_management_page',
                     group_info_id=group_info_id)
+
 
     
 

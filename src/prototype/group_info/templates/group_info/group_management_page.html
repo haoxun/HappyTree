@@ -1,5 +1,30 @@
 {% extends 'base_with_navigation.html' %}
 {% block content %}
+	<div id="remove_manager">
+		<h2>Manager List:</h2>
+		<div>
+		{% for manager, remove_url in group_manager.items %}
+			<div>
+				<div>{{manager}}</div>
+				<a href="{{ remove_url }}">Remove Manager</a>
+			</div>	
+		{% endfor %}
+		</div>
+
+	</div>
+	<div id="remove_user">
+		<h2>User List:</h2>
+		<div>
+		{% for user, remove_url in group_user.items %}
+			<div>
+				<div>{{user}}</div>
+				<a href="{{ remove_url }}">Remove User</a>
+			</div>	
+		{% endfor %}
+		</div>
+
+	</div>
+
 	<div id="group_basic_info">
 		<div id="modify_group_name">
 		<h2>Modify Group Name</h2>
