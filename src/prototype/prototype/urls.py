@@ -19,3 +19,10 @@ urlpatterns = patterns('',
     url(r'group/', include('group_info.urls')),
     url(r'project/', include('project_info.urls')),
 )
+
+from django.conf import settings
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        url(r'test/$', 'user_status.views.show_models'),
+        )
+

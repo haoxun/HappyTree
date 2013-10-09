@@ -6,3 +6,6 @@ class UserInfo(models.Model):
     # relationship
     user = models.OneToOneField(User)
     # fileinfo
+
+    def __unicode__(self):
+        return u'{}'.format(self.user)

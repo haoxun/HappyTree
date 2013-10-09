@@ -19,4 +19,4 @@ class GroupInfo(models.Model):
     # super_in_project
 
     def __unicode__(self):
-        return u'{}'.format(self.group.name)
+        return u'{}'.format(self.group)
