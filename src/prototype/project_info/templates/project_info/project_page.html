@@ -1,0 +1,28 @@
+{% extends 'base_with_navigation.html' %}
+{% block content %}
+	<div id="project_info">
+		<h1 id="project_name">Project Name: {{project_name}}</h1>
+		<h2 id="project_description">Description: {{project_description}}</h2>
+	</div>
+	<div id="project_manager_group">
+		<h2>Manager Group:</h2>
+		<ul>
+		{% for manager, group_info_id in project_manager_group.items %}
+			<li><a href={% url 'group_page' group_info_id=group_info_id %}>{{manager}}</a></li>	
+		{% endfor %}
+		</ul>
+	</div>
+	<div id="project_menber_group">
+		<h2>Member Group:</h2>
+		<ul>
+		{% for manager, group_info_id in project_normal_group.items %}
+			<li><a href={% url 'group_page' group_info_id=group_info_id %}>{{manager}}</a></li>	
+		{% endfor %}
+		</ul>
+	</div>
+	<div id="management">
+		{% if is_manager_user %}
+			<a href={# url 'project_management_page' project_info_id=project_info_id #}>Management</a>
+		{% endif %}
+	</div>
+{% endblock %}

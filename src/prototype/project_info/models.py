@@ -14,5 +14,8 @@ class ProjectInfo(models.Model):
     super_group = models.ManyToManyField(GroupInfo, 
                                           related_name='super_in_project')
 
+    def __unicode__(self):
+        return u'{}'.format(self.name)
+
 
 

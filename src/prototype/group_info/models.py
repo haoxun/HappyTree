@@ -17,3 +17,6 @@ class GroupInfo(models.Model):
     manager_user = models.ManyToManyField(User)
     # normal_in_project
     # super_in_project
+
+    def __unicode__(self):
+        return u'{}'.format(self.group.name)

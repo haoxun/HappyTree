@@ -10,7 +10,7 @@ from project_info.models import ProjectInfo
 from group_info.models import GroupInfo
 
 from .forms import ProjectNameHandlerForm, ProjectDescriptionHandlerForm
-
+from .decorators import require_user_in_project
 
 @login_required
 def show_project_list(request):
@@ -21,19 +21,14 @@ def show_project_list(request):
     display_project_act_as_manager = {} 
     for group_info in group_info_set:
         # get projects
-        normal_project_set = {project \
-                for project in group_info.normal_in_project.all()}
-        manager_project_set = {project \
-                for project in group_info.super_in_project.all()}
-        # considering the project group models, 
-        # a set exclusive operation is needed.
-        normal_project_set = normal_project_set - manager_project_set
-
-        for project in normal_project_set:
+        for project in group_info.normal_in_project.all():
             display_project_act_as_normaluser[project.id] = project.name
-        
-        for project in manager_project_set:
+        for project in group_info.super_in_project.all():
             display_project_act_as_manager[project.id] = project.name
+    # exclusive operation
+    for id, name in display_project_act_as_manager.items():
+        if id in display_project_act_as_normaluser:
+            del display_project_act_as_normaluser[id]
 
     # rendering
     render_data_dict = {
@@ -45,9 +40,35 @@ def show_project_list(request):
                   render_data_dict) 
 
 @login_required
+@require_user_in_project
 def show_project_page(request, project_info_id):
+    project_info_id = int(project_info_id)
+    project_info = ProjectInfo.objects.get(id=project_info_id)
+    display_super_group = {}
+    display_normal_group = {group_info.group.name:group_info.id \
+                            for group_info in project_info.normal_group.all()}
+    # test manager
+    is_manager_user = False
+    for group_info in project_info.super_group.all():
+        display_super_group[group_info.group.name] = group_info.id
+        if not is_manager_user:
+            is_manager_user = bool(group_info.group.user_set.filter(
+                                            username=request.user.username))
 
-    pass
+    # rendering
+    render_data_dict = {
+            'project_name': project_info.name,
+            'project_description': project_info.project_description,
+            'project_manager_group': display_super_group,
+            'project_normal_group': display_normal_group,
+            'is_manager_user': is_manager_user,
+    }
+    return render(request,
+                  'project_info/project_page.html',
+                  render_data_dict)
+    
+
+
 
 
 @login_required
