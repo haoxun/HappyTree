@@ -23,4 +23,7 @@ urlpatterns = patterns('',
     url(r'^group_management_page/(?P<group_info_id>\d+)/$', 'group_info.views.show_group_management', name='group_management_page'),
     url(r'^group_management_page/delete_user/$', 'group_info.views.delete_user_from_group', name='delete_user_from_group'),
     url(r'^group_management_page/remove_manager/$', 'group_info.views.remove_user_from_group_manager', name='delete_manager_from_group'),
+    url(r'^project_page/(?P<project_info_id>\d+)/$', 'project_info.views.show_project_page', name='project_page'),
+    url(r'^project_list_page/$', 'project_info.views.show_project_list', name='project_list_page'),
+    
 )

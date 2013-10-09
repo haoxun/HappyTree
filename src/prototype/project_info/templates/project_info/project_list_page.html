@@ -1,0 +1,42 @@
+
+{% extends 'base_with_navigation.html' %}
+
+{% block content %}
+	{# links to group page #}
+	<div id="project_list">
+		<h2>Project List:</h2>
+		<div id="act_as_normal_user">
+			<h3>Act as Manager</h3> 
+			{% if display_project_act_as_manager %}
+			<ul>
+				{% for project_info_id, project_name in display_project_act_as_manager.items %}
+					<li><a href={# url 'project_page' project_info_id=project_info_id #}>{{project_name}}</a></li>
+				{% endfor %}
+			</ul>
+			{% else %}
+				<div id="error_no_project_list">
+					<h4>There's not related project for you.</h4>
+				</div>
+			{% endif %}
+		</div>
+		<div id="act_as_normal_user">
+			<h3>Act as Normal User</h3> 
+			{% if display_project_act_as_normaluser %}
+			<ul>
+				{% for project_info_id, project_name in display_project_act_as_normaluser.items %}
+					<li><a href={# url 'project_page' project_info_id=project_info_id #}>{{project_name}}</a></li>
+				{% endfor %}
+			</ul>
+			{% else %}
+				<div id="error_no_project_list">
+					<h4>There's not related project for you.</h4>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+	<div id="creat_project">
+		<a href={# url 'create_project_page' #}>Create Project</a>
+	</div>
+
+{% endblock %}
+
