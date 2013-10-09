@@ -55,23 +55,38 @@ def create_project(request):
                                        project_description=project_description)
             project_info.save()
             
-            # create manager group
-            # create group
-            group_name = '[system][{0}][{1}]'.format(project_name, 
-                                                     request.user.username)
-            group = Group(name=group_name)
-            group.save()
-            # create relate group_info
-            group_info = GroupInfo(group=group,
-                                   real_group=False)
-            group_info.save()
-            # add user to group info manager
-            group_info.manager_user.add(request.user)
+            # create manager group and default group
+            # manager group is for project management.
+            # default group is for adding user individually.
+            # create groups
+            super_group_name = '[system][super_group][{0}][{1}]'.format(
+                                            str(project_info.id), 
+                                            str(request.user.id))
+            default_group_name = '[system][normal_group][{0}][{1}]'.format(
+                                            str(project_info.id), 
+                                            str(request.user.id))
+            super_group = Group(name=super_group_name)
+            default_group = Group(name=default_group_name)
+            super_group.save()
+            default_group.save()
+            # create relate group_infos
+            super_group_info = GroupInfo(group=super_group,
+                                         real_group=False)
+            default_group_info = GroupInfo(group=default_group,
+                                           real_group=False)
+            super_group_info.save()
+            default_group_info.save()
+            # make connections
+            # add user to super_group info manager
+            super_group_info.manager_user.add(request.user)
+            default_group_info.manager_user.add(request.user)
             # relate user to group
-            request.user.groups.add(group)
+            request.user.groups.add(super_group)
+            request.user.groups.add(default_group)
 
-            # add group info to project info
-            project_info.super_group.add(group_info)
+            # add super_group info to project info
+            project_info.super_group.add(super_group_info)
+            project_info.default_group.add(default_group_info)
             return redirect('project_page',
                              project_info_id=project_info.id)
     else:
