@@ -174,7 +174,7 @@ LOGGING = {
 # LOGIN_URL
 # Default: '/accounts/login/'
 # The URL where requests are redirected for login, especially when using the login_required() decorator.
-LOGIN_URL = '/login/'
+LOGIN_URL = '/status/login/'
 
 # LOGIN_REDIRECT_URL
 # Default: '/accounts/profile/'

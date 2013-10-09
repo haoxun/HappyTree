@@ -5,13 +5,19 @@ from django.contrib.auth.models import Group, User
 class GroupNameHandlerForm(forms.Form):
     error_message = {
             'duplicate': 'Already has a group named {}',      
+            'forbid_pattern': 'Group name could not start with [system][normal_group] or [system][super_group]',
     }
     
     group_name = forms.CharField(required=True, 
                                  max_length=50, 
                                  min_length=3)
     def clean(self):
+        # following pattern is reservered for group structure of project.
         group_name = self.cleaned_data.get('group_name')
+        if group_name.startswith('[system][normal_group]') or \
+                group_name.startswith('[system][normal_group]'):
+            raise forms.ValidationError(
+                    message=self.error_message['forbid_pattern'])
         try:
             Group.objects.get(name=group_name)
         except Group.DoesNotExist:
