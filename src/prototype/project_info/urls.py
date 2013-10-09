@@ -14,8 +14,7 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', 'user_status.views.show_root', name='root_page'),
-    url(r'status/', include('user_status.urls')),
-    url(r'group/', include('group_info.urls')),
-    url(r'project/', include('project_info.urls')),
+    url(r'^create/$', 'project_info.views.create_project', name='create_project_page'),
+    url(r'^info/(?P<project_info_id>\d+)/$', 'project_info.views.show_project_page', name='project_page'),
+    url(r'^list/$', 'project_info.views.show_project_list', name='project_list_page'),
 )

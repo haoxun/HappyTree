@@ -36,7 +36,8 @@ def show_project_list(request):
                   render_data_dict) 
 
 @login_required
-def show_project_page(request):
+def show_project_page(request, project_info_id):
+
     pass
 
 

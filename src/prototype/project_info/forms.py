@@ -8,8 +8,8 @@ class ProjectNameHandlerForm(forms.Form):
     }
     
     project_name = forms.CharField(required=True, 
-                                 max_length=50, 
-                                 min_length=3)
+                                   max_length=50, 
+                                   min_length=3)
     def clean(self):
         project_name = self.cleaned_data.get('project_name')
         if ProjectInfo.objects.filter(name=project_name):
