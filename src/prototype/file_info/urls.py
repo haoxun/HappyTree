@@ -14,15 +14,6 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', 'user_status.views.show_root', name='root_page'),
-    url(r'status/', include('user_status.urls')),
-    url(r'group/', include('group_info.urls')),
-    url(r'project/', include('project_info.urls')),
+    url(r'^create_message/$', 'file_info.views.create_message', name='create_message_page'),
 )
-
-from django.conf import settings
-if settings.DEBUG:
-    urlpatterns += patterns('',
-        url(r'test/$', 'user_status.views.show_models'),
-    )
 

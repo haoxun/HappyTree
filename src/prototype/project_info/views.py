@@ -202,8 +202,6 @@ def show_project_management_page(request, project_info_id):
                   'project_info/project_management_page.html',
                   render_data_dict)
 
-
-
 @login_required
 @require_user_in(
         judge_func,
