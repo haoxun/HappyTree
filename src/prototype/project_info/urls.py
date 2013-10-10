@@ -18,4 +18,7 @@ urlpatterns = patterns('',
     url(r'^list/$', 'project_info.views.show_project_list', name='project_list_page'),
     url(r'^group_of_project/(?P<project_info_id>\d+)/$', 'project_info.views.show_project_page', name='project_page'),
     url(r'^group_of_project/management/(?P<project_info_id>\d+)/$', 'project_info.views.show_project_management_page', name='project_management_page'),
+    url(r'^group_of_project/management/delete/$', 
+        'project_info.views.delete_group_from_project', 
+        name='delete_group_from_project'),
 )

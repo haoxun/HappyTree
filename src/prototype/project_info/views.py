@@ -12,6 +12,7 @@ from group_info.models import GroupInfo
 from .forms import ProjectNameHandlerForm, ProjectDescriptionHandlerForm, \
                    AddGroupForm
 from prototype.decorators import require_user_in
+from prototype.utils import extract_from_GET, url_with_querystring
 from .utils import judge_func
 
 @login_required
@@ -49,7 +50,7 @@ def show_project_list(request):
 )
 def show_project_page(request, project_info_id):
     project_info_id = int(project_info_id)
-    project_info = ProjectInfo.objects.get(id=project_info_id)
+    project_info = get_object_or_404(ProjectInfo, id=project_info_id)
     display_super_group = {}
     display_normal_group = {group_info.group.name:group_info.id \
                             for group_info in project_info.normal_group.all()}
@@ -145,7 +146,7 @@ def create_project(request):
 )
 def show_project_management_page(request, project_info_id):
     project_info_id = int(project_info_id)
-    project_info = ProjectInfo.objects.get(id=project_info_id)
+    project_info = get_object_or_404(ProjectInfo, id=project_info_id)
 
     if request.method == 'POST':
         form_project_name = ProjectNameHandlerForm(request.POST)
@@ -168,8 +169,8 @@ def show_project_management_page(request, project_info_id):
                             project_info_id=project_info_id)
         if form_add_group.is_valid():
             group_name = form_add_group.cleaned_data['group_name']
-            group = Group.objects.get(name=group_name)
-            group_info = GroupInfo.objects.get(group=group)
+            group = get_object_or_404(Group, name=group_name)
+            group_info = get_object_or_404(GroupInfo, group=group)
             project_info.normal_group.add(group_info)
             return redirect('project_management_page',
                             project_info_id=project_info_id)
@@ -181,7 +182,13 @@ def show_project_management_page(request, project_info_id):
         
     # rendering
     display_project_normal_group = \
-            {group_info.group.name:group_info.id \
+            {group_info.group.name:{
+                        'group_info_id': group_info.id,
+                        'remove_url': url_with_querystring(
+                                        reverse('delete_group_from_project'),
+                                        project_info_id=project_info_id,
+                                        group_info_id=group_info.id)
+                } \
                 for group_info in project_info.normal_group.all() \
                     if group_info.real_group}
     render_data_dict = {
@@ -197,6 +204,26 @@ def show_project_management_page(request, project_info_id):
 
 
 
+@login_required
+@require_user_in(
+        judge_func,
+        'project_info_id', 
+        (ProjectInfo, True, ('super_group',))
+)
+def delete_group_from_project(request):
+    project_info_id, group_info_id = map(int, extract_from_GET(
+                        request.GET,
+                        'project_info_id', 'group_info_id'
+                        ))
+    project_info = get_object_or_404(ProjectInfo, id=project_info_id)
+    group_info = get_object_or_404(project_info.normal_group, id=group_info_id)
+    if group_info.group.name.startswith('[system]'):
+        raise Http404
+    project_info.normal_group.remove(group_info)
+    return redirect('project_management_page',
+                    project_info_id=project_info_id)
+
+    
 
     
 

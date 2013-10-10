@@ -143,14 +143,14 @@ def show_group_management(request, group_info_id):
 
         if form_add_user.is_valid():
             username = form_add_user.cleaned_data['username']
-            user = User.objects.get(username=username)
+            user = get_object_or_404(User, username=username)
             group.user_set.add(user)
             return redirect('group_management_page',
                             group_info_id=group_info_id)
 
         if form_add_manager.is_valid():
             username = form_add_manager.cleaned_data['username']
-            user = User.objects.get(username=username)
+            user = get_object_or_404(User, username=username)
             if user not in group.user_set.all():
                 form_add_manager._errors = {
                         'username': [u'{} not in the group!'.format(username)], 

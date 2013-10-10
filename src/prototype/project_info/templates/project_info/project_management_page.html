@@ -46,8 +46,9 @@
 			<h2>Normal Group List</h2>
 			{% if project_normal_group %}
 			<ul>
-				{% for manager, group_info_id in project_normal_group.items %}
-					<li><a href={% url 'group_page' group_info_id=group_info_id %}>{{manager}}</a></li>	
+				{% for manager, group_data in project_normal_group.items %}
+					<li><a href={% url 'group_page' group_info_id=group_data.group_info_id %}>{{manager}}</a></li>	
+					<a href={{group_data.remove_url}}>Remove Group</a>
 				{% endfor %}
 			</ul>
 			{% else %}
