@@ -1,21 +1,21 @@
-
 import urllib
 from django.http import Http404
+from prototype.utils import exclusive_with_flag_results_Http404
 
-def url_with_querystring(path, **kwargs):
-    return path + '?' + urllib.urlencode(kwargs)
+def get_user_in_manager_group_manager(user, group_info):
+    return group_info.manager_user.filter(username=user.username)
 
-def check_user_in_group_manager(user, group_info, flag):
-    p = bool(group_info.manager_user.filter(username=user.username))
-    q = bool(flag)
-    if (not p and q) or (not q and p):
-        raise Http404
+def assert_user_in_group_manager(*args, **kwargs):
+    exclusive_with_flag_results_Http404(
+            True,
+            get_user_in_manager_group_manager(*args, **kwargs)
+    )
 
-def extract_from_GET(GET):
-    group_info_id = GET.get('group_info_id', None)
-    user_info_id = GET.get('user_info_id', None)
-    if not all([group_info_id, user_info_id]):
-        raise Http404
-    group_info_id = int(group_info_id)
-    user_info_id = int(user_info_id)
-    return group_info_id, user_info_id
+def assert_user_not_in_group_manager(*args, **kwargs):
+    exclusive_with_flag_results_Http404(
+            False,
+            get_user_in_manager_group_manager(*args, **kwargs)
+    )
+
+def judge_func(user_manager, request):
+    return user_manager.filter(username=request.user.username)

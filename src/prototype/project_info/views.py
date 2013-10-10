@@ -11,7 +11,8 @@ from group_info.models import GroupInfo
 
 from .forms import ProjectNameHandlerForm, ProjectDescriptionHandlerForm, \
                    AddGroupForm
-from .decorators import require_user_in_project_group
+from prototype.decorators import require_user_in
+from .utils import judge_func
 
 @login_required
 def show_project_list(request):
@@ -41,7 +42,11 @@ def show_project_list(request):
                   render_data_dict) 
 
 @login_required
-@require_user_in_project_group(group_type='normal_group', flag=True)
+@require_user_in(
+        judge_func,
+        'project_info_id', 
+        (ProjectInfo, True, ('normal_group',))
+)
 def show_project_page(request, project_info_id):
     project_info_id = int(project_info_id)
     project_info = ProjectInfo.objects.get(id=project_info_id)
@@ -133,7 +138,11 @@ def create_project(request):
                   render_data_dict)
 
 @login_required
-@require_user_in_project_group(group_type='super_group', flag=True)
+@require_user_in(
+        judge_func,
+        'project_info_id', 
+        (ProjectInfo, True, ('super_group',))
+)
 def show_project_management_page(request, project_info_id):
     project_info_id = int(project_info_id)
     project_info = ProjectInfo.objects.get(id=project_info_id)
@@ -185,6 +194,8 @@ def show_project_management_page(request, project_info_id):
     return render(request,
                   'project_info/project_management_page.html',
                   render_data_dict)
+
+
 
 
     

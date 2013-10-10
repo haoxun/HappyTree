@@ -10,10 +10,10 @@ from django.contrib.auth.models import Group
 from user_status.models import UserInfo
 from group_info.models import GroupInfo
 from .forms import GroupNameHandlerForm, GroupDescriptionHandlerForm, AddUserForm
-from .utils import url_with_querystring, check_user_in_group_manager, \
-                   extract_from_GET
-from .decorators import require_user_in_group_with_actor, \
-                        set_group_info_id_from_GET_to_kwargs
+from prototype.utils import url_with_querystring, extract_from_GET
+from prototype.decorators import require_user_in
+from .utils import judge_func, assert_user_in_group_manager, \
+                   assert_user_not_in_group_manager
 
 @login_required
 def create_group(request):
@@ -51,7 +51,11 @@ def create_group(request):
                   render_data_dict)
 
 @login_required
-@require_user_in_group_with_actor(actor='normal_user', flag=True)
+@require_user_in(
+        judge_func, 
+        'group_info_id', 
+        (GroupInfo, True, ('group', 'user_set'))
+)
 def show_group_page(request, group_info_id):
     """
     recive GroupInfo id as the paremeter.
@@ -97,7 +101,11 @@ def show_group_list(request):
                   {'display_groups': display_groups})
 
 @login_required
-@require_user_in_group_with_actor(actor='manager_user', flag=True)
+@require_user_in(
+        judge_func, 
+        'group_info_id', 
+        (GroupInfo, True, ('manager_user',))
+)
 def show_group_management(request, group_info_id):
     """
     show management page of a group
@@ -207,30 +215,40 @@ def show_group_management(request, group_info_id):
                   render_data_dict)
 
 @login_required
-@set_group_info_id_from_GET_to_kwargs
-@require_user_in_group_with_actor(actor='manager_user', flag=True)
+@require_user_in(
+        judge_func, 
+        'group_info_id', 
+        (GroupInfo, True, ('manager_user',))
+)
 def delete_user_from_group(request, *args, **kwargs):
     # authentication
-    group_info_id, user_info_id = extract_from_GET(request.GET)
+    group_info_id, user_info_id = extract_from_GET(
+            request.GET, 
+            'group_info_id', 'user_info_id')
     delete_user_info = get_object_or_404(UserInfo, id=user_info_id)
     group_info = get_object_or_404(GroupInfo, id=group_info_id)
     # manager can not be remove from group
-    check_user_in_group_manager(delete_user_info.user, group_info, False)
+    assert_user_not_in_group_manager(delete_user_info.user, group_info)
     # delete user
     group_info.group.user_set.remove(delete_user_info.user)
     return redirect('group_management_page',
                     group_info_id=group_info_id)
 
 @login_required
-@set_group_info_id_from_GET_to_kwargs
-@require_user_in_group_with_actor(actor='manager_user', flag=True)
+@require_user_in(
+        judge_func, 
+        'group_info_id', 
+        (GroupInfo, True, ('manager_user',))
+)
 def remove_user_from_group_manager(request, *args, **kwargs):
     # authentication
-    group_info_id, user_info_id = extract_from_GET(request.GET)
+    group_info_id, user_info_id = extract_from_GET(
+            request.GET,
+            'group_info_id', 'user_info_id')
     delete_user_info = get_object_or_404(UserInfo, id=user_info_id)
     group_info = get_object_or_404(GroupInfo, id=group_info_id)
     # manager can not be remove from group
-    check_user_in_group_manager(delete_user_info.user, group_info, True)
+    assert_user_in_group_manager(delete_user_info.user, group_info)
     # remove manager
     if group_info.manager_user.count() > 1:
         group_info.manager_user.remove(delete_user_info.user)
