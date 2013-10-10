@@ -12,8 +12,7 @@ from group_info.models import GroupInfo
 from .forms import GroupNameHandlerForm, GroupDescriptionHandlerForm, AddUserForm
 from .utils import url_with_querystring, check_user_in_group_manager, \
                    extract_from_GET
-from .decorators import require_user_in_group, require_user_is_manager, \
-                        set_group_info_id_from_GET_to_kwargs
+from .decorators import require_user_in_group_with_actor, set_group_info_id_from_GET_to_kwargs
 
 @login_required
 def create_group(request):
@@ -51,7 +50,7 @@ def create_group(request):
                   render_data_dict)
 
 @login_required
-@require_user_in_group(True)
+@require_user_in_group_with_actor(actor='normal_user', flag=True)
 def show_group_page(request, group_info_id):
     """
     recive GroupInfo id as the paremeter.
@@ -97,8 +96,7 @@ def show_group_list(request):
                   {'display_groups': display_groups})
 
 @login_required
-@require_user_in_group(True)
-@require_user_is_manager(True)
+@require_user_in_group_with_actor(actor='manager_user', flag=True)
 def show_group_management(request, group_info_id):
     """
     show management page of a group
@@ -200,8 +198,7 @@ def show_group_management(request, group_info_id):
 
 @login_required
 @set_group_info_id_from_GET_to_kwargs
-@require_user_in_group(True)
-@require_user_is_manager(True)
+@require_user_in_group_with_actor(actor='manager_user', flag=True)
 def delete_user_from_group(request, *args, **kwargs):
     # authentication
     group_info_id, user_info_id = extract_from_GET(request.GET)
@@ -216,8 +213,7 @@ def delete_user_from_group(request, *args, **kwargs):
 
 @login_required
 @set_group_info_id_from_GET_to_kwargs
-@require_user_in_group(True)
-@require_user_is_manager(True)
+@require_user_in_group_with_actor(actor='manager_user', flag=True)
 def remove_user_from_group_manager(request, *args, **kwargs):
     # authentication
     group_info_id, user_info_id = extract_from_GET(request.GET)

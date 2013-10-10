@@ -13,9 +13,11 @@ class GroupNameHandlerForm(forms.Form):
                                  min_length=3)
     def clean(self):
         # following pattern is reservered for group structure of project.
-        group_name = self.cleaned_data.get('group_name')
-        if group_name.startswith('[system][normal_group]') or \
-                group_name.startswith('[system][normal_group]'):
+        group_name = self.cleaned_data.get('group_name', None)
+        if group_name == None:
+            return
+        if group_name.startswith('[system][normal_group]') \
+                or group_name.startswith('[system][normal_group]'):
             raise forms.ValidationError(
                     message=self.error_message['forbid_pattern'])
         try:

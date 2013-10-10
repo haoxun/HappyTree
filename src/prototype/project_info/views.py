@@ -10,7 +10,7 @@ from project_info.models import ProjectInfo
 from group_info.models import GroupInfo
 
 from .forms import ProjectNameHandlerForm, ProjectDescriptionHandlerForm
-from .decorators import require_user_in_project
+from .decorators import require_user_in_project_group
 
 @login_required
 def show_project_list(request):
@@ -40,7 +40,7 @@ def show_project_list(request):
                   render_data_dict) 
 
 @login_required
-@require_user_in_project
+@require_user_in_project_group(group_type='normal_group', flag=True)
 def show_project_page(request, project_info_id):
     project_info_id = int(project_info_id)
     project_info = ProjectInfo.objects.get(id=project_info_id)
@@ -67,9 +67,6 @@ def show_project_page(request, project_info_id):
                   'project_info/project_page.html',
                   render_data_dict)
     
-
-
-
 
 @login_required
 def create_project(request):
@@ -132,3 +129,10 @@ def create_project(request):
     return render(request,
                   'project_info/create_project_page.html',
                   render_data_dict)
+
+@login_required
+@require_user_in_project_group(group_type='super_group', flag=True)
+def show_project_management_page(request, project_info_id):
+    pass
+    
+
