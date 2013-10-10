@@ -9,7 +9,9 @@
 		{% for manager, remove_url in group_manager.items %}
 			<div>
 				<div>{{manager}}</div>
+				{% if remove_url %}
 				<a href="{{ remove_url }}">Remove Manager</a>
+				{% endif %}
 			</div>	
 		{% endfor %}
 		</div>

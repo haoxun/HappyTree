@@ -38,15 +38,14 @@ def show_models(request):
                 try:
                     val = getattr(instance, field)
                 except:
-                    val = "None"
+                    val = None
                 # deal with many-to-many, many-to-one situation
                 if val.__class__.__name__ == 'ManyRelatedManager':
-                    related_instances = [cgi.escape(unicode(related_instance)) \
+                    related_instances = [cgi.escape(repr(related_instance)) \
                                             for related_instance in val.all()]
                     val = "<br/>".join(related_instances)
-
                 else:
-                    val = cgi.escape(unicode(val))
+                    val = cgi.escape(repr(val))
                 printed_instance.append(val)
             printed_objects.append("".join(map(wrap_sth('td'),
                                                printed_instance)))

@@ -187,6 +187,10 @@ def show_group_management(request, group_info_id):
     for name, remove_url in group_manager.items():
         if name in group_user:
             group_user[name] = None
+    # forbid remove if there's only one manager in the group
+    if len(group_manager) == 1:
+        for name in group_manager:
+            group_manager[name] = None
 
     # rendering    
     render_data_dict = {

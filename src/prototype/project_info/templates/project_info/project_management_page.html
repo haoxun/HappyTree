@@ -1,0 +1,67 @@
+{% extends 'base_with_navigation.html' %}
+{% block content %}
+	<div id="link_to_project_page">
+		<a href={% url 'project_page' project_info_id=project_info_id %}>To Project Page</a>
+	</div>
+
+	<div id="project_basic_info">
+		<div id="modify_project_name">
+		<h2>Modify Project Name</h2>
+		<form method="post" action={% url 'project_management_page' project_info_id=project_info_id %}>
+			{% csrf_token %}
+			{{form_project_name.as_p}}
+			<input type="submit" value="Submit" />
+		</form>	
+		</div>
+		<div id="modify_project_name">
+		<h2>Modify Project Name</h2>
+		<form method="post" action={% url 'project_management_page' project_info_id=project_info_id %}>
+			{% csrf_token %}
+			{{form_project_description.as_p}}
+			<input type="submit" value="Submit" />
+		</form>	
+		</div>
+		
+	</div>
+	<div id=groups>
+		{% comment %} 
+		<div id="super_group">
+			<h2>Super Group</h2>
+			<div>
+				{% for name, group_info_id in super_group.iterms %}
+				<p><a href={% url 'group_page' group_info_id=group_info_id %}>{{name}}</a></p>
+				{% endfor %}
+			</div>
+		</div>
+		<div id="default_group">
+			<h2>Default Group</h2>
+			<div>
+				{% for name, group_info_id in default_group.iterms %}
+				<p><a href={% url 'group_page' group_info_id=group_info_id %}>{{name}}</a></p>
+				{% endfor %}
+			</div>
+		</div>
+		{% endcomment %} 
+		<div id="remove_group">
+			<h2>Normal Group List</h2>
+			{% if project_normal_group %}
+			<ul>
+				{% for manager, group_info_id in project_normal_group.items %}
+					<li><a href={% url 'group_page' group_info_id=group_info_id %}>{{manager}}</a></li>	
+				{% endfor %}
+			</ul>
+			{% else %}
+				<h3>There's no attending group.</h3>
+			{% endif %}
+
+		</div>
+		<div id="add_user">
+			<h2>Add Group</h2>
+			<form method="post" action={% url 'project_management_page' project_info_id=project_info_id %}>
+				{% csrf_token %}
+				{{form_add_group.as_p}}
+				<input type="submit" value="Submit" />
+			</form>	
+		</div>
+	</div>
+{% endblock %}

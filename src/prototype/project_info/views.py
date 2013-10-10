@@ -9,7 +9,8 @@ from user_status.models import UserInfo
 from project_info.models import ProjectInfo
 from group_info.models import GroupInfo
 
-from .forms import ProjectNameHandlerForm, ProjectDescriptionHandlerForm
+from .forms import ProjectNameHandlerForm, ProjectDescriptionHandlerForm, \
+                   AddGroupForm
 from .decorators import require_user_in_project_group
 
 @login_required
@@ -59,6 +60,7 @@ def show_project_page(request, project_info_id):
     render_data_dict = {
             'project_name': project_info.name,
             'project_description': project_info.project_description,
+            'project_info_id': project_info_id,
             'project_manager_group': display_super_group,
             'project_normal_group': display_normal_group,
             'is_manager_user': is_manager_user,
@@ -133,6 +135,57 @@ def create_project(request):
 @login_required
 @require_user_in_project_group(group_type='super_group', flag=True)
 def show_project_management_page(request, project_info_id):
-    pass
+    project_info_id = int(project_info_id)
+    project_info = ProjectInfo.objects.get(id=project_info_id)
+
+    if request.method == 'POST':
+        form_project_name = ProjectNameHandlerForm(request.POST)
+        form_project_description = ProjectDescriptionHandlerForm(request.POST)
+        form_add_group = AddGroupForm(request.POST)
+        
+        if form_project_name.is_valid():
+            project_name = form_project_name.cleaned_data['project_name']
+            project_info.name = project_name
+            project_info.save()
+            return redirect('project_management_page',
+                            project_info_id=project_info_id)
+        if form_project_description.is_valid() \
+                and 'project_description' in request.POST:
+            project_description = \
+                    form_project_description.cleaned_data['project_description']
+            project_info.project_description = project_description
+            project_info.save()
+            return redirect('project_management_page',
+                            project_info_id=project_info_id)
+        if form_add_group.is_valid():
+            group_name = form_add_group.cleaned_data['group_name']
+            group = Group.objects.get(name=group_name)
+            group_info = GroupInfo.objects.get(group=group)
+            project_info.normal_group.add(group_info)
+            return redirect('project_management_page',
+                            project_info_id=project_info_id)
+        
+    else:
+        form_project_name = ProjectNameHandlerForm()
+        form_project_description = ProjectDescriptionHandlerForm()
+        form_add_group = AddGroupForm()
+        
+    # rendering
+    display_project_normal_group = \
+            {group_info.group.name:group_info.id \
+                for group_info in project_info.normal_group.all() \
+                    if group_info.real_group}
+    render_data_dict = {
+            'form_project_name': form_project_name,
+            'form_project_description': form_project_description,
+            'form_add_group': form_add_group,
+            'project_normal_group': display_project_normal_group,       
+            'project_info_id': project_info_id,
+    }
+    return render(request,
+                  'project_info/project_management_page.html',
+                  render_data_dict)
+
+
     
 
