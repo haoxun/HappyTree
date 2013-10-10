@@ -21,7 +21,9 @@
 		{% for user, remove_url in group_user.items %}
 			<div>
 				<div>{{user}}</div>
+				{% if remove_url %}
 				<a href="{{ remove_url }}">Remove User</a>
+				{% endif %}
 			</div>	
 		{% endfor %}
 		</div>

@@ -12,7 +12,8 @@ from group_info.models import GroupInfo
 from .forms import GroupNameHandlerForm, GroupDescriptionHandlerForm, AddUserForm
 from .utils import url_with_querystring, check_user_in_group_manager, \
                    extract_from_GET
-from .decorators import require_user_in_group_with_actor, set_group_info_id_from_GET_to_kwargs
+from .decorators import require_user_in_group_with_actor, \
+                        set_group_info_id_from_GET_to_kwargs
 
 @login_required
 def create_group(request):
@@ -182,6 +183,11 @@ def show_group_management(request, group_info_id):
         group_user[normal_user.username] = url_with_querystring(
                                                 remove_user_url,
                                                 **query)
+    # exclusive operation
+    for name, remove_url in group_manager.items():
+        if name in group_user:
+            group_user[name] = None
+
     # rendering    
     render_data_dict = {
             'form_group_name': form_group_name,            
