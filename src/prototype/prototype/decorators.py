@@ -15,12 +15,6 @@ def add_data_from_GET_to_kwargs(*args):
     return _wrap
 
 def require_user_in(judge_func, id_name, info):
-    """
-    .filter(username=request.user.username)) is the key method.
-
-    Usage Example: 
-    from group_info.models import GroupInfo
-    """
     # filter method
     def _wrap(func):
         @wraps(func)
