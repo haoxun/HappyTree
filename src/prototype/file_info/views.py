@@ -2,7 +2,7 @@
 
 # remember, always include project info id.
 
-from .forms import FileUploadForm
+from .forms import FileUploadForm, PermChoiceForm
 from django.shortcuts import render, redirect, get_object_or_404
 
 from django.contrib.auth.decorators import login_required
@@ -26,33 +26,45 @@ def create_message(request, project_info_id, message_id):
         message = get_object_or_404(Message, 
                                     project_info=project_info,
                                     id=message_id)
+    # generate uploaded file list
+
     # process form
     if request.method == 'POST':
-        form = FileUploadForm(request.POST, request.FILES)
-        if form.is_valid():
+        file_upload_form = FileUploadForm(request.POST, request.FILES)
+        perm_choice_form = PermChoiceForm(request.POST)
+
+        if file_upload_form.is_valid() and perm_choice_form.is_valid():
             uploaded_file = request.FILES['uploaded_file']
-            file_info = FileInfo(owner_perm=3,
-                                 group_perm=3,
-                                 everyone_perm=3)
+            owner_perm = perm_choice_form.cleaned_data['owner_perm']
+            group_perm = perm_choice_form.cleaned_data['group_perm']
+            everyone_perm = perm_choice_form.cleaned_data['everyone_perm']
+
+            file_info = FileInfo(owner_perm=owner_perm,
+                                 group_perm=group_perm,
+                                 everyone_perm=everyone_perm)
             file_info.file.save(uploaded_file.name, uploaded_file)
             file_info.owner.add(request.user)
             message.file_info.add(file_info)
-
-            return render(request,
-                          'file_info/create_message_page.html',
-                          {
-                              'project_info_id': int(project_info_id),
-                              'form': form,
-                              'message_id': message.id,
-                              })
+        return redirect('create_message_page',
+                        project_info_id=project_info_id,
+                        message_id=message.id)
     else:
-        form = FileUploadForm()
+        file_upload_form = FileUploadForm()
+        perm_choice_form = PermChoiceForm(initial={
+                    'owner_perm': FileInfo.READ_AND_WRITE, 
+                    'everyone_perm': FileInfo.READ, 
+                    'group_perm': FileInfo.READ
+                    })
+
+    # rendering
+    render_data_dict = {
+            'project_info_id': int(project_info_id),
+            'file_upload_form': file_upload_form,
+            'perm_choice_form': perm_choice_form,
+            'message_id': message.id,
+    }
     return render(request,
                   'file_info/create_message_page.html',
-                  {
-                    'project_info_id': int(project_info_id),
-                    'form': form,
-                    'message_id': message.id,
-                    })
+                  render_data_dict)
 
 

@@ -8,7 +8,8 @@
 	<div id="file_upload">
 		<form enctype="multipart/form-data" method="post" action={% url 'create_message_page' project_info_id=project_info_id message_id=message_id%}>
 			{% csrf_token %}
-			{{form.as_p}}
+			{{file_upload_form.as_p}}
+			{{perm_choice_form.as_p}}
 			<input type="submit" value="Submit" />
 		</form>	
 	</div>
