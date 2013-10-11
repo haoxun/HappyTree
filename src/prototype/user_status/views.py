@@ -20,14 +20,15 @@ def show_models(request):
     from django.contrib.auth.models import User, Group
     from user_status.models import UserInfo
     from group_info.models import GroupInfo
-    from project_info.models import ProjectInfo
+    from project_info.models import ProjectInfo, Message
+    from file_info.models import FileInfo
     def wrap_sth(sth, foot=None):
         if foot == None:
             foot = sth
         def _wrap(target):
             return "<{0}>{1}</{2}>".format(sth, unicode(target), foot)
         return _wrap
-    model_set = [User, Group, UserInfo, GroupInfo, ProjectInfo]
+    model_set = [User, Group, UserInfo, GroupInfo, ProjectInfo, Message, FileInfo]
     printed_models = []
     for model in model_set:
         field_set = model._meta.get_all_field_names()
@@ -38,9 +39,12 @@ def show_models(request):
                 try:
                     val = getattr(instance, field)
                 except:
-                    val = None
+                    try:
+                        val = getattr(instance, field + '_set')
+                    except:
+                        val = None
                 # deal with many-to-many, many-to-one situation
-                if val.__class__.__name__ == 'ManyRelatedManager':
+                if val.__class__.__name__ in ['ManyRelatedManager', 'RelatedManager']:
                     related_instances = [cgi.escape(repr(related_instance)) \
                                             for related_instance in val.all()]
                     val = "<br/>".join(related_instances)
