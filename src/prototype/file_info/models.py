@@ -2,12 +2,18 @@ from django.db import models
 from django.contrib.auth.models import User
 # Create your models here.
 
+class UniqueFile(models.Model):
+    file = models.FileField(upload_to='test_upload')
+    md5 = models.CharField(max_length=32)
+
 class FileInfo(models.Model):
     NONE = 'N'
     READ = 'R'
     READ_AND_WRITE = 'R&W'
+    
+    file_name = models.CharField(max_length=200)
+    unique_file = models.ForeignKey(UniqueFile)
 
-    file = models.FileField(upload_to='test_upload')
     
     # permission field
     # NONE for none permission
@@ -20,3 +26,5 @@ class FileInfo(models.Model):
     # relationship
     owner = models.ManyToManyField(User)
     # project_set
+
+

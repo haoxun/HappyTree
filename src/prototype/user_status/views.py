@@ -21,14 +21,14 @@ def show_models(request):
     from user_status.models import UserInfo
     from group_info.models import GroupInfo
     from project_info.models import ProjectInfo, Message
-    from file_info.models import FileInfo
+    from file_info.models import FileInfo, UniqueFile
     def wrap_sth(sth, foot=None):
         if foot == None:
             foot = sth
         def _wrap(target):
             return "<{0}>{1}</{2}>".format(sth, unicode(target), foot)
         return _wrap
-    model_set = [User, Group, UserInfo, GroupInfo, ProjectInfo, Message, FileInfo]
+    model_set = [User, Group, UserInfo, GroupInfo, ProjectInfo, Message, FileInfo, UniqueFile]
     printed_models = []
     for model in model_set:
         field_set = model._meta.get_all_field_names()

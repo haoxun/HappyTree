@@ -7,7 +7,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from django.contrib.auth.decorators import login_required
 from project_info.models import ProjectInfo, Message
-from file_info.models import FileInfo
+from file_info.models import FileInfo, UniqueFile
+
+from .utils import gen_MD5_of_UploadedFile
 
 
 @login_required
@@ -39,11 +41,24 @@ def create_message(request, project_info_id, message_id):
             group_perm = perm_choice_form.cleaned_data['group_perm']
             everyone_perm = perm_choice_form.cleaned_data['everyone_perm']
 
-            file_info = FileInfo(owner_perm=owner_perm,
+            # check unique
+            md5 = gen_MD5_of_UploadedFile(uploaded_file)
+            unique_file = UniqueFile.objects.filter(md5=md5)
+            if not unique_file:
+                unique_file = UniqueFile(md5=md5)
+                unique_file.save()
+                unique_file.file.save(md5, uploaded_file)
+            else:
+                unique_file = unique_file[0]
+            file_info = FileInfo(file_name=uploaded_file.name,
+                                 owner_perm=owner_perm,
                                  group_perm=group_perm,
-                                 everyone_perm=everyone_perm)
-            file_info.file.save(uploaded_file.name, uploaded_file)
+                                 everyone_perm=everyone_perm,
+                                 unique_file=unique_file)
+            file_info.save()
             file_info.owner.add(request.user)
+
+            unique_file.fileinfo_set.add(file_info)
             message.file_info.add(file_info)
         return redirect('create_message_page',
                         project_info_id=project_info_id,
