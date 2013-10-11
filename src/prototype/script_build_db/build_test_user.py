@@ -18,3 +18,4 @@ uinfo1.save()
 uinfo2.save()
 uinfo3.save()
 
+print 'finish building'

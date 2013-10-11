@@ -22,6 +22,8 @@ class ProjectInfo(models.Model):
 class Message(models.Model):
     title = models.CharField(max_length=50)
     description = models.CharField(max_length=500)
+    post_time = models.DateTimeField(auto_now=True)
+    post_flag = models.BooleanField(default=False)
     # relation
     creator = models.ForeignKey(User)
     project_info = models.ForeignKey(ProjectInfo)
