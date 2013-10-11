@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 # remember, always include project info id.
 
-from .forms import FileUploadForm, PermChoiceForm
+from .forms import FileUploadForm, PermChoiceForm, MessageInfoForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
@@ -44,6 +44,15 @@ def create_message(request, project_info_id, message_id):
     if request.method == 'POST':
         file_upload_form = FileUploadForm(request.POST, request.FILES)
         perm_choice_form = PermChoiceForm(request.POST)
+        message_info_form = MessageInfoForm(request.POST)
+
+        if message_info_form.is_valid():
+            message.title = message_info_form.cleaned_data['title']
+            message.description = message_info_form.cleaned_data['description']
+            message.post_flag = True
+            message.save()
+            
+            # redirect to somewhere
 
         if file_upload_form.is_valid() and perm_choice_form.is_valid():
             uploaded_file = request.FILES['uploaded_file']
@@ -80,6 +89,7 @@ def create_message(request, project_info_id, message_id):
                     'everyone_perm': FileInfo.READ, 
                     'group_perm': FileInfo.READ
                     })
+        message_info_form = MessageInfoForm()
 
     # rendering
     # generate uploaded file list
@@ -92,6 +102,7 @@ def create_message(request, project_info_id, message_id):
             'project_info_id': int(project_info_id),
             'file_upload_form': file_upload_form,
             'perm_choice_form': perm_choice_form,
+            'post_message_form': message_info_form,
             'message_id': message.id,
             'file_info_list': display_file_info,
     }

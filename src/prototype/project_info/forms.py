@@ -13,9 +13,10 @@ class ProjectNameHandlerForm(forms.Form):
                                    max_length=50, 
                                    min_length=3)
     def clean(self):
+        if 'project_name_submit' not in self.data \
+                and 'create_project_submit' not in self.data:
+            raise forms.ValidationError('Not Being Submitted')
         project_name = self.cleaned_data.get('project_name', None)
-        if project_name == None:
-            return
         if ProjectInfo.objects.filter(name=project_name):
             # duplicate
             raise forms.ValidationError(
@@ -26,6 +27,13 @@ class ProjectNameHandlerForm(forms.Form):
 class ProjectDescriptionHandlerForm(forms.Form):
     project_description = forms.CharField(required=False,
                                           max_length=5000)
+    def clean(self):
+        if 'project_description_submit' not in self.data \
+                and 'create_project_submit' not in self.data:
+            raise forms.ValidationError('Not Being Submitted')
+        return self.cleaned_data
+
+
 
 class AddGroupForm(forms.Form):
     error_message = {
@@ -36,9 +44,9 @@ class AddGroupForm(forms.Form):
     group_name = forms.CharField(required=True)
     
     def clean(self):
+        if 'add_group_submit' not in self.data:
+            raise forms.ValidationError('Not Being Submitted')
         group_name = self.cleaned_data.get('group_name', None)
-        if group_name == None:
-            return
         if group_name.startswith('[system][normal_group]') \
                 or group_name.startswith('[system][normal_group]'):
             raise forms.ValidationError(

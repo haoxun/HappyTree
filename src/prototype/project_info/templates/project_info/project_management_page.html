@@ -10,15 +10,15 @@
 		<form method="post" action={% url 'project_management_page' project_info_id=project_info_id %}>
 			{% csrf_token %}
 			{{form_project_name.as_p}}
-			<input type="submit" value="Submit" />
+			<input type="submit" name="project_name_submit" value="Submit" />
 		</form>	
 		</div>
 		<div id="modify_project_name">
-		<h2>Modify Project Name</h2>
+		<h2>Modify Project Description</h2>
 		<form method="post" action={% url 'project_management_page' project_info_id=project_info_id %}>
 			{% csrf_token %}
 			{{form_project_description.as_p}}
-			<input type="submit" value="Submit" />
+			<input type="submit" name="project_description_submit" value="Submit" />
 		</form>	
 		</div>
 		
@@ -61,7 +61,7 @@
 			<form method="post" action={% url 'project_management_page' project_info_id=project_info_id %}>
 				{% csrf_token %}
 				{{form_add_group.as_p}}
-				<input type="submit" value="Submit" />
+				<input type="submit" name="add_group_submit" value="Submit" />
 			</form>	
 		</div>
 	</div>

@@ -160,8 +160,9 @@ def show_project_management_page(request, project_info_id):
             project_info.save()
             return redirect('project_management_page',
                             project_info_id=project_info_id)
-        if form_project_description.is_valid() \
-                and 'project_description' in request.POST:
+        #if form_project_description.is_valid() \
+        #        and 'project_description' in request.POST:
+        if form_project_description.is_valid():
             project_description = \
                     form_project_description.cleaned_data['project_description']
             project_info.project_description = project_description

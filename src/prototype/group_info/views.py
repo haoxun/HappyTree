@@ -132,8 +132,7 @@ def show_group_management(request, group_info_id):
                             group_info_id=group_info_id)
 
         # deal with the situation of empty description
-        if form_group_description.is_valid() \
-                and 'group_description' in request.POST: 
+        if form_group_description.is_valid():
             # add user
             group_description = \
                     form_group_description.cleaned_data['group_description']

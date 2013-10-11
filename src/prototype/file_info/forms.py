@@ -5,6 +5,12 @@ from .models import FileInfo
 class FileUploadForm(forms.Form):
     uploaded_file = forms.FileField()
 
+    def clean(self):
+        if 'file_upload_submit' not in self.data:
+            raise forms.ValidationError("Not Being Submit")
+        return self.cleaned_data
+            
+
 class PermChoiceForm(forms.Form):
     NONE = FileInfo.NONE
     NONE_NAME = "Can not Read and Write"
@@ -25,3 +31,19 @@ class PermChoiceForm(forms.Form):
                                    choices=CHOICE)
     everyone_perm = forms.ChoiceField(
                                       choices=CHOICE)
+    def clean(self):
+        if 'file_upload_submit' not in self.data:
+            raise forms.ValidationError("Not Being Submit")
+        return self.cleaned_data
+
+
+class MessageInfoForm(forms.Form):
+    title = forms.CharField(required=False,
+                            max_length=50)
+    description = forms.CharField(required=False,
+                                  max_length=500)
+    def clean(self):
+        if 'post_message_submit' not in self.data:
+            raise forms.ValidationError("Not Being Submit")
+        return self.cleaned_data
+

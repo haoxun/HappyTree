@@ -13,9 +13,10 @@ class GroupNameHandlerForm(forms.Form):
                                  min_length=3)
     def clean(self):
         # following pattern is reservered for group structure of project.
+        if 'group_name_submit' not in self.data \
+                and 'create_group_submit' not in self.data:
+            raise forms.ValidationError("Not Being Submit")
         group_name = self.cleaned_data.get('group_name', None)
-        if group_name == None:
-            return
         if group_name.startswith('[system][normal_group]') \
                 or group_name.startswith('[system][normal_group]'):
             raise forms.ValidationError(
@@ -31,6 +32,12 @@ class GroupNameHandlerForm(forms.Form):
 class GroupDescriptionHandlerForm(forms.Form):
     group_description = forms.CharField(required=False,
                                         max_length=5000)
+
+    def clean(self):
+        if 'group_description_submit' not in self.data \
+                and 'create_group_submit' not in self.data:
+            raise forms.ValidationError('Not Being Submitted')
+        return self.cleaned_data
 
 
 class AddUserForm(forms.Form):

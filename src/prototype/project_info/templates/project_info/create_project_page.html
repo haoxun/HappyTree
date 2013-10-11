@@ -5,7 +5,7 @@
 			{% csrf_token %}
 			{{form_project_name.as_p}}
 			{{form_project_description.as_p}}
-			<input type="submit" value="Submit" />
+			<input type="submit" name="create_project_submit" value="Submit" />
 		</form>	
 	</div>
 {% endblock %}
