@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.db import models
 
 from file_info.models import FileInfo
@@ -15,7 +16,7 @@ class ProjectInfo(models.Model):
                                           related_name='super_in_project')
 
     def __unicode__(self):
-        return u'{}'.format(self.name)
+        return '{}'.format(self.name)
 
 class Message(models.Model):
     title = models.CharField(max_length=50)
@@ -25,6 +26,6 @@ class Message(models.Model):
     file_info = models.ManyToManyField(FileInfo)
     
     def __unicode__(self):
-        return u'{}'.format(self.id)
+        return '{}'.format(self.id)
 
 

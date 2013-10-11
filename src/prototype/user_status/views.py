@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # Create your views here.
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
@@ -45,11 +46,11 @@ def show_models(request):
                         val = None
                 # deal with many-to-many, many-to-one situation
                 if val.__class__.__name__ in ['ManyRelatedManager', 'RelatedManager']:
-                    related_instances = [cgi.escape(repr(related_instance)) \
+                    related_instances = [cgi.escape(unicode(related_instance)) \
                                             for related_instance in val.all()]
                     val = "<br/>".join(related_instances)
                 else:
-                    val = cgi.escape(repr(val))
+                    val = cgi.escape(unicode(val))
                 printed_instance.append(val)
             printed_objects.append("".join(map(wrap_sth('td'),
                                                printed_instance)))

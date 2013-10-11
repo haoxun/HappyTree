@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 import urllib
 from django.http import Http404
 

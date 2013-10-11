@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import User
 # Create your models here.
@@ -5,6 +6,9 @@ from django.contrib.auth.models import User
 class UniqueFile(models.Model):
     file = models.FileField(upload_to='test_upload')
     md5 = models.CharField(max_length=32)
+
+    def __unicode__(self):
+        return '{}'.format(self.id)
 
 class FileInfo(models.Model):
     NONE = 'N'
@@ -26,5 +30,8 @@ class FileInfo(models.Model):
     # relationship
     owner = models.ManyToManyField(User)
     # project_set
+
+    def __unicode__(self):
+        return '{}'.format(self.file_name)
 
 

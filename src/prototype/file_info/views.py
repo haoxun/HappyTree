@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # Create your views here.
 
 # remember, always include project info id.
@@ -50,6 +51,7 @@ def create_message(request, project_info_id, message_id):
                 unique_file.file.save(md5, uploaded_file)
             else:
                 unique_file = unique_file[0]
+            # save file info
             file_info = FileInfo(file_name=uploaded_file.name,
                                  owner_perm=owner_perm,
                                  group_perm=group_perm,
@@ -58,7 +60,7 @@ def create_message(request, project_info_id, message_id):
             file_info.save()
             file_info.owner.add(request.user)
 
-            unique_file.fileinfo_set.add(file_info)
+            #unique_file.fileinfo_set.add(file_info)
             message.file_info.add(file_info)
         return redirect('create_message_page',
                         project_info_id=project_info_id,

@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # Create your views here.
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required

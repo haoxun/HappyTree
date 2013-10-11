@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import Group, User
 
@@ -19,4 +20,4 @@ class GroupInfo(models.Model):
     # super_in_project
 
     def __unicode__(self):
-        return u'{}'.format(self.group)
+        return '{}'.format(self.group)

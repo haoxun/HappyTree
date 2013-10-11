@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 # code
 import os
 cur_path = os.getcwd()
