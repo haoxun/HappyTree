@@ -2,7 +2,7 @@
 import os
 cur_path = os.getcwd()
 sqlite3_db_path = os.path.join(cur_path, 'sqlite3_db')
-media_root_path = os.path.join(cur_path, 'uploaded_file')
+media_root_path = os.path.join(cur_path, 'upload_file')
 # endcode
 
 # Django settings for prototype project.
@@ -62,7 +62,7 @@ MEDIA_ROOT = media_root_path
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://example.com/media/", "http://media.example.com/"
-MEDIA_URL = 'uploaded/'
+MEDIA_URL = 'media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files

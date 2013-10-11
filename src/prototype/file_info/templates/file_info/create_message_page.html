@@ -1,6 +1,10 @@
 
 {% extends 'base_with_navigation.html' %}
 {% block content %}
+	<div id="show_file_list">
+
+	</div>
+
 	<div id="file_upload">
 		<form enctype="multipart/form-data" method="post" action={% url 'create_message_page' project_info_id=project_info_id message_id=message_id%}>
 			{% csrf_token %}

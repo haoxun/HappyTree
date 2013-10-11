@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from django.contrib.auth.decorators import login_required
 from project_info.models import ProjectInfo, Message
+from file_info.models import FileInfo
 
 
 @login_required
@@ -25,11 +26,18 @@ def create_message(request, project_info_id, message_id):
         message = get_object_or_404(Message, 
                                     project_info=project_info,
                                     id=message_id)
-                                    
+    # process form
     if request.method == 'POST':
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            print request.FILES['uploaded_file'].read()
+            uploaded_file = request.FILES['uploaded_file']
+            file_info = FileInfo(owner_perm=3,
+                                 group_perm=3,
+                                 everyone_perm=3)
+            file_info.file.save(uploaded_file.name, uploaded_file)
+            file_info.owner.add(request.user)
+            message.file_info.add(file_info)
+
             return render(request,
                           'file_info/create_message_page.html',
                           {

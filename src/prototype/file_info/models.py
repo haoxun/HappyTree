@@ -1,9 +1,9 @@
 from django.db import models
-from user_status.models import UserInfo
+from django.contrib.auth.models import User
 # Create your models here.
 
 class FileInfo(models.Model):
-    file = models.FileField(upload_to='%Y/%m/%d')
+    file = models.FileField(upload_to='test_upload')
     
     # permission field
     # 0 for none permission
@@ -14,5 +14,5 @@ class FileInfo(models.Model):
     everyone_perm = models.SmallIntegerField()
     
     # relationship
-    owner = models.OneToOneField(UserInfo)
+    owner = models.ManyToManyField(User)
     # project_set
