@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from django.db import models
 
+from django.contrib.auth.models import User
 from file_info.models import FileInfo
 from group_info.models import GroupInfo
 
@@ -22,6 +23,7 @@ class Message(models.Model):
     title = models.CharField(max_length=50)
     description = models.CharField(max_length=500)
     # relation
+    creator = models.ForeignKey(User)
     project_info = models.ForeignKey(ProjectInfo)
     file_info = models.ManyToManyField(FileInfo)
     

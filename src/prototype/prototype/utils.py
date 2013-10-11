@@ -12,6 +12,8 @@ def extract_from_GET(GET, *args):
     return extract_list
 
 def recursive_get_attr(obj, attrs):
+    if attrs == (None,):
+        return obj
     for attr in attrs:
         obj = getattr(obj, attr)
     return obj

@@ -16,8 +16,6 @@ class FileInfo(models.Model):
     READ_AND_WRITE = 'R&W'
     
     file_name = models.CharField(max_length=200)
-    unique_file = models.ForeignKey(UniqueFile)
-
     
     # permission field
     # NONE for none permission
@@ -29,6 +27,7 @@ class FileInfo(models.Model):
     
     # relationship
     owner = models.ManyToManyField(User)
+    unique_file = models.ForeignKey(UniqueFile)
     # project_set
 
     def __unicode__(self):

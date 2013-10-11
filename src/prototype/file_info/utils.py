@@ -9,3 +9,6 @@ def gen_MD5_of_UploadedFile(file):
         if not data:
             return m.hexdigest()
         m.update(data)
+
+def message_judge_func(message, request):
+    return message.creator == request.user
