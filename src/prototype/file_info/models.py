@@ -31,6 +31,6 @@ class FileInfo(models.Model):
     # project_set
 
     def __unicode__(self):
-        return '{}'.format(self.file_name)
+        return '{}'.format(self.id)
 
 

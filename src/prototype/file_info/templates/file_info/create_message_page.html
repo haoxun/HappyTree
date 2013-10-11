@@ -2,6 +2,18 @@
 {% extends 'base_with_navigation.html' %}
 {% block content %}
 	<div id="show_file_list">
+		<h2>Uploaded File</h2>
+		{% if file_info_list %}
+			{% for file_info_id, file_info_name in file_info_list.items %}
+				<div id="file_info">
+					<p>{{file_info_name}}</p>
+					<a href={% url 'delete_file_from_message' project_info_id=project_info_id message_id=message_id file_info_id=file_info_id%}>Remove</a>
+				</div>
+			{% endfor %}
+
+		{% else %}
+			<h3>No Uploaded File</h3>
+		{% endif %}
 
 	</div>
 

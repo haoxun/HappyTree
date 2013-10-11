@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 from .forms import FileUploadForm, PermChoiceForm
 from django.shortcuts import render, redirect, get_object_or_404
-
+from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from project_info.models import ProjectInfo, Message
 from file_info.models import FileInfo, UniqueFile
@@ -39,9 +39,7 @@ def create_message(request, project_info_id, message_id):
         message = get_object_or_404(Message, 
                                     project_info=project_info,
                                     id=message_id)
-    # generate uploaded file list
     
-
     # process form
     if request.method == 'POST':
         file_upload_form = FileUploadForm(request.POST, request.FILES)
@@ -84,11 +82,18 @@ def create_message(request, project_info_id, message_id):
                     })
 
     # rendering
+    # generate uploaded file list
+
+    # notice that file_name could be duplicate,
+    # so it can not be the key for dict.
+    display_file_info = {file_info.id: file_info.file_name\
+                                for file_info in message.file_info.all()}
     render_data_dict = {
             'project_info_id': int(project_info_id),
             'file_upload_form': file_upload_form,
             'perm_choice_form': perm_choice_form,
             'message_id': message.id,
+            'file_info_list': display_file_info,
     }
     return render(request,
                   'file_info/create_message_page.html',
