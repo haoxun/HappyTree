@@ -20,5 +20,7 @@ urlpatterns = patterns('',
         'file_info.views.delete_file_from_message',
         name='delete_file_from_message'),
     url(r'^init_message/$', 'file_info.views.create_message', {'message_id': None}, name='init_message_page'),
+    url(r'^message_list/$', 'file_info.views.show_project_related_message', name='project_message_page'),
+    url(r'^download_file/(?P<file_info_id>\d+)/$', 'file_info.views.download_file', name='download_file'),
 )
 

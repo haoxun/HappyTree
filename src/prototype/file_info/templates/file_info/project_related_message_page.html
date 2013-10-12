@@ -1,0 +1,35 @@
+
+{% extends 'base_with_navigation.html' %}
+{% block content %}
+<div id="message_list">
+	<h1>Message List</h1>
+{% if message_list %}
+	{% for message in message_list %}
+	<div id="message">
+		<div id="message_info">
+			<h2 id="message_title">Message Title: {{message.title}}</h1>
+			<h2 id="message_description">Description: {{message.description}}</h2>
+		</div>
+		<div id="show_file_list">
+			<h2>Contain File</h2>
+			{% if message.file_info_list %}
+				{% for file_info in message.file_info_list %}
+					<div id="file_info">
+						<p>{{file_info.name}}</p>
+						{% if file_info.downloadable %}
+						<a href={% url 'download_file' project_info_id=project_info_id file_info_id=file_info.id %}>Download</a>
+						{% endif %}
+					</div>
+				{% endfor %}
+			{% else %}
+				<h3>No Uploaded File</h3>
+			{% endif %}
+	
+		</div>
+	</div>
+	{% endfor %}
+{% else %}
+	<h2>There is no message</h2>
+{% endif %}
+</div>
+{% endblock %}

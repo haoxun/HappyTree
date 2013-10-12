@@ -5,16 +5,22 @@ from __future__ import unicode_literals
 
 from .forms import FileUploadForm, PermChoiceForm, MessageInfoForm
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import Http404
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from project_info.models import ProjectInfo, Message
 from file_info.models import FileInfo, UniqueFile
 
-from .utils import gen_MD5_of_UploadedFile, message_judge_func
+from .utils import gen_MD5_of_UploadedFile, message_judge_func, \
+                   judge_downloadable
 
 from prototype.decorators import require_user_in
 from prototype.utils import extract_from_GET, url_with_querystring
 from project_info.utils import judge_func as project_judge_func
+
+from django.http import HttpResponse
+from django.core.servers.basehttp import FileWrapper
+
 
 
 @login_required
@@ -139,7 +145,85 @@ def delete_file_from_message(
                     project_info_id=project_info_id,
                     message_id=message.id)
 
+@login_required
+@require_user_in(
+        project_judge_func,
+        'project_info_id', 
+        (ProjectInfo, True, ('normal_group',))
+)
+def show_project_related_message(request, project_info_id):
+    project_info_id = int(project_info_id)
+    project_info = get_object_or_404(ProjectInfo, id=project_info_id)
+    # extract message
+    display_message_list = []
+    for message in project_info.message_set.filter(post_flag=True):
+        display_message = {}
+        # text
+        display_message['title'] = message.title
+        display_message['description'] = message.description
+        # files
+        file_list = []
+        display_message['file_info_list'] = file_list
+        for file_info in message.file_info.all():
+            display_file_info = {}
+            display_file_info['id'] = file_info.id
+            display_file_info['name'] = file_info.file_name
+            display_file_info['downloadable'] = judge_downloadable(file_info,
+                                                                   project_info,
+                                                                   request.user)
+            file_list.append(display_file_info)
+        display_message_list.append(display_message)
+    
+    render_data_dict = {
+            'message_list': display_message_list,
+            'project_info_id': project_info_id,
+    }
+    return render(request,
+                  'file_info/project_related_message_page.html',
+                  render_data_dict)
 
+# for content type detection
+from django.utils.http import urlencode
+import os
+import mimetypes
+mimetypes.init()
+# 
+@login_required
+@require_user_in(
+        project_judge_func,
+        'project_info_id', 
+        (ProjectInfo, True, ('normal_group',))
+)
+def download_file(request,
+                  project_info_id,
+                  file_info_id):
+    project_info_id = int(project_info_id)
+    file_info_id = int(file_info_id)
+    project_info = get_object_or_404(ProjectInfo, id=project_info_id)
+    file_info = get_object_or_404(FileInfo, id=file_info_id)
+    if judge_downloadable(file_info,
+                          project_info,
+                          request.user):
+        unique_file = file_info.unique_file
+        file_wrapper = FileWrapper(unique_file.file)
+        # get content type
+        # ugly code
+        # http://blog.robotshell.org/2012/deal-with-http-header-encoding-for-file-download/
+        file_name = file_info.file_name
+        encode_file_name = urlencode(((file_name, ''),)).rstrip('=')
+
+        content_type = os.path.splitext(file_name)[-1]
+        content_type = mimetypes.types_map.get(content_type,
+                                               'application/octet-stream')
+        response = HttpResponse(file_wrapper, 
+                                content_type=content_type)
+        response['Content-Disposition'] = \
+                        "attachment; filename={0}; filename*=utf-8''{0}".format(encode_file_name)
+        response['Content-Length'] = unique_file.file.size
+        return response
+    else:
+        raise Http404
+        
 
 
 
