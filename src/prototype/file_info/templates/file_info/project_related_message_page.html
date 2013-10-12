@@ -1,6 +1,15 @@
 
 {% extends 'base_with_navigation.html' %}
 {% block content %}
+
+
+<a href={% url 'project_page' project_info_id=project_info_id %}>To Project Group Page</a>
+<div id="project_info">
+	<h1 id="project_name">Project Name: {{project_name}}</h1>
+	<h2 id="project_description">Description: {{project_description}}</h2>
+	<a href={% url 'init_message_page' project_info_id=project_info_id %}>Create Message</a>
+</div>
+
 <div id="message_list">
 	<h1>Message List</h1>
 {% if message_list %}

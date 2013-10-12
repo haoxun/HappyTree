@@ -10,7 +10,7 @@
 			{% if display_project_act_as_manager %}
 			<ul>
 				{% for project_info_id, project_name in display_project_act_as_manager.items %}
-					<li><a href={% url 'project_page' project_info_id=project_info_id %}>{{project_name}}</a></li>
+					<li><a href={% url 'project_message_page' project_info_id=project_info_id %}>{{project_name}}</a></li>
 				{% endfor %}
 			</ul>
 			{% else %}
@@ -24,7 +24,7 @@
 			{% if display_project_act_as_normaluser %}
 			<ul>
 				{% for project_info_id, project_name in display_project_act_as_normaluser.items %}
-					<li><a href={% url 'project_page' project_info_id=project_info_id %}>{{project_name}}</a></li>
+					<li><a href={% url 'project_message_page' project_info_id=project_info_id %}>{{project_name}}</a></li>
 				{% endfor %}
 			</ul>
 			{% else %}

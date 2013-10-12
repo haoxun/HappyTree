@@ -12,7 +12,7 @@ from project_info.models import ProjectInfo, Message
 from file_info.models import FileInfo, UniqueFile
 
 from .utils import gen_MD5_of_UploadedFile, message_judge_func, \
-                   judge_downloadable
+                   judge_downloadable, get_display_message_list
 
 from prototype.decorators import require_user_in
 from prototype.utils import extract_from_GET, url_with_querystring
@@ -155,28 +155,14 @@ def show_project_related_message(request, project_info_id):
     project_info_id = int(project_info_id)
     project_info = get_object_or_404(ProjectInfo, id=project_info_id)
     # extract message
-    display_message_list = []
-    for message in project_info.message_set.filter(post_flag=True):
-        display_message = {}
-        # text
-        display_message['title'] = message.title
-        display_message['description'] = message.description
-        # files
-        file_list = []
-        display_message['file_info_list'] = file_list
-        for file_info in message.file_info.all():
-            display_file_info = {}
-            display_file_info['id'] = file_info.id
-            display_file_info['name'] = file_info.file_name
-            display_file_info['downloadable'] = judge_downloadable(file_info,
-                                                                   project_info,
-                                                                   request.user)
-            file_list.append(display_file_info)
-        display_message_list.append(display_message)
-    
+    display_message_list = get_display_message_list(
+                                project_info.message_set.filter(post_flag=True),
+                                request.user)
     render_data_dict = {
             'message_list': display_message_list,
             'project_info_id': project_info_id,
+            'project_name': project_info.name,
+            'project_description': project_info.project_description,
     }
     return render(request,
                   'file_info/project_related_message_page.html',

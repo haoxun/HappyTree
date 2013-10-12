@@ -5,9 +5,47 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
+from django.contrib.auth.models import User, Group
+from user_status.models import UserInfo
+from group_info.models import GroupInfo
+
+from file_info.utils import get_display_message_list
+import operator
+
+
 @login_required
 def show_root(request):
-    return render(request, 'user_status/root.html', {'user': request.user})
+    # realted group
+    group_list = request.user.groups.all()
+    group_info_list = [group.groupinfo for group in group_list]
+    
+    # relate project
+    project_info_list = []
+    for group_info in group_info_list:
+       project_info_list.extend(group_info.normal_in_project.all())
+       project_info_list.extend(group_info.super_in_project.all())
+    # make unique
+    project_info_list = list(set(project_info_list))
+    
+    # extract message
+    message_set = []
+    for project_info in project_info_list:
+        message_set.extend(project_info.message_set.filter(post_flag=True))
+    message_set = sorted(message_set, 
+                         key=operator.attrgetter('post_time'), 
+                         reverse=True)
+    
+    display_message_list = get_display_message_list(message_set, request.user)
+
+    print display_message_list
+    # rendering
+    render_data_dict = {
+            'user': request.user,
+            'message_list': display_message_list,
+    }
+    return render(request, 
+                  'user_status/root.html', 
+                  render_data_dict)
 
 @login_required
 def logout_user(request):

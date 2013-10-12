@@ -22,5 +22,5 @@ urlpatterns = patterns('',
     url(r'^group_of_project/management/delete/$', 
         'project_info.views.delete_group_from_project', 
         name='delete_group_from_project'),
-    url(r'^(?P<project_info_id>\d+)/files/', include('file_info.urls')),
+    url(r'^(?P<project_info_id>\d+)/message/', include('file_info.urls')),
 )
