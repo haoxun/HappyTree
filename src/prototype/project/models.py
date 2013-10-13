@@ -30,7 +30,7 @@ class Message(models.Model):
     post_flag = models.BooleanField(default=False)
     # relation
     owner = models.OneToOneField(User)
-    project = models.ForeignKey(ProjectInfo)
+    project = models.ForeignKey(Project)
     
     def __unicode__(self):
         return '{}'.format(self.id)

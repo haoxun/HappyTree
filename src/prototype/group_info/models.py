@@ -16,8 +16,8 @@ class GroupInfo(models.Model):
     
     # relationship
     group = models.OneToOneField(Group)
-    manager = models.ManyToManyField(User)
-    owner = models.OneToOneField(User)
+    manager = models.ManyToManyField(User, related_name='manage_in_group')
+    owner = models.OneToOneField(User, related_name='owned_group')
 
     def __unicode__(self):
         return '{}'.format(self.group)
