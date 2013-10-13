@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from django.db import models
-from django.contrib.auth.models import User
+from project.models import Message
 # Create your models here.
 
 class UniqueFile(models.Model):
@@ -15,8 +15,8 @@ class FileInfo(models.Model):
     READ = 'R'
     READ_AND_WRITE = 'R&W'
     
-    file_name = models.CharField(max_length=200)
-    
+    # field
+    name = models.CharField(max_length=50)
     # permission field
     # NONE for none permission
     # READ for can ONLY read permission
@@ -26,7 +26,7 @@ class FileInfo(models.Model):
     everyone_perm = models.CharField(max_length=3)
     
     # relationship
-    owner = models.ManyToManyField(User)
+    message = models.ForeignKey(Message)
     unique_file = models.ForeignKey(UniqueFile)
     # project_set
 
