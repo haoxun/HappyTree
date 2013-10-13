@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from project_info.models import ProjectInfo, Message
+from project.models import Project, Message
 from file_info.models import FileInfo, UniqueFile
 
 from .utils import gen_MD5_of_UploadedFile, message_judge_func, \
@@ -16,7 +16,7 @@ from .utils import gen_MD5_of_UploadedFile, message_judge_func, \
 
 from prototype.decorators import require_user_in
 from prototype.utils import extract_from_GET, url_with_querystring
-from project_info.utils import judge_func as project_judge_func
+from project.utils import judge_in_project_func 
 
 from django.http import HttpResponse
 from django.core.servers.basehttp import FileWrapper
@@ -25,25 +25,26 @@ from django.core.servers.basehttp import FileWrapper
 
 @login_required
 @require_user_in(
-        project_judge_func,
-        'project_info_id', 
-        (ProjectInfo, True, ('normal_group',))
+        judge_in_project_func,
+        'project_id', 
+        (Project, True, (None,))
 )
-def create_message(request, project_info_id, message_id):
-    project_info_id = int(project_info_id)
-    project_info = get_object_or_404(ProjectInfo, id=project_info_id)
+def create_message(request, project_id, message_id):
+    project_id = int(project_id)
+    project = get_object_or_404(Project, id=project_id)
     if message_id == None:
         # create_message
-        message = Message(project_info=project_info,
-                          creator=request.user)
+        message = Message(project=project,
+                          owner=request.user)
         message.save()
         return redirect('create_message_page',
-                        project_info_id=project_info_id,
+                        project_id=project_id,
                         message_id=message.id)
     else:
         message_id = int(message_id)
         message = get_object_or_404(Message, 
-                                    project_info=project_info,
+                                    project=project,
+                                    owner=request.user,
                                     id=message_id)
     
     # process form
@@ -76,17 +77,16 @@ def create_message(request, project_info_id, message_id):
             else:
                 unique_file = unique_file[0]
             # save file info
-            file_info = FileInfo(file_name=uploaded_file.name,
+            file_info = FileInfo(name=uploaded_file.name,
                                  owner_perm=owner_perm,
                                  group_perm=group_perm,
                                  everyone_perm=everyone_perm,
-                                 unique_file=unique_file)
+                                 unique_file=unique_file,
+                                 message=message)
             file_info.save()
-            file_info.owner.add(request.user)
 
-            message.file_info.add(file_info)
         return redirect('create_message_page',
-                        project_info_id=project_info_id,
+                        project_id=project_id,
                         message_id=message.id)
     else:
         file_upload_form = FileUploadForm()
@@ -102,10 +102,10 @@ def create_message(request, project_info_id, message_id):
 
     # notice that file_name could be duplicate,
     # so it can not be the key for dict.
-    display_file_info = {file_info.id: file_info.file_name\
-                                for file_info in message.file_info.all()}
+    display_file_info = {file_info.id: file_info.name\
+                                for file_info in message.fileinfo_set.all()}
     render_data_dict = {
-            'project_info_id': int(project_info_id),
+            'project_id': int(project_id),
             'file_upload_form': file_upload_form,
             'perm_choice_form': perm_choice_form,
             'post_message_form': message_info_form,
@@ -124,45 +124,45 @@ def create_message(request, project_info_id, message_id):
         (Message, True, (None,))
 )
 def delete_file_from_message(
-        request, project_info_id, message_id,
+        request, project_id, message_id,
         file_info_id):
-    project_info_id = int(project_info_id)
+    project_id = int(project_id)
     message_id = int(message_id)
     file_info_id = int(file_info_id)
     message = get_object_or_404(Message, id=message_id)
-    file_info = get_object_or_404(message.file_info, id=file_info_id)
+    file_info = get_object_or_404(message.fileinfo_set, id=file_info_id)
 
+    unique_file = file_info.unique_file
     # once a ForeignKey is delete, 
     # its related entity will remove the link as well.
     file_info.delete()
 
     # judge to remove unique file
-    unique_file = file_info.unique_file
     if unique_file.fileinfo_set.count() == 0:
         unique_file.delete()
 
     return redirect('create_message_page',
-                    project_info_id=project_info_id,
+                    project_id=project_id,
                     message_id=message.id)
 
 @login_required
 @require_user_in(
-        project_judge_func,
-        'project_info_id', 
-        (ProjectInfo, True, ('normal_group',))
+        judge_in_project_func,
+        'project_id', 
+        (Project, True, (None,))
 )
-def show_project_related_message(request, project_info_id):
-    project_info_id = int(project_info_id)
-    project_info = get_object_or_404(ProjectInfo, id=project_info_id)
+def show_project_related_message(request, project_id):
+    project_id = int(project_id)
+    project = get_object_or_404(Project, id=project_id)
     # extract message
     display_message_list = get_display_message_list(
-                                project_info.message_set.filter(post_flag=True),
+                                project.message_set.filter(post_flag=True),
                                 request.user)
     render_data_dict = {
             'message_list': display_message_list,
-            'project_info_id': project_info_id,
-            'project_name': project_info.name,
-            'project_description': project_info.project_description,
+            'project_id': project_id,
+            'project_name': project.name,
+            'project_description': project.description,
     }
     return render(request,
                   'file_info/project_related_message_page.html',
@@ -176,26 +176,26 @@ mimetypes.init()
 # 
 @login_required
 @require_user_in(
-        project_judge_func,
-        'project_info_id', 
-        (ProjectInfo, True, ('normal_group',))
+        judge_in_project_func,
+        'project_id', 
+        (Project, True, (None,))
 )
 def download_file(request,
-                  project_info_id,
+                  project_id,
                   file_info_id):
-    project_info_id = int(project_info_id)
+    project_id = int(project_id)
     file_info_id = int(file_info_id)
-    project_info = get_object_or_404(ProjectInfo, id=project_info_id)
+    project = get_object_or_404(Project, id=project_id)
     file_info = get_object_or_404(FileInfo, id=file_info_id)
     if judge_downloadable(file_info,
-                          project_info,
+                          project,
                           request.user):
         unique_file = file_info.unique_file
         file_wrapper = FileWrapper(unique_file.file)
         # get content type
-        # ugly code
         # http://blog.robotshell.org/2012/deal-with-http-header-encoding-for-file-download/
-        file_name = file_info.file_name
+        file_name = file_info.name
+        # ugly code
         encode_file_name = urlencode(((file_name, ''),)).rstrip('=')
 
         content_type = os.path.splitext(file_name)[-1]

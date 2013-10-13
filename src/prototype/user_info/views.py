@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
 from django.contrib.auth.models import User, Group
-from user_status.models import UserInfo
+from user_info.models import UserInfo
 from group_info.models import GroupInfo
 
 from file_info.utils import get_display_message_list
@@ -16,35 +16,34 @@ import operator
 @login_required
 def show_root(request):
     # realted group
-    group_list = request.user.groups.all()
-    group_info_list = [group.groupinfo for group in group_list]
+    group_list = [group \
+            for group in request.user.groups.all() if not group.groupinfo.real_flag]
     
     # relate project
-    project_info_list = []
-    for group_info in group_info_list:
-       project_info_list.extend(group_info.normal_in_project.all())
-       project_info_list.extend(group_info.super_in_project.all())
+    project_list = []
+    for group in group_list:
+       project_list.extend(group.normal_in_project.all())
+       project_list.append(group.manage_in_project)
     # make unique
-    project_info_list = list(set(project_info_list))
+    project_list = list(set(project_list))
     
     # extract message
     message_set = []
-    for project_info in project_info_list:
-        message_set.extend(project_info.message_set.filter(post_flag=True))
+    for project in project_list:
+        message_set.extend(project.message_set.filter(post_flag=True))
     message_set = sorted(message_set, 
                          key=operator.attrgetter('post_time'), 
                          reverse=True)
     
     display_message_list = get_display_message_list(message_set, request.user)
 
-    print display_message_list
     # rendering
     render_data_dict = {
             'user': request.user,
             'message_list': display_message_list,
     }
     return render(request, 
-                  'user_status/root.html', 
+                  'user_info/root.html', 
                   render_data_dict)
 
 @login_required
@@ -57,9 +56,9 @@ def show_models(request):
     import cgi
     from django.utils.safestring import mark_safe
     from django.contrib.auth.models import User, Group
-    from user_status.models import UserInfo
+    from user_info.models import UserInfo
     from group_info.models import GroupInfo
-    from project_info.models import ProjectInfo, Message
+    from project.models import Project, Message
     from file_info.models import FileInfo, UniqueFile
     def wrap_sth(sth, foot=None):
         if foot == None:
@@ -67,7 +66,7 @@ def show_models(request):
         def _wrap(target):
             return "<{0}>{1}</{2}>".format(sth, unicode(target), foot)
         return _wrap
-    model_set = [User, Group, UserInfo, GroupInfo, ProjectInfo, Message, FileInfo, UniqueFile]
+    model_set = [User, Group, UserInfo, GroupInfo, Project, Message, FileInfo, UniqueFile]
     printed_models = []
     for model in model_set:
         field_set = model._meta.get_all_field_names()

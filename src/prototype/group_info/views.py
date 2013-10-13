@@ -8,13 +8,15 @@ from django.http import Http404
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 
-from user_status.models import UserInfo
+from user_info.models import UserInfo
 from group_info.models import GroupInfo
 from .forms import GroupNameHandlerForm, GroupDescriptionHandlerForm, AddUserForm
 from prototype.utils import url_with_querystring, extract_from_GET
 from prototype.decorators import require_user_in
 from .utils import judge_func, assert_user_in_group_manager, \
                    assert_user_not_in_group_manager
+
+from datetime import datetime
 
 @login_required
 def create_group(request):
@@ -26,20 +28,27 @@ def create_group(request):
             group_name = form_group_name.cleaned_data['group_name']
             group_description = \
                     form_group_description.cleaned_data['group_description']
-            created_group = Group(name=group_name)
-            created_group.save()
-            # create related group info
-            created_group_info = GroupInfo(
-                    group_description=group_description,
-                    group=created_group)
-            created_group_info.save()
+
+            # group name must be unique!
+            # use user name + created time as group name
+            unique_group_name = "".join(('[real]', 
+                                         request.user.username, 
+                                         unicode(datetime.now())))
+            group = Group(name=unique_group_name)
+            group.save()
+            # create related group info to handle group information
+            group_info = GroupInfo(name=group_name,
+                                   description=group_description,
+                                   group=group,
+                                   owner=request.user)
+            group_info.save()
             # add user to group manager
-            created_group_info.manager_user.add(request.user)
+            group_info.manager.add(request.user)
             # relate user to group
-            request.user.groups.add(created_group)
+            request.user.groups.add(group)
             # redirect to group page
             return redirect('group_page',
-                            group_info_id=created_group_info.id)
+                            group_info_id=group_info.id)
     else:
         form_group_name = GroupNameHandlerForm()    
         form_group_description = GroupDescriptionHandlerForm()
@@ -63,21 +72,22 @@ def show_group_page(request, group_info_id):
     """
     group_info_id = int(group_info_id)
     group_info = get_object_or_404(GroupInfo, id=group_info_id)
+    group = group_info.group
     # extract infomation for rendering
     # extract user name list, should change to link when finished user page dev
-    user_set = group_info.group.user_set
-    manager_user = group_info.manager_user
+    user_set = group.user_set
+    manager_set = group_info.manager
     user_name_list = [user.username for user in user_set.all()]
-    manager_name_list = [manager.username for manager in manager_user.all()]
-    is_manager_user = True \
-            if group_info.manager_user.filter(username=request.user.username) \
+    manager_name_list = [manager.username for manager in manager_set.all()]
+    is_manager = True \
+            if group_info.manager.filter(username=request.user.username) \
                 else False
     render_data_dict = {
-            'group_name': group_info.group.name,
-            'group_description': group_info.group_description,
+            'group_name': group_info.name,
+            'group_description': group_info.description,
             'group_manager': manager_name_list,
             'group_member': user_name_list,
-            'is_manager_user': is_manager_user,
+            'is_manager': is_manager,
             'group_info_id': group_info_id,
     }
     return render(request, 
@@ -90,13 +100,13 @@ def show_group_list(request):
     show groups related to the user
     """
     group_list = request.user.groups.all()
-    group_info_list = [group.groupinfo for group in group_list]
     # construct dictionary for rendering
     display_groups = {}
-    for group, group_info in zip(group_list, group_info_list):
+    for group in group_list:
         # only display the 'real' group
-        if group_info.real_group:
-            display_groups[group_info.id] = group.name
+        group_info = group.groupinfo
+        if group_info.real_flag:
+            display_groups[group_info.id] = group_info.name
     return render(request, 
                   'group_info/group_list_page.html',
                   {'display_groups': display_groups})
@@ -105,7 +115,7 @@ def show_group_list(request):
 @require_user_in(
         judge_func, 
         'group_info_id', 
-        (GroupInfo, True, ('manager_user',))
+        (GroupInfo, True, ('manager',))
 )
 def show_group_management(request, group_info_id):
     """
@@ -126,8 +136,8 @@ def show_group_management(request, group_info_id):
         if form_group_name.is_valid():
             # update group info, short-circuit
             group_name = form_group_name.cleaned_data['group_name']
-            group.name = group_name
-            group.save()
+            group_info.name = group_name
+            group_info.save()
             return redirect('group_management_page',
                             group_info_id=group_info_id)
 
@@ -136,7 +146,7 @@ def show_group_management(request, group_info_id):
             # add user
             group_description = \
                     form_group_description.cleaned_data['group_description']
-            group_info.group_description = group_description
+            group_info.description = group_description
             group_info.save()
             return redirect('group_management_page',
                             group_info_id=group_info_id)
@@ -151,12 +161,12 @@ def show_group_management(request, group_info_id):
         if form_add_manager.is_valid():
             username = form_add_manager.cleaned_data['username']
             user = get_object_or_404(User, username=username)
-            if user not in group.user_set.all():
+            if not group.user_set.filter(username=user.username):
                 form_add_manager._errors = {
                         'username': [u'{} not in the group!'.format(username)], 
                 }
             else:
-                group_info.manager_user.add(user)
+                group_info.manager.add(user)
                 return redirect('group_management_page',
                                 group_info_id=group_info_id)
 
@@ -169,26 +179,25 @@ def show_group_management(request, group_info_id):
     # process link
     # manager
     remove_manager_url = reverse('delete_manager_from_group')
-    manager_user_set = group_info.manager_user.all()
+    manager_set = group_info.manager.all()
     group_manager = {}
-    for manager_user in manager_user_set:
+    for manager in manager_set:
         query = {
             'group_info_id': group_info_id,
-            'user_info_id': manager_user.id,
+            'user_info_id': manager.id,
         }
-        group_manager[manager_user.username] = url_with_querystring(
+        group_manager[manager.username] = url_with_querystring(
                                                     remove_manager_url, 
                                                     **query)
     # user
     remove_user_url = reverse('delete_user_from_group')
-    normal_user_set = group.user_set.all()
     group_user = {}
-    for normal_user in normal_user_set:
+    for user in group.user_set.all():
         query = {
             'group_info_id': group_info_id,
-            'user_info_id': normal_user.userinfo.id,
+            'user_info_id': user.userinfo.id,
         }
-        group_user[normal_user.username] = url_with_querystring(
+        group_user[user.username] = url_with_querystring(
                                                 remove_user_url,
                                                 **query)
     # exclusive operation
@@ -218,7 +227,7 @@ def show_group_management(request, group_info_id):
 @require_user_in(
         judge_func, 
         'group_info_id', 
-        (GroupInfo, True, ('manager_user',))
+        (GroupInfo, True, ('manager',))
 )
 def delete_user_from_group(request, *args, **kwargs):
     # authentication
@@ -238,7 +247,7 @@ def delete_user_from_group(request, *args, **kwargs):
 @require_user_in(
         judge_func, 
         'group_info_id', 
-        (GroupInfo, True, ('manager_user',))
+        (GroupInfo, True, ('manager',))
 )
 def remove_user_from_group_manager(request, *args, **kwargs):
     # authentication
@@ -250,8 +259,8 @@ def remove_user_from_group_manager(request, *args, **kwargs):
     # manager can not be remove from group
     assert_user_in_group_manager(delete_user_info.user, group_info)
     # remove manager
-    if group_info.manager_user.count() > 1:
-        group_info.manager_user.remove(delete_user_info.user)
+    if group_info.manager.count() > 1:
+        group_info.manager.remove(delete_user_info.user)
     else:
         raise Http404
     return redirect('group_management_page',

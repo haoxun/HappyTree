@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from django.contrib.auth.models import User
-from user_status.models import UserInfo
+from user_info.models import UserInfo
 # user
 u1 = User.objects.create_user('peter', password='123456')
 u2 = User.objects.create_user('john', password='123456')

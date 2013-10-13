@@ -22,7 +22,7 @@
 		</ul>
 	</div>
 	<div id="management">
-		{% if is_manager_user %}
+		{% if is_manager %}
 			<a href={% url 'group_management_page' group_info_id=group_info_id %}>Management</a>
 		{% endif %}
 	</div>

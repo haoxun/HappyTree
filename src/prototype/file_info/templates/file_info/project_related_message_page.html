@@ -3,11 +3,11 @@
 {% block content %}
 
 
-<a href={% url 'project_page' project_info_id=project_info_id %}>To Project Group Page</a>
-<div id="project_info">
+<a href={% url 'project_page' project_id=project_id %}>To Project Group Page</a>
+<div id="project">
 	<h1 id="project_name">Project Name: {{project_name}}</h1>
 	<h2 id="project_description">Description: {{project_description}}</h2>
-	<a href={% url 'init_message_page' project_info_id=project_info_id %}>Create Message</a>
+	<a href={% url 'init_message_page' project_id=project_id %}>Create Message</a>
 </div>
 
 <div id="message_list">
@@ -26,7 +26,7 @@
 					<div id="file_info">
 						<p>{{file_info.name}}</p>
 						{% if file_info.downloadable %}
-						<a href={% url 'download_file' project_info_id=project_info_id file_info_id=file_info.id %}>Download</a>
+						<a href={% url 'download_file' project_id=project_id file_info_id=file_info.id %}>Download</a>
 						{% endif %}
 					</div>
 				{% endfor %}

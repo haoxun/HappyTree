@@ -7,7 +7,7 @@
 			{% for file_info_id, file_info_name in file_info_list.items %}
 				<div id="file_info">
 					<p>{{file_info_name}}</p>
-					<a href={% url 'delete_file_from_message' project_info_id=project_info_id message_id=message_id file_info_id=file_info_id%}>Remove</a>
+					<a href={% url 'delete_file_from_message' project_id=project_id message_id=message_id file_info_id=file_info_id%}>Remove</a>
 				</div>
 			{% endfor %}
 
@@ -18,7 +18,7 @@
 	</div>
 
 	<div id="file_upload">
-		<form enctype="multipart/form-data" method="post" action={% url 'create_message_page' project_info_id=project_info_id message_id=message_id%}>
+		<form enctype="multipart/form-data" method="post" action={% url 'create_message_page' project_id=project_id message_id=message_id%}>
 			{% csrf_token %}
 			{{file_upload_form.as_p}}
 			{{perm_choice_form.as_p}}

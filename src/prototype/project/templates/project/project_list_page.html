@@ -9,8 +9,8 @@
 			<h3>Act as Manager</h3> 
 			{% if display_project_act_as_manager %}
 			<ul>
-				{% for project_info_id, project_name in display_project_act_as_manager.items %}
-					<li><a href={% url 'project_message_page' project_info_id=project_info_id %}>{{project_name}}</a></li>
+				{% for project_id, project_name in display_project_act_as_manager.items %}
+					<li><a href={% url 'project_message_page' project_id=project_id %}>{{project_name}}</a></li>
 				{% endfor %}
 			</ul>
 			{% else %}
@@ -23,8 +23,8 @@
 			<h3>Act as Normal User</h3> 
 			{% if display_project_act_as_normaluser %}
 			<ul>
-				{% for project_info_id, project_name in display_project_act_as_normaluser.items %}
-					<li><a href={% url 'project_message_page' project_info_id=project_info_id %}>{{project_name}}</a></li>
+				{% for project_id, project_name in display_project_act_as_normaluser.items %}
+					<li><a href={% url 'project_message_page' project_id=project_id %}>{{project_name}}</a></li>
 				{% endfor %}
 			</ul>
 			{% else %}

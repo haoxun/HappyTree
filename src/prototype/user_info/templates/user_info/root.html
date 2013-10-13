@@ -17,7 +17,7 @@
 					<div id="file_info">
 						<p>{{file_info.name}}</p>
 						{% if file_info.downloadable %}
-						<a href={% url 'download_file' project_info_id=message.project_info_id file_info_id=file_info.id %}>Download</a>
+						<a href={% url 'download_file' project_id=message.project_id file_info_id=file_info.id %}>Download</a>
 						{% endif %}
 					</div>
 				{% endfor %}

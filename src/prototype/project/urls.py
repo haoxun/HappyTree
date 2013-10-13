@@ -15,12 +15,12 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
-    url(r'^create/$', 'project_info.views.create_project', name='create_project_page'),
-    url(r'^list/$', 'project_info.views.show_project_list', name='project_list_page'),
-    url(r'^(?P<project_info_id>\d+)/group_of_project/$', 'project_info.views.show_project_page', name='project_page'),
-    url(r'^(?P<project_info_id>\d+)/group_of_project/management/$', 'project_info.views.show_project_management_page', name='project_management_page'),
+    url(r'^create/$', 'project.views.create_project', name='create_project_page'),
+    url(r'^list/$', 'project.views.show_project_list', name='project_list_page'),
+    url(r'^(?P<project_id>\d+)/group_of_project/$', 'project.views.show_project_page', name='project_page'),
+    url(r'^(?P<project_id>\d+)/group_of_project/management/$', 'project.views.show_project_management_page', name='project_management_page'),
     url(r'^group_of_project/management/delete/$', 
-        'project_info.views.delete_group_from_project', 
+        'project.views.delete_group_from_project', 
         name='delete_group_from_project'),
-    url(r'^(?P<project_info_id>\d+)/message/', include('file_info.urls')),
+    url(r'^(?P<project_id>\d+)/message/', include('file_info.urls')),
 )

@@ -1,7 +1,7 @@
 {% extends 'base_with_navigation.html' %}
 {% block content %}
-	<a href={% url 'project_message_page' project_info_id=project_info_id %}>To Project Message List</a>
-	<div id="project_info">
+	<a href={% url 'project_message_page' project_id=project_id %}>To Project Message List</a>
+	<div id="project">
 		<h1 id="project_name">Project Name: {{project_name}}</h1>
 	</div>
 	<div id="project_manager_group">
@@ -22,7 +22,7 @@
 	</div>
 	<div id="management">
 		{% if is_manager_user %}
-			<a href={% url 'project_management_page' project_info_id=project_info_id %}>Management</a>
+			<a href={% url 'project_management_page' project_id=project_id %}>Management</a>
 		{% endif %}
 	</div>
 {% endblock %}

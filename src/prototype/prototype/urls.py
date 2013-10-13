@@ -15,15 +15,15 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', 'user_status.views.show_root', name='root_page'),
-    url(r'status/', include('user_status.urls')),
+    url(r'^$', 'user_info.views.show_root', name='root_page'),
+    url(r'status/', include('user_info.urls')),
     url(r'group/', include('group_info.urls')),
-    url(r'project/', include('project_info.urls')),
+    url(r'project/', include('project.urls')),
 )
 
 from django.conf import settings
 if settings.DEBUG:
     urlpatterns += patterns('',
-        url(r'test/$', 'user_status.views.show_models'),
+        url(r'test/$', 'user_info.views.show_models'),
     )
 

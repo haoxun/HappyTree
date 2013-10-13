@@ -1,13 +1,13 @@
 {% extends 'base_with_navigation.html' %}
 {% block content %}
 	<div id="link_to_project_page">
-		<a href={% url 'project_page' project_info_id=project_info_id %}>To Project Group Page</a>
+		<a href={% url 'project_page' project_id=project_id %}>To Project Group Page</a>
 	</div>
 
 	<div id="project_basic_info">
 		<div id="modify_project_name">
 		<h2>Modify Project Name</h2>
-		<form method="post" action={% url 'project_management_page' project_info_id=project_info_id %}>
+		<form method="post" action={% url 'project_management_page' project_id=project_id %}>
 			{% csrf_token %}
 			{{form_project_name.as_p}}
 			<input type="submit" name="project_name_submit" value="Submit" />
@@ -15,7 +15,7 @@
 		</div>
 		<div id="modify_project_name">
 		<h2>Modify Project Description</h2>
-		<form method="post" action={% url 'project_management_page' project_info_id=project_info_id %}>
+		<form method="post" action={% url 'project_management_page' project_id=project_id %}>
 			{% csrf_token %}
 			{{form_project_description.as_p}}
 			<input type="submit" name="project_description_submit" value="Submit" />
@@ -58,7 +58,7 @@
 		</div>
 		<div id="add_user">
 			<h2>Add Group</h2>
-			<form method="post" action={% url 'project_management_page' project_info_id=project_info_id %}>
+			<form method="post" action={% url 'project_management_page' project_id=project_id %}>
 				{% csrf_token %}
 				{{form_add_group.as_p}}
 				<input type="submit" name="add_group_submit" value="Submit" />

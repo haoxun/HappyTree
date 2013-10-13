@@ -1,11 +1,11 @@
 from __future__ import unicode_literals
 from django import forms
 from django.contrib.auth.models import Group, User
+from group_info.models import GroupInfo
 
 class GroupNameHandlerForm(forms.Form):
     error_message = {
             'duplicate': 'Already has a group named {}',      
-            'forbid_pattern': 'Group name could not start with [system][normal_group] or [system][super_group]',
     }
     
     group_name = forms.CharField(required=True, 
@@ -16,14 +16,11 @@ class GroupNameHandlerForm(forms.Form):
         if 'group_name_submit' not in self.data \
                 and 'create_group_submit' not in self.data:
             raise forms.ValidationError("Not Being Submit")
+
         group_name = self.cleaned_data.get('group_name', None)
-        if group_name.startswith('[system][normal_group]') \
-                or group_name.startswith('[system][normal_group]'):
-            raise forms.ValidationError(
-                    message=self.error_message['forbid_pattern'])
         try:
-            Group.objects.get(name=group_name)
-        except Group.DoesNotExist:
+            GroupInfo.objects.get(name=group_name)
+        except GroupInfo.DoesNotExist:
             return self.cleaned_data
         else:
             raise forms.ValidationError(

@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import Group, User
-
 # Create your models here.
 class GroupInfo(models.Model):
     # field
@@ -17,7 +16,8 @@ class GroupInfo(models.Model):
     # relationship
     group = models.OneToOneField(Group)
     manager = models.ManyToManyField(User, related_name='manage_in_group')
-    owner = models.OneToOneField(User, related_name='owned_group')
+    owner = models.ForeignKey(User, related_name='owned_group')
+
 
     def __unicode__(self):
         return '{}'.format(self.group)
