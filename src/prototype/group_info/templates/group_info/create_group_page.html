@@ -3,8 +3,8 @@
 	<div id="group_basic_info">
 		<form method="post" action={% url 'create_group_page' %}>
 			{% csrf_token %}
-			{{form_group_name.as_plain}}
-			{{form_group_description.as_plain}}
+			{{form_group_name.as_p}}
+			{{form_group_description.as_p}}
 			<input type="submit" name="create_group_submit" value="Submit" />
 		</form>	
 	</div>
