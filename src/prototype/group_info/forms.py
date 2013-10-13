@@ -29,6 +29,23 @@ class GroupNameHandlerForm(forms.Form):
             raise forms.ValidationError(
                     message=self.error_message['duplicate'].format(group_name))
 
+    def as_span(self):
+        "Returns this form rendered as HTML <span>s."
+        return self._html_output(
+            normal_row = '<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
+            error_row = '%s',
+            row_ender = '</span>',
+            help_text_html = ' <span class="helptext">%s</span>',
+            errors_on_separate_row = True)
+    def as_plain(self):
+        "Returns this form rendered as HTML <span>s."
+        return self._html_output(
+            normal_row = '%(label)s %(field)s%(help_text)s',
+            error_row = '%s',
+            row_ender = '',
+            help_text_html = ' %s',
+            errors_on_separate_row = True)
+
 class GroupDescriptionHandlerForm(forms.Form):
     group_description = forms.CharField(required=False,
                                         max_length=5000)
@@ -38,6 +55,24 @@ class GroupDescriptionHandlerForm(forms.Form):
                 and 'create_group_submit' not in self.data:
             raise forms.ValidationError('Not Being Submitted')
         return self.cleaned_data
+
+    def as_span(self):
+        "Returns this form rendered as HTML <span>s."
+        return self._html_output(
+            normal_row = '<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
+            error_row = '%s',
+            row_ender = '</span>',
+            help_text_html = ' <span class="helptext">%s</span>',
+            errors_on_separate_row = True)
+    def as_plain(self):
+        "Returns this form rendered as HTML <span>s."
+        return self._html_output(
+            normal_row = '%(label)s %(field)s%(help_text)s',
+            error_row = '%s',
+            row_ender = '',
+            help_text_html = '%s',
+            errors_on_separate_row = True)
+
 
 
 class AddUserForm(forms.Form):
@@ -61,5 +96,21 @@ class AddUserForm(forms.Form):
                     message=self.error_message['empty'].format(username))
         else:
             return self.cleaned_data
+    def as_span(self):
+        "Returns this form rendered as HTML <span>s."
+        return self._html_output(
+            normal_row = '<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
+            error_row = '%s',
+            row_ender = '</span>',
+            help_text_html = ' <span class="helptext">%s</span>',
+            errors_on_separate_row = True)
+    def as_plain(self):
+        "Returns this form rendered as HTML <span>s."
+        return self._html_output(
+            normal_row = '%(label)s %(field)s%(help_text)s',
+            error_row = '%s',
+            row_ender = '',
+            help_text_html = ' %s',
+            errors_on_separate_row = True)
     
 
