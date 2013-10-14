@@ -1,0 +1,5 @@
+Django==1.5.4
+distribute==0.6.27
+django-guardian==1.1.1
+readline==6.2.4.1
+wsgiref==0.1.2
