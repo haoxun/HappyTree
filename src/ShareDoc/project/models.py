@@ -14,8 +14,8 @@ class Project(models.Model):
     real_groups = models.ManyToManyField(RealGroup,
                                          related_name='attended_projects')
     # users not exsiting in any attended real group
-    user_without_groups = models.ManyToManyField(UserInfo,
-                                                 related_name='attended_projects_without_group')
+    users_without_groups = models.ManyToManyField(UserInfo,
+                                                  related_name='attended_projects_without_group')
     # apply/confirm relations
     users_ac = models.ManyToManyField(UserInfo, 
                                       through="UserInfo_Project_AC")
@@ -107,6 +107,7 @@ class Message(models.Model):
     # file_pointers: pointers to files be in the message
 
     class Meta:
+        # can be held by poster
         permissions = (
                 ('ownership', 'owner of the message'),
                 
