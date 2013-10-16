@@ -12,8 +12,7 @@ class UserInfo(models.Model):
     user = models.OneToOneField(User)
     # ManyToManyField
     # projects_ac: apply/confirm relations to project
-    # ForeignKey
-    # attended_projects_without_group: self explanation.
+    # real_groups_ac: self explanation.
 
     def __unicode__(self):
         return '{}'.format(self.user.username)

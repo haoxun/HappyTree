@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from django.conf.urls import patterns, include, url
 
 # Uncomment the next two lines to enable the admin:
@@ -14,4 +15,15 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
+    url(r'^login/$', 'django.contrib.auth.views.login', name='login_page'),
+    url(r'^logout/$', 'user_info.views.logout_user', name='logout_user'),
+    url(r'^group/', include('real_group.urls')),
+    url(r'^apply_confirm/', include('user_info.urls')),
+    
 )
+
+from django.conf import settings
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        url(r'test/$', 'user_info.views.models_page'),
+    )

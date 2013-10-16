@@ -1,0 +1,30 @@
+Besides PEP8 Naming Styles(http://www.python.org/dev/peps/pep-0008/#naming-conventions),
+this document states the naming style on Django models.
+
+For models with ManyToManyField, the field name should be a plural noun, 
+and its realated_name should be given explicitly, which is in the form of plural noun.
+
+When naming a view, 
+if a view is resposible for presenting some pages, the name of view should be in form of
+"description_page";
+if a view is for taking some actions, i.e, to remove a user from group and redirect to group
+management page, the name of view shold be in form of "utility", without "_page" as its postfix.
+
+In the "views.py", the first line should always be
+"from __future__ import unicode_literals",
+in order to use unicode as default.
+The following import statement should be classify into serveral groups:
+# django dependency
+# auth dependency
+# model 
+# form
+# decorator
+# util
+# python library
+
+
+When it is nessary to define a variable to represents a set of object, the name of 
+that vairable should be in the form of "cls_set", while cls is the type of that variable.
+
+ 
+

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{{page_title}}</title>
+	<style>{% block css %}{% endblock %}</style>
+</head>
+
+<body>
+	<div id="navigation">
+        	{% block navigation %}{% endblock %}
+	</div>	
+	<div id="content">
+        	{% block content %}{% endblock %}
+    	</div>
+</body>
+</html>

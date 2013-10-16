@@ -1,0 +1,47 @@
+{% extends 'base_with_navigation.html' %}
+{% load guardian_tags %}
+{% block content %}
+	{# links to group page #}
+	<div id="group_list">
+		<p>Group List:</p>
+	<ul>
+	{% for real_group in real_group_set %}
+		<li><a href={% url 'group_page' real_group_id=real_group.id %}>{{real_group.name}}</a></li>
+	{% endfor %}
+	</ul>
+	</div>
+
+	<div id="creat_group">
+		<a href={% url 'create_group_page' %}>Create Group</a>
+	</div>
+	<div id="apply_to_group">
+		<p>Attend Group</p>
+		<form method="post" action={% url 'group_list_page' %}>
+			{% csrf_token %}
+			{{form_apply_to_group.as_p}}
+			<input type="submit" name="UTR_submit" value="Search"/>
+		</form>	
+		{% if form_apply_to_group.add_group_set != "None" %}
+			<div id="search_result">
+			{% for real_group in form_apply_to_group.add_group_set %}
+				<div>
+					<p>{{real_group.name}}
+					{% get_obj_perms request.user for real_group as "perms" %}
+					{% if "real_group_membership" not in perms %}
+					<a href={% url 'user_apply_to_real_group' real_group_id=real_group.id user_info_id=user.userinfo.id %}>Add</a>
+					{% else %}
+					[Already In Group]
+					{% endif %}
+					</p>
+				</div>
+			{% empty %}
+				<p>Can't Find Related Group.</p>
+			{% endfor %}
+			</div>
+
+		{% endif %}
+	</div>
+
+
+{% endblock %}
+

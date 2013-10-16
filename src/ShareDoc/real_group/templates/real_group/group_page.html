@@ -1,0 +1,39 @@
+
+{% extends 'base_with_navigation.html' %}
+{% block content %}
+{% load guardian_tags %}
+	<div id="real_group">
+		<p id="group_name">Group Name: {{real_group.name}}</p>
+		<p id="group_description">Description: {{real_group.description}}</p>
+	</div>
+	<div id="group_manager">
+		<p>Manager List:</p>
+		<ul>
+		{% for user in user_set %}
+			{% get_obj_perms user for real_group as "perms" %}
+			{% if "real_group_management" in perms %}
+				<li>{{user.username}}</li>	
+			{% endif %}
+		{% endfor %}
+		</ul>
+	</div>
+	<div id="group_menber">
+		<p>Member List:</p>
+		<ul>
+		{% for user in user_set%}
+			{% get_obj_perms user for real_group as "perms" %}
+			{% if "real_group_membership" in perms %}
+			{% if "real_group_management" not in perms %}
+				<li>{{user.username}}</li>	
+			{% endif %}
+			{% endif %}
+		{% endfor %}
+		</ul>
+	</div>
+	<div id="management">
+		{% get_obj_perms request.user for real_group as "perms" %}
+		{% if "real_group_management" in perms %}
+			<a href={% url 'group_management_page' real_group_id=real_group.id %}>Management</a>
+		{% endif %}
+	</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'base_with_navigation.html' %}
+{% block content %}
+{% load guardian_tags %}
+	<div id="link_to_group_page">
+		<a href={% url 'group_page' real_group_id=real_group.id %}>To Group Page</a>
+	</div>
+	<div id="remove_manager">
+		<p>Manager List:</p>
+		<div>
+		{% for user in user_set %}
+			{% get_obj_perms user for real_group as "perms" %}
+			{% get_obj_perms request.user for real_group as "request_user_perms" %}
+			{% if "real_group_management" in perms %}
+			<div>
+				<p>{{user.username}}
+				{% if "real_group_ownership" not in perms and "real_group_ownership" in request_user_perms %}
+				<a href="{% url 'remove_manager_permission' real_group_id=real_group.id user_info_id=user.userinfo.id %}">Remove Manager</a>
+				{% endif %}
+				</p>
+			</div>	
+			{% endif %}
+		{% endfor %}
+		</div>
+
+	</div>
+	<div id="remove_user">
+		<p>User List:</p>
+		<div>
+		{% for user in user_set %}
+			{% get_obj_perms user for real_group as "perms" %}
+			{% if "real_group_management" not in perms and "real_group_membership" in perms %}
+			<div>
+				<p>{{user.username}}
+				<a href={% url 'set_manager_permission' real_group_id=real_group.id user_info_id=user.userinfo.id %}>Set Manager</a> 
+				<a href={% url 'delete_user_from_group' real_group_id=real_group.id user_info_id=user.userinfo.id %}>Remove</a>
+				</p>
+			</div>	
+			{% endif %}
+
+		{% endfor %}
+		</div>
+	</div>
+
+	<div id="group_basic_info">
+		<div id="modify_group_name">
+		<p>Modify Group Name</p>
+		<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
+			{% csrf_token %}
+			{{form_group_name.as_p}}
+			<input type="submit" name="group_name_submit" value="Submit"/>
+		</form>	
+		</div>
+		<div id="modify_group_name">
+		<p>Modify Group Description</p>
+		<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
+			{% csrf_token %}
+			{{form_group_description.as_p}}
+			<input type="submit" name="group_description_submit" value="Submit"/>
+		</form>	
+		</div>
+		
+	</div>
+
+	<div id="add_user">
+		<p>Add User</p>
+		<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
+			{% csrf_token %}
+			{{form_add_user.as_p}}
+			<input type="submit" name="RTU_submit" value="Search"/>
+		</form>	
+		{% if form_add_user.add_user_set != "None" %}
+			<div id="search_result">
+			{% for user in form_add_user.add_user_set %}
+				<div>
+					<p>{{user.username}}
+					{% get_obj_perms user for real_group as "perms" %}
+					{% if "real_group_membership" not in perms %}
+					<a href={% url 'invite_user_to_real_group' real_group_id=real_group.id user_info_id=user.userinfo.id %}>Add</a>
+					{% else %}
+					[Already In Group]
+					{% endif %}
+					</p>
+				</div>
+			{% empty %}
+				<p>Can't Find Related User.</p>
+			{% endfor %}
+			</div>
+
+		{% endif %}
+	</div>
+{% endblock %}

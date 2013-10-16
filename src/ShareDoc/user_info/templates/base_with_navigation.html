@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block navigation %}
+<div id="navigation">
+	<span>
+		Hello {{user.username}}!
+	</span>
+	{% comment %}
+	<span>
+		<a href={% url 'home_page' %}>Main Page</a>
+	</span>
+	{% endcomment %}
+	<span>
+		<a href="{% url 'group_list_page' %}">Groups</a> 
+	</span>
+	{% comment %}
+	<span>
+		<a href="{% url 'project_list_page' %}">Projects</a> 
+	</span>
+	{% endcomment %}
+	<span>
+		<a href="{% url 'logout_user' %}">Logout</a> 
+	</span>
+</div>
+{% endblock %}

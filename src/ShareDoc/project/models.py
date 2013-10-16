@@ -4,7 +4,18 @@ from user_info.models import UserInfo
 from real_group.models import RealGroup
 from guardian.models import Group
 
-# Create your models here.
+class ProjectGroup(models.Model):
+    # fields
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=500)
+    # default permissions
+    download = models.BooleanField()
+    upload = models.BooleanField()
+    delete = models.BooleanField()
+    # relations
+    # held users
+    group = models.OneToOneField(Group)
+
 class Project(models.Model):
     # fields
     name = models.CharField(max_length=50)
@@ -13,12 +24,11 @@ class Project(models.Model):
     # real groups attended to project
     real_groups = models.ManyToManyField(RealGroup,
                                          related_name='attended_projects')
-    # users not exsiting in any attended real group
-    users_without_groups = models.ManyToManyField(UserInfo,
-                                                  related_name='attended_projects_without_group')
+    # hold all members of the project.
+    project_group = models.OneToOneField(ProjectGroup)
     # apply/confirm relations
-    users_ac = models.ManyToManyField(UserInfo, 
-                                      through="UserInfo_Project_AC")
+    user_infos_ac = models.ManyToManyField(UserInfo, 
+                                           through="UserInfo_Project_AC")
     real_groups_ac = models.ManyToManyField(RealGroup,
                                             through="RealGroup_Project_AC")
 
@@ -29,43 +39,30 @@ class Project(models.Model):
     class Meta:
         # can be hold by user
         permissions = (
-                ('membership', 'member of the project'),
-                ('ownership', 'owner of the project'),
-                ('management', 'manager of the project'),
+                ('project_ownership', 'owner of the project'),
+                ('project_membership', 'member of the project'),
+                ('project_management', 'manager of the project'),
+                ('project_download', 'can download file'),
+                ('project_delete', 'can delete file'),
+                ('project_upload', 'can upload file')
                 
         )
 
     def __unicode__(self):
         return '{}'.format(self.name)
 
-class ProjectGroup(models.Model):
-    # fields
-    name = models.CharField(max_length=50)
-    description = models.CharField(max_length=500)
-    # permissions
-    download = models.BooleanField()
-    upload = models.BooleanField()
-    delete = models.BooleanField()
-    # relations
-    # hold users
-    group = models.OneToOneField(Group)
-    # related to a project
-    project = models.ForeignKey(Project,
-                                related_name='project_groups')
-    class Meta:
-        # can be hold by project group
-        permissions = (
-                ('membership', 'member of the project group'),
-                ('download', 'can download file'),
-                ('delete', 'can delete file'),
-                ('upload', 'can upload file')
 
-        ) 
 
 # with consideration of circuit import problem,
 # apply/confirm relaions related to UserInfo and RealGroup, both
 # "connected" to Project, are defined in this file.
+# ATB == A apply To B
 class UserInfo_Project_AC(models.Model):
+    ACTION_UTP = 'UTP'
+    ACTION_PTU = 'PTU'
+    STATUS_WAIT = 'WAIT'
+    STATUS_ACCEPT = 'ACCEPT'
+    STATUS_DENY = 'DENY'
     # relations
     user_info = models.ForeignKey(UserInfo, 
                                   related_name="projects_ac")
@@ -73,12 +70,25 @@ class UserInfo_Project_AC(models.Model):
     project = models.ForeignKey(Project)
     
     # extra files
-    # Action: "UserInfoToProject", "ProjectToUserInfo"
-    action_code = models.CharField(max_length=17)
+    created_time = models.DateTimeField(auto_now_add=True)
+    # Action: "UserInfoToProject"(UTP), "ProjectToUserInfo"(PTU)
+    action_code = models.CharField(max_length=3)
     # Status: "ACCEPT", "DENY", "WAIT"
     action_status = models.CharField(max_length=6)
+
+    class Meta:
+        # can be hold by users.
+        permissions = (
+                ('process_user_project_ac', 'can process the accept/confirm'),
+
+        )
     
 class RealGroup_Project_AC(models.Model):
+    ACTION_RTP = 'RTP'
+    ACTION_PTR = 'PTR'
+    STATUS_WAIT = 'WAIT'
+    STATUS_ACCEPT = 'ACCEPT'
+    STATUS_DENY = 'DENY'
     # relations
     real_group = models.ForeignKey(RealGroup, 
                                    related_name="projects_ac")
@@ -86,10 +96,18 @@ class RealGroup_Project_AC(models.Model):
     project = models.ForeignKey(Project)
     
     # extra files
-    # Action: "UserInfoToProject", "ProjectToUserInfo"
-    action_code = models.CharField(max_length=17)
+    created_time = models.DateTimeField(auto_now_add=True)
+    # Action: "RealGroupToProject"(RTP), "ProjectToRealGroup"(PTR)
+    action_code = models.CharField(max_length=3)
     # Status: "ACCEPT", "DENY", "WAIT"
     action_status = models.CharField(max_length=6)
+
+    class Meta:
+        # can be hold by users.
+        permissions = (
+                ('process_real_group_project_ac', 'can process the accept/confirm'),
+
+        )
 
 
     
@@ -109,7 +127,7 @@ class Message(models.Model):
     class Meta:
         # can be held by poster
         permissions = (
-                ('ownership', 'owner of the message'),
+                ('message_ownership', 'owner of the message'),
                 
         )
     
