@@ -142,9 +142,12 @@ def process_user_real_group_ac(request, ac_id, decision):
     else:
         raise PermissionDenied
     user_real_group_ac.save()
-    remove_perm('real_group.process_user_real_group_ac',
-                request.user,
-                user_real_group_ac)
+    # remove permissions
+    action_code = user_real_group_ac.action_code
+    for user in get_users_with_perms(real_group):
+        remove_perm('real_group.process_user_real_group_ac',
+                    user,
+                    user_real_group_ac)
     return redirect('ac_page')
 
 @login_required
