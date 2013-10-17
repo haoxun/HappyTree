@@ -172,8 +172,6 @@ def user_apply_to_real_group(request, user_info_id, real_group_id):
     return redirect('group_list_page')
 
 
-
-
 @permission_required_or_403('real_group_management', (RealGroup, 'id', 'real_group_id',))
 def set_manager_permission(request, real_group_id, user_info_id):
     user = get_object_or_404(UserInfo, id=(user_info_id)).user

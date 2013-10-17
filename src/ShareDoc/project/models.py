@@ -6,8 +6,6 @@ from guardian.models import Group
 
 class ProjectGroup(models.Model):
     # fields
-    name = models.CharField(max_length=50)
-    description = models.CharField(max_length=500)
     # default permissions
     download = models.BooleanField()
     upload = models.BooleanField()
@@ -15,6 +13,9 @@ class ProjectGroup(models.Model):
     # relations
     # held users
     group = models.OneToOneField(Group)
+
+    def __unicode__(self):
+        return '{}'.format(self.id)
 
 class Project(models.Model):
     # fields
@@ -82,6 +83,8 @@ class UserInfo_Project_AC(models.Model):
                 ('process_user_project_ac', 'can process the accept/confirm'),
 
         )
+    def __unicode__(self):
+        return '{}'.format(self.id)
     
 class RealGroup_Project_AC(models.Model):
     ACTION_RTP = 'RTP'
@@ -108,6 +111,8 @@ class RealGroup_Project_AC(models.Model):
                 ('process_real_group_project_ac', 'can process the accept/confirm'),
 
         )
+    def __unicode__(self):
+        return '{}'.format(self.id)
 
 
     

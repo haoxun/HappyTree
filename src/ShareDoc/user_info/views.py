@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 # django dependency
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 # auth dependency
 from django.contrib.auth import logout
@@ -20,6 +19,11 @@ from project.models import UserInfo_Project_AC, RealGroup_Project_AC
 from user_info.utils import gen_models_debug_info
 # python library
 import operator
+
+@login_required
+def home_page(request):
+    return render(request,
+                  'user_info/home.html')
 
 @login_required
 def logout_user(request):
@@ -76,8 +80,6 @@ def accept_confirm_page(request):
     real_group_to_user_ac = sort_ac(real_group_to_user_ac)
     real_group_to_project_ac = sort_ac(real_group_to_project_ac)
 
-    print user_to_real_group_ac
-
     render_data_dict = {
             'user_to_project_ac': user_to_project_ac,
             'user_to_real_group_ac': user_to_real_group_ac,
@@ -93,14 +95,14 @@ def accept_confirm_page(request):
     
 
 @login_required
-def process_user_project_ac(request, ac_id, desicion):
+def process_user_project_ac(request, ac_id, decision):
     user_project_ac = get_object_or_404(UserInfo_Project_AC, id=int(ac_id))
     if user_project_ac.action_status != UserInfo_Project_AC.STATUS_WAIT:
         raise PermissionDenied
     user_info = user_project_ac.user_info
     project = user_project_ac.project
     project_group = project.project_group
-    if desicion == "ACCEPT":
+    if decision == "ACCEPT":
         # add user
         project_group.group.user_set.add(user_info.user)
         assign_perm('project_membership', user_info.user, project)
@@ -112,14 +114,15 @@ def process_user_project_ac(request, ac_id, desicion):
         if project_group.delete:
             assign_perm('project_delete', user_info.user, project)
         user_project_ac.action_status = UserInfo_Project_AC.STATUS_ACCEPT
-    elif desicion == "DENY":
+    elif decision == "DENY":
         user_project_ac.action_status = UserInfo_Project_AC.STATUS_DENY
     else:
         raise PermissionDenied
     user_project_ac.save()
-    remove_perm('project.process_user_project_ac',
-                request.user,
-                user_project_ac)
+    for user in get_users_with_perms(project):
+        remove_perm('project.process_user_project_ac',
+                    user,
+                    user_project_ac)
     return redirect('ac_page')
 
 @login_required
@@ -143,7 +146,6 @@ def process_user_real_group_ac(request, ac_id, decision):
         raise PermissionDenied
     user_real_group_ac.save()
     # remove permissions
-    action_code = user_real_group_ac.action_code
     for user in get_users_with_perms(real_group):
         remove_perm('real_group.process_user_real_group_ac',
                     user,
@@ -180,9 +182,11 @@ def process_real_group_project_ac(request, ac_id, decision):
     else:
         raise PermissionDenied
     real_group_project_ac.save()
-    remove_perm('project.process_real_group_project_ac',
-                request.user,
-                real_group_to_project_ac)
+    # remove permissions
+    for user in get_users_with_perms(project):
+        remove_perm('project.process_real_group_project_ac',
+                    user,
+                    real_group_project_ac)
     return redirect('ac_page')
 
 
@@ -193,10 +197,24 @@ def process_real_group_project_ac(request, ac_id, decision):
 def models_page(request):
     from guardian.models import User, Group
     from user_info.models import UserInfo
-    from real_group.models import RealGroup 
+    from real_group.models import RealGroup, UserInfo_RealGroup_AC
     from project.models import Project, Message, ProjectGroup
     from file_storage.models import FilePointer, UniqueFile
-    model_set = [User, UserInfo, Group, RealGroup, Project, ProjectGroup, Message, FilePointer, UniqueFile, UserInfo_RealGroup_AC]
+    from project.models import UserInfo_Project_AC, RealGroup_Project_AC
+    model_set = [
+            User, 
+            UserInfo, 
+            Group, 
+            RealGroup, 
+            Project, 
+            ProjectGroup, 
+            Message, 
+            FilePointer, 
+            UniqueFile, 
+            UserInfo_RealGroup_AC,
+            UserInfo_Project_AC,
+            RealGroup_Project_AC,
+    ]
     printed_html = gen_models_debug_info(model_set)
     return render(request,
                   'test/test_page.html',

@@ -1,0 +1,157 @@
+
+{% extends 'base_with_navigation.html' %}
+{% block content %}
+{% load guardian_tags %}
+	<div id="link_to_project_page">
+		<a href={# url ''  #}>To Project Page</a>
+	</div>
+	<div id="remove_manager">
+		<p>Manager List:</p>
+		<div>
+		{% for user in user_set %}
+			{% get_obj_perms user for project as "perms" %}
+			{% get_obj_perms request.user for project as "request_user_perms" %}
+			{% if "project_management" in perms %}
+			<div>
+				<p>{{user.username}}
+				{% if "project_ownership" not in perms and "project_ownership" in request_user_perms %}
+				<a href="{% url 'process_user_role_on_project' project_id=project.id user_info_id=user.userinfo.id decision="False" %}">Remove Manager</a>
+				{% endif %}
+				</p>
+			</div>	
+			{% endif %}
+		{% endfor %}
+		</div>
+
+	</div>
+	<div id="remove_user">
+		<p>User List:</p>
+		<div>
+		{% for user in user_set %}
+			{% get_obj_perms user for project as "perms" %}
+			{% if "project_management" not in perms and "project_membership" in perms %}
+			<div>
+				<p>{{user.username}}
+				<a href={% url 'process_user_role_on_project' project_id=project.id user_info_id=user.userinfo.id decision="True" %}>Set Manager</a> 
+				<a href={% url 'delete_user_from_project' project_id=project.id user_info_id=user.userinfo.id %}>Remove</a>
+				
+				{% if 'project_download' in perms %}
+				<a href={% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="download" decision="False" %}>Can Download(Unset)</a>
+				{% else %}
+				<a href={% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="download" decision="True" %}>Cannot Download(Set)</a>
+				{% endif %}
+
+				{% if 'project_upload' in perms %}
+				<a href={% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="upload" decision="False" %}>Can Upload(Unset)</a>
+				{% else %}
+				<a href={% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="upload" decision="True" %}>Cannot Upload(Set)</a>
+				{% endif %}
+
+				{% if 'project_delete' in perms %}
+				<a href={% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="delete" decision="False" %}>Can Delete(Unset)</a>
+				{% else %}
+				<a href={% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="delete" decision="True" %}>Cannot Delete(Set)</a>
+				{% endif %}
+
+				</p>
+			</div>	
+			{% endif %}
+
+		{% endfor %}
+		</div>
+	</div>
+
+	<div id="project_basic_info">
+		<div id="modify_project_name">
+		<p>Modify Project Name</p>
+		<form method="post" action={% url 'project_management_page' project_id=project.id %}>
+			{% csrf_token %}
+			{{form_project_name.as_p}}
+			<input type="submit" name="project_name_submit" value="Submit"/>
+		</form>	
+		</div>
+		<div id="modify_project_name">
+		<p>Modify Project Description</p>
+		<form method="post" action={% url 'project_management_page' project_id=project.id %}>
+			{% csrf_token %}
+			{{form_project_description.as_p}}
+			<input type="submit" name="project_description_submit" value="Submit"/>
+		</form>	
+		</div>
+	</div>
+
+	<div id="project_default_permission">
+		{% if project.project_group.download %}	
+		<a href={% url 'process_default_permission_on_project'  project_id=project.id kind="download" decision="False" %}>Can Download(Unset)</a>
+		{% else %}
+		<a href={% url 'process_default_permission_on_project'  project_id=project.id kind="download" decision="True" %}>Cannot Download(Set)</a>
+		{% endif %}
+
+		{% if project.project_group.upload %}	
+		<a href={% url 'process_default_permission_on_project'  project_id=project.id kind="upload" decision="False" %}>Can Upload(Unset)</a>
+		{% else %}
+		<a href={% url 'process_default_permission_on_project'  project_id=project.id kind="upload" decision="True" %}>Cannot Upload(Set)</a>
+		{% endif %}
+
+		{% if project.project_group.delete %}	
+		<a href={% url 'process_default_permission_on_project'  project_id=project.id kind="delete" decision="False" %}>Can Delete(Unset)</a>
+		{% else %}
+		<a href={% url 'process_default_permission_on_project'  project_id=project.id kind="delete" decision="True" %}>Cannot Delete(Set)</a>
+		{% endif %}
+
+	</div>
+
+	<div id="add_user">
+		<p>Add User</p>
+		<form method="post" action={% url 'project_management_page' project_id=project.id %}>
+			{% csrf_token %}
+			{{form_add_user.as_p}}
+			<input type="submit" name="PTU_submit" value="Search"/>
+		</form>	
+		{% if form_add_user.add_user_set != "None" %}
+			<div id="search_result">
+			{% for user in form_add_user.add_user_set %}
+				<div>
+					<p>{{user.username}}
+					{% get_obj_perms user for project as "perms" %}
+					{% if "project_membership" not in perms %}
+					<a href={% url 'invite_user_to_project' project_id=project.id user_info_id=user.userinfo.id %}>Add</a>
+					{% else %}
+					[Already In Project]
+					{% endif %}
+					</p>
+				</div>
+			{% empty %}
+				<p>Can't Find Related User.</p>
+			{% endfor %}
+			</div>
+		{% endif %}
+	</div>
+
+	<div id="add_real_group">
+		<p>Add Real Group</p>
+		<form method="post" action={% url 'project_management_page' project_id=project.id %}>
+			{% csrf_token %}
+			{{form_add_real_group.as_p}}
+			<input type="submit" name="PTR_submit" value="Search"/>
+		</form>	
+		{% if form_add_real_group.add_real_group_set != "None" %}
+			<div id="search_result">
+			{% for real_group in form_add_real_group.add_real_group_set %}
+				<div>
+					<p>{{real_group.name}}
+					{% if real_group not in project.real_groups.all %}
+					<a href={% url 'invite_real_group_to_project' project_id=project.id real_group_id=real_group.id %}>Add</a>
+					{% else %}
+					[Already In Project]
+					{% endif %}
+					</p>
+				</div>
+			{% empty %}
+				<p>Can't Find Related User.</p>
+			{% endfor %}
+			</div>
+		{% endif %}
+	</div>
+
+{% endblock %}

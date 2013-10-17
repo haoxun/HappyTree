@@ -1,0 +1,11 @@
+{% extends 'base_with_navigation.html' %}
+{% block content %}
+	<div id="project_basic_info">
+		<form method="post" action={% url 'create_project_page' %}>
+			{% csrf_token %}
+			{{form_project_name.as_p}}
+			{{form_project_description.as_p}}
+			<input type="submit" name="create_project_submit" value="Submit" />
+		</form>	
+	</div>
+{% endblock %}

@@ -46,11 +46,7 @@ class AddUserForm(forms.Form):
         self._add_user_set = User.objects.filter(username__icontains=username)
         return self.cleaned_data
 
-class ApplyToGroupForm(forms.Form):
-    name = forms.CharField(required=True, 
-                           max_length=50, 
-                           min_length=3)
-
+class ApplyToGroupForm(GroupNameHandlerForm):
     def _get_add_group_set(self):
         if hasattr(self, '_add_group_set'):
             return self._add_group_set

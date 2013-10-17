@@ -15,7 +15,7 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
-    url(r'list/$', 'user_info.views.accept_confirm_page', name='ac_page'),
+    url(r'^$', 'user_info.views.accept_confirm_page', name='ac_page'),
     url(r'process/user_project/(?P<ac_id>\d+)/(?P<decision>ACCEPT|DENY)/$',
         'user_info.views.process_user_project_ac', 
         name='process_user_project_ac'),
