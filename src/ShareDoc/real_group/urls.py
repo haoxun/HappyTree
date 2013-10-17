@@ -10,14 +10,10 @@ urlpatterns = patterns('',
         url(r'^delete_user/(?P<real_group_id>\d+)/(?P<user_info_id>\d+)/$',
             'real_group.views.delete_user_from_group', 
             name='delete_user_from_group'),
-        # set management permission to user
-        url(r'^set_manager/(?P<real_group_id>\d+)/(?P<user_info_id>\d+)/$', 
-            'real_group.views.set_manager_permission', 
-            name='set_manager_permission'),
-        # remove manager permission
-        url(r'^remove_manager/(?P<real_group_id>\d+)/(?P<user_info_id>\d+)/$', 
-            'real_group.views.remove_manager_permission', 
-            name='remove_manager_permission'),
+        # process user permission
+        url(r'^process/user_permission/(?P<real_group_id>\d+)/(?P<user_info_id>\d+)/(?P<decision>True|False)/$', 
+            'real_group.views.process_user_permission', 
+            name='process_user_permission'),
         # RTU
         url(r'^(?P<real_group_id>\d+)/invite_user/(?P<user_info_id>\d+)/$', 
             'real_group.views.invite_user_to_real_group',

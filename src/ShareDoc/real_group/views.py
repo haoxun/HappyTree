@@ -171,16 +171,6 @@ def user_apply_to_real_group(request, user_info_id, real_group_id):
     construct_user_real_group_ac(user_info_id, real_group_id, "ACTION_UTR")
     return redirect('group_list_page')
 
-
-@permission_required_or_403('real_group_management', (RealGroup, 'id', 'real_group_id',))
-def set_manager_permission(request, real_group_id, user_info_id):
-    user = get_object_or_404(UserInfo, id=(user_info_id)).user
-    real_group = get_object_or_404(RealGroup, id=int(real_group_id))
-    assign_perm('real_group_management', user, real_group)
-    return redirect('group_management_page',
-                    real_group_id=real_group_id)
-
-
 @permission_required_or_403('real_group_management', (RealGroup, 'id', 'real_group_id',))
 def delete_user_from_group(request, real_group_id, user_info_id):
     real_group_id = int(real_group_id)
@@ -199,14 +189,17 @@ def delete_user_from_group(request, real_group_id, user_info_id):
                     real_group_id=real_group_id)
 
 @permission_required_or_403('real_group_management', (RealGroup, 'id', 'real_group_id',))
-def remove_manager_permission(request, real_group_id, user_info_id):
-    # authentication
+def process_user_permission(request, real_group_id, user_info_id, decision):
+    if decision == "True":
+        tack_action = assign_perm
+    elif decision == "False":
+        tack_action = remove_perm
+    else:
+        raise PermissionDenied
     user = get_object_or_404(UserInfo, id=int(user_info_id)).user
     real_group = get_object_or_404(RealGroup, id=int(real_group_id))
-    # owner can not be remove 
-    if user.has_perm('real_group_ownership', real_group):
-        raise PermissionDenied
-    # remove manager
-    remove_perm('real_group_management', user, real_group)
+    tack_action('real_group_management', user, real_group)
     return redirect('group_management_page',
                     real_group_id=real_group_id)
+    
+
