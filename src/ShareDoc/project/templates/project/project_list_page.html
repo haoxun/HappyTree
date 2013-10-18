@@ -6,7 +6,7 @@
 		<p>Project List:</p>
 		<ul>
 			{% for project in project_set %}
-				<li><a href={# url '' project_id=project_id #}>{{project.name}}</a></li>
+				<li><a href={% url 'project_message_page' project_id=project.id %}>{{project.name}}</a></li>
 			{% empty %}
 				<p>There's Not Project For You.</p>
 			{% endfor %}

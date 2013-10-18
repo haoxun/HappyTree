@@ -24,7 +24,7 @@ from real_group.utils import construct_user_real_group_ac
 from datetime import datetime
 
 @login_required
-def create_group(request):
+def create_group_page(request):
     if request.method == "POST":
         form_group_name = GroupNameHandlerForm(request.POST)    
         form_group_description = GroupDescriptionHandlerForm(request.POST)
@@ -85,7 +85,7 @@ def group_page(request, real_group_id):
                   render_data_dict)
 
 @login_required
-def show_group_list(request):
+def group_list_page(request):
     """
     show groups related to the user
     """
@@ -107,7 +107,7 @@ def show_group_list(request):
                   render_data_dict)
 
 @permission_required_or_403('real_group_management', (RealGroup, 'id', 'real_group_id',))
-def show_group_management(request, real_group_id):
+def group_management_page(request, real_group_id):
     """
     show management page of a group
     """

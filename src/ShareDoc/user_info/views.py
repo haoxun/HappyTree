@@ -22,8 +22,16 @@ import operator
 
 @login_required
 def home_page(request):
+    project_set = get_objects_for_user(request.user, 
+                                       'project.project_membership')
+    message_set = []
+    for project in project_set:
+        message_set.extend(project.messages.filter(post_flag=True))
+    message_set = sorted(message_set, key=lambda x: x.post_time, reverse=True)
+    
     return render(request,
-                  'user_info/home.html')
+                  'user_info/home.html',
+                  {'message_set': message_set})
 
 @login_required
 def logout_user(request):

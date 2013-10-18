@@ -2,8 +2,10 @@
 {% extends 'base_with_navigation.html' %}
 {% block content %}
 {% load guardian_tags %}
-	<div id="link_to_project_page">
-		<a href={# url ''  #}>To Project Page</a>
+	<div id=project_navigation>
+		<a href={% url 'project_message_page' project_id=project.id %}>Message List</a>
+		<a href={% url 'project_file_list_page' project_id=project.id %}>Files Of Project</a>
+		<a href={% url 'project_management_page' project_id=project.id %}>Managememt</a>
 	</div>
 	<div id="remove_manager">
 		<p>Manager List:</p>

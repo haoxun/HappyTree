@@ -16,6 +16,11 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     url(r'^create/$', 'project.views.create_project_page', name='create_project_page'),
     url(r'^list/$', 'project.views.project_list_page', name='project_list_page'),
+    # show message related to project
+    url(r'^(?P<project_id>\d+)/message_list/$', 'file_storage.views.project_message_page', name='project_message_page'),
+    # show files related to porject
+    url(r'^(?P<project_id>\d+)/file_list/$', 'project.views.project_file_list_page', name='project_file_list_page'),
+    # management page
     url(r'^management/(?P<project_id>\d+)/$', 'project.views.project_management_page', name='project_management_page'),
     # change role of user
     url(r'^process/user_role/(?P<project_id>\d+)/(?P<user_info_id>\d+)/(?P<decision>True|False)/$', 

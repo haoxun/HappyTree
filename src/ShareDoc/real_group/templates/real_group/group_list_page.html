@@ -11,9 +11,6 @@
 	</ul>
 	</div>
 
-	<div id="creat_group">
-		<a href={% url 'create_group_page' %}>Create Group</a>
-	</div>
 	<div id="apply_to_group">
 		<p>Attend Group</p>
 		<form method="post" action={% url 'group_list_page' %}>
@@ -40,6 +37,9 @@
 			</div>
 
 		{% endif %}
+	</div>
+	<div id="creat_group">
+		<a href={% url 'create_group_page' %}>Create Group</a>
 	</div>
 
 

@@ -2,10 +2,18 @@ from __future__ import unicode_literals
 from django.conf.urls import include, patterns, url
 
 urlpatterns = patterns('',
-        url(r'^create/$', 'real_group.views.create_group', name='create_group_page'),
-        url(r'^(?P<real_group_id>\d+)/$', 'real_group.views.group_page', name='group_page'),
-        url(r'^list/$', 'real_group.views.show_group_list', name='group_list_page'),
-        url(r'^(?P<real_group_id>\d+)/management/$', 'real_group.views.show_group_management', name='group_management_page'),
+        url(r'^create/$', 
+            'real_group.views.create_group_page', 
+            name='create_group_page'),
+        url(r'^(?P<real_group_id>\d+)/$', 
+            'real_group.views.group_page', 
+            name='group_page'),
+        url(r'^list/$', 
+            'real_group.views.group_list_page', 
+            name='group_list_page'),
+        url(r'^(?P<real_group_id>\d+)/management/$', 
+            'real_group.views.group_management_page', 
+            name='group_management_page'),
         # delete user from group
         url(r'^delete_user/(?P<real_group_id>\d+)/(?P<user_info_id>\d+)/$',
             'real_group.views.delete_user_from_group', 

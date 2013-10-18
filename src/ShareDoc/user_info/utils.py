@@ -1,5 +1,4 @@
-
-
+from __future__ import unicode_literals
 def gen_models_debug_info(model_set):
     import cgi
     from django.utils.safestring import mark_safe

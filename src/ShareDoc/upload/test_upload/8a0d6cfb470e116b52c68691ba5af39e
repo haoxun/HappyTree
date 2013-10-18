@@ -1,8 +1,0 @@
-class Base:
-    pass
-
-class A(Base):
-    def __init__(self):
-        super()
-
-A()

@@ -58,7 +58,7 @@ def create_project_page(request):
             for perm in project_permissions:
                 assign_perm(perm, request.user, project)
             # return redirect('')
-            return redirect('create_project_page')
+            return redirect('project_message_page', project_id=project.id)
     else:
         form_project_name = ProjectNameHandlerForm()
         form_project_description = ProjectDescriptionHandlerForm()
@@ -87,6 +87,24 @@ def project_list_page(request):
     return render(request,
                   'project/project_list_page.html',
                   render_data_dict)
+
+@permission_required_or_403('project.project_membership', (Project, 'id', 'project_id'))
+def project_file_list_page(request, project_id):
+    project = get_object_or_404(Project, id=int(project_id))
+    message_set = project.messages.filter(post_flag=True).order_by('-post_time')
+    file_pointer_set = []
+    for message in message_set:
+        file_pointer_set.extend(message.file_pointers.all())
+
+    render_data_dict = {
+            'request': request,
+            'project': project,
+            'file_pointer_set': file_pointer_set,
+    }
+    return render(request,
+                  'project/project_file_list_page.html',
+                  render_data_dict)
+
 
 
 @permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))

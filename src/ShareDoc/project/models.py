@@ -126,6 +126,8 @@ class Message(models.Model):
     # relation
     project = models.ForeignKey(Project,
                                 related_name='messages')
+    owner = models.ForeignKey(UserInfo,
+                              related_name="messages")
     # ForeignKey
     # file_pointers: pointers to files be in the message
 
@@ -133,6 +135,7 @@ class Message(models.Model):
         # can be held by poster
         permissions = (
                 ('message_ownership', 'owner of the message'),
+                ('message_processing', 'owner of the message has not being post'),
                 
         )
     

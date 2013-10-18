@@ -1,7 +1,10 @@
 from __future__ import unicode_literals
 # django dependency
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
+from django.core.servers.basehttp import FileWrapper
+from django.utils.http import urlencode
 # auth dependency
 from django.contrib.auth.decorators import login_required
 from guardian.decorators import permission_required_or_403, permission_required
@@ -14,22 +17,33 @@ from file_storage.models import UniqueFile, FilePointer
 # form
 from file_storage.forms import ProjectChoiceForm, FileUploadForm, MessageInfoForm
 # decorator
+from django.views.decorators.http import require_GET
 # util
 from file_storage.utils import gen_MD5_of_UploadedFile
 # python library
 from datetime import datetime
-
+import os
+import mimetypes
+mimetypes.init()
 
 
 @login_required
 def init_message_page(request):
+    # extract current processing message
+    message = get_objects_for_user(request.user, 'project.message_processing')
+    if message:
+        message = message[0]
+        return redirect('create_message_page', message_id=message.id)
+    # if no current processing message, init one.
     project_set = get_objects_for_user(request.user, 'project.project_upload')
     if len(project_set) == 0:
         # after finish dev, should give some error message about that,
         # instead of raising PermissionDenied
         raise PermissionDenied
-    message = Message.objects.create(project=project_set[0])
+    message = Message.objects.create(project=project_set[0],
+                                     owner=request.user.userinfo)
     assign_perm('message_ownership', request.user, message)
+    assign_perm('message_processing', request.user, message)
     return redirect('create_message_page', message_id=message.id)
 
 @permission_required_or_403('project.message_ownership', (Message, 'id', 'message_id'))
@@ -71,6 +85,7 @@ def create_message_page(request, message_id):
             # set post
             message.post_flag = True
             message.save()
+            remove_perm('message_processing', request.user, message)
             return redirect('home_page')
     else:
         form_select_project = ProjectChoiceForm(project_set)
@@ -78,6 +93,7 @@ def create_message_page(request, message_id):
         form_post_message = MessageInfoForm()
 
     render_data_dict = {
+            'request': request,
             'message': message,
             'form_select_project': form_select_project,
             'form_file_upload': form_file_upload,
@@ -88,17 +104,81 @@ def create_message_page(request, message_id):
                   render_data_dict)
 
 @permission_required_or_403('project.message_ownership', (Message, 'id', 'message_id'))
-def delete_file_pointer_from_message(request, message_id, file_pointer_id):
+def delete_message(request, message_id):
     message = get_object_or_404(Message, id=int(message_id))
+    for file_pointer in message.file_pointers.all():
+        unique_file = file_pointer.unique_file
+        file_pointer.delete()
+        if unique_file.file_pointers.count() == 0:
+            unique_file.delete()
+    remove_perm('message_ownership', request.user, message)
+    remove_perm('message_processing', request.user, message)
+    message.delete()
+    return redirect('home_page')
+
+
+@require_GET
+@login_required
+def delete_file_pointer_from_message(request, file_pointer_id):
     file_pointer = get_object_or_404(FilePointer, id=int(file_pointer_id))
     unique_file = file_pointer.unique_file
+    message = file_pointer.message 
+    project = message.project
+    if not request.user.has_perm('project_delete', project):
+        raise PermissionDenied
+
+    reverse_url = request.GET.get('next', None) 
+    if not reverse_url:
+        raise PermissionDenied
 
     # delete file pointer
     file_pointer.delete()
     # smart pointer
     if unique_file.file_pointers.count() == 0:
         unique_file.delete()
-    return redirect('create_message_page', message_id=message_id)
+    return redirect(reverse_url)
+
+@login_required
+def download_file(request, file_pointer_id):
+    file_pointer = get_object_or_404(FilePointer, id=int(file_pointer_id))
+    project = file_pointer.message.project
+    if not request.user.has_perm('project_download', project):
+        raise PermissionDenied
+    unique_file = file_pointer.unique_file
+    file_wrapper = FileWrapper(unique_file.file)
+    # get content type
+    # http://blog.robotshell.org/2012/deal-with-http-header-encoding-for-file-download/
+    file_name = file_pointer.name
+    # ugly code
+    encode_file_name = urlencode(((file_name, ''),)).rstrip('=')
+
+    content_type = os.path.splitext(file_name)[-1]
+    content_type = mimetypes.types_map.get(content_type,
+                                           'application/octet-stream')
+    response = HttpResponse(file_wrapper, 
+                            content_type=content_type)
+    response['Content-Disposition'] = \
+                    "attachment; filename={0}; filename*=utf-8''{0}".format(encode_file_name)
+    response['Content-Length'] = unique_file.file.size
+    return response
+
+
+
+
+@permission_required_or_403('project.project_membership', (Project, 'id', 'project_id'))
+def project_message_page(request, project_id):
+    project = get_object_or_404(Project, id=int(project_id))
+    message_set = project.messages.filter(post_flag=True).order_by('-post_time')
+
+    render_data_dict = {
+            'project': project,
+            'message_set': message_set,
+    }
+
+    return render(request,
+                  'file_storage/project_message_page.html',
+                  render_data_dict)
+
 
 
 

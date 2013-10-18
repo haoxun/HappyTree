@@ -1,15 +1,19 @@
 {% extends 'base_with_navigation.html' %}
 {% load guardian_tags %}
 {% block content %}
+{% get_obj_perms user for project as "perms" %}
+	<div id=project_navigation>
+			<a href={% url 'project_message_page' project_id=project.id %}>Message List</a>
+			<a href={% url 'project_file_list_page' project_id=project.id %}>Files Of Project</a>
 
-<div id="home_message_list">
+			{% if 'project_management' in perms %}
+			<a href={% url 'project_management_page' project_id=project.id %}>Managememt</a>
+			{% endif %}
+	</div>
+	<div id="project_message_list">
+		<p>Project Message List</p>
 		{% for message in message_set %}
 			<div id="message">
-				{% get_obj_perms user for message.project as "perms" %}
-				<p>
-					Posted by {{message.owner.user.username}}, In
-					<a href={% url 'project_message_page' project_id=message.project.id %}>{{message.project.name}}</a>
-				</p>
 				<p>Title: {{message.title}}</p>
 			   	<p>Description: {{message.description}}</p>
 				{% for file_pointer in message.file_pointers.all %}
@@ -21,11 +25,11 @@
 				{% endfor %}
 			</div>
 		{% empty %}
-			<div id="no_home_message">
-					<p>There's no message for you.</p>
+			<div id="no_file_pointer">
+					<p>There's no message on project.</p>
 			</div>
 		{% endfor %}
-</div>
+	</div>
 
-
+	
 {% endblock %}
