@@ -1,0 +1,28 @@
+<html>
+<head>
+</head>
+<body>
+<input type="file" id="fileinput" />
+<h1 id="test">
+<script type="text/javascript">
+  function readSingleFile(evt) {
+    //Retrieve the first (and only!) File from the FileList object
+    var f = evt.target.files[0]; 
+    var h1 = document.getElementById("test")
+    if (f) {
+      var r = new FileReader();
+      r.onload = function(e) { 
+	      var contents = e.target.result;
+        h1.innerHTML = contents;
+      }
+      r.readAsText(f);
+    } else { 
+      alert("Failed to load file");
+    }
+  }
+
+  document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+</script>
+</h1>
+</body>
+</html>

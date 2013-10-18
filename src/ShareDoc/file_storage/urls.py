@@ -15,18 +15,19 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', 'user_info.views.home_page', name='home_page'),
-    url(r'^login/$', 'django.contrib.auth.views.login', name='login_page'),
-    url(r'^logout/$', 'user_info.views.logout_user', name='logout_user'),
-    url(r'^group/', include('real_group.urls')),
-    url(r'^apply_confirm/', include('user_info.urls')),
-    url(r'^project/', include('project.urls')),
-    url(r'^message/', include('file_storage.urls')),
+
+    # init message
+    url(r'^init/$', 
+        'file_storage.views.init_message_page', 
+        name='init_message_page'),
+    # create message 
+    url(r'^(?P<message_id>\d+)/create/$', 
+        'file_storage.views.create_message_page', 
+        name='create_message_page'),
+    # delete file of message
+    url(r'^(?P<message_id>\d+)/delete_file/(?P<file_pointer_id>\d+)/$', 
+        'file_storage.views.delete_file_pointer_from_message', 
+        name='delete_file_pointer_from_message'),
+    
     
 )
-
-from django.conf import settings
-if settings.DEBUG:
-    urlpatterns += patterns('',
-        url(r'test/$', 'user_info.views.models_page'),
-    )
