@@ -19,7 +19,7 @@ from project.forms import ProjectNameHandlerForm, ProjectDescriptionHandlerForm,
 # decorator
 # util
 from project.utils import construct_user_project_ac, \
-                          construct_user_real_group_ac
+                          construct_real_group_project_ac
 # python library
 from datetime import datetime
 
@@ -254,13 +254,18 @@ def invite_user_to_project(request, project_id, user_info_id):
 
 @permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))
 def invite_real_group_to_project(request, project_id, real_group_id):
-    construct_user_real_group_ac(real_group_id, project_id, "ACTION_PTR")
+    construct_real_group_project_ac(real_group_id, project_id, "ACTION_PTR")
     return redirect('project_management_page', project_id=project_id)
 
 @login_required
 def user_apply_to_project(request, user_info_id, project_id):
     construct_user_project_ac(user_info_id, project_id, "ACTION_UTP")
     return redirect('project_list_page')
+
+@login_required
+def real_group_apply_to_project(request, real_group_id, project_id):
+    construct_real_group_project_ac(real_group_id, project_id, "ACTION_RTP")
+    return redirect('group_management_page', real_group_id=real_group_id)
     
 
     

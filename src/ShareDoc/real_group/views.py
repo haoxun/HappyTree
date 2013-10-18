@@ -14,6 +14,7 @@ from real_group.models import RealGroup, UserInfo_RealGroup_AC
 # form
 from real_group.forms import GroupNameHandlerForm, GroupDescriptionHandlerForm, \
                              AddUserForm, ApplyToGroupForm
+from project.forms import RealGroupApplyToForm
 # decorator
 from django.contrib.auth.decorators import login_required
 # util
@@ -118,6 +119,7 @@ def show_group_management(request, real_group_id):
         form_group_name = GroupNameHandlerForm(request.POST)
         form_group_description = GroupDescriptionHandlerForm(request.POST)
         form_add_user = AddUserForm(request.POST)
+        form_apply_to_project = RealGroupApplyToForm(request.POST)
 
         if form_group_name.is_valid():
             # update group info, short-circuit
@@ -140,17 +142,26 @@ def show_group_management(request, real_group_id):
             # unbound name, description
             form_group_name = GroupNameHandlerForm()
             form_group_description = GroupDescriptionHandlerForm()
+            form_apply_to_project = RealGroupApplyToForm()
+
+        if form_apply_to_project.is_valid():
+            form_group_name = GroupNameHandlerForm()
+            form_group_description = GroupDescriptionHandlerForm()
+            form_add_user = AddUserForm()
+
 
     else:
         form_group_name = GroupNameHandlerForm()
         form_group_description = GroupDescriptionHandlerForm()
         form_add_user = AddUserForm()
+        form_apply_to_project = RealGroupApplyToForm()
     
     # rendering    
     render_data_dict = {
             'request': request,
             'form_group_name': form_group_name,            
             'form_group_description': form_group_description,
+            'form_apply_to_project': form_apply_to_project,
             'form_add_user': form_add_user,
             'real_group': real_group,
             'user_set': get_users_with_perms(real_group),

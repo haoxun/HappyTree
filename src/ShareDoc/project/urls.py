@@ -45,6 +45,10 @@ urlpatterns = patterns('',
     url(r'^process/user_apply_to_project/(?P<project_id>\d+)/(?P<user_info_id>\d+)/$', 
         'project.views.user_apply_to_project',
         name='user_apply_to_project'),
+    # real group apply to project
+    url(r'^process/real_group_apply_to_project/(?P<real_group_id>\d+)/(?P<project_id>\d+)/$', 
+        'project.views.real_group_apply_to_project',
+        name='real_group_apply_to_project'),
 
 
     

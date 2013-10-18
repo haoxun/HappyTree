@@ -73,6 +73,15 @@ class ApplyToProjectForm(ProjectNameHandlerForm):
         self._add_project_set = Project.objects.filter(name__icontains=name)
         return self.cleaned_data
 
+class RealGroupApplyToForm(ApplyToProjectForm):
+    def clean(self):
+        if 'RTP_submit' not in self.data:
+            raise forms.ValidationError('Not Being Submitted')
+        if 'name' not in self.cleaned_data:
+            return self.cleaned_data
+        name = self.cleaned_data['name']
+        self._add_project_set = Project.objects.filter(name__icontains=name)
+        return self.cleaned_data
 
 
 

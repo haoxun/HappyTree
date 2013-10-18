@@ -67,7 +67,6 @@ class ApplyToGroupForm(GroupNameHandlerForm):
         name = self.cleaned_data['name']
         self._add_group_set = RealGroup.objects.filter(name__icontains=name)
         return self.cleaned_data
-    
 
 
 

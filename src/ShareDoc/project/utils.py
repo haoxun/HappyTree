@@ -41,7 +41,7 @@ def construct_user_project_ac(user_info_id, project_id, direction):
                                 user,
                                 project_user_ac)
 
-def construct_user_real_group_ac(real_group_id, project_id, direction):
+def construct_real_group_project_ac(real_group_id, project_id, direction):
     if direction != 'ACTION_PTR' and direction != 'ACTION_RTP':
         raise PermissionDenied
     real_group = get_object_or_404(RealGroup, id=int(real_group_id))
