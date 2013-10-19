@@ -134,7 +134,6 @@ class Message(models.Model):
     class Meta:
         # can be held by poster
         permissions = (
-                ('message_ownership', 'owner of the message'),
                 ('message_processing', 'owner of the message has not being post'),
                 
         )

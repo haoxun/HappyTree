@@ -42,14 +42,16 @@ def init_message_page(request):
         raise PermissionDenied
     message = Message.objects.create(project=project_set[0],
                                      owner=request.user.userinfo)
-    assign_perm('message_ownership', request.user, message)
     assign_perm('message_processing', request.user, message)
     return redirect('create_message_page', message_id=message.id)
 
-@permission_required_or_403('project.message_ownership', (Message, 'id', 'message_id'))
+@login_required
 def create_message_page(request, message_id):
     message = get_object_or_404(Message, id=int(message_id))
     project_set = get_objects_for_user(request.user, 'project.project_upload')
+
+    if request.user.userinfo != message.owner:
+        raise PermissionDenied
 
     if request.method == 'POST':
         form_select_project = ProjectChoiceForm(project_set, request.POST)
@@ -103,15 +105,16 @@ def create_message_page(request, message_id):
                   'file_storage/create_message_page.html',
                   render_data_dict)
 
-@permission_required_or_403('project.message_ownership', (Message, 'id', 'message_id'))
+@login_required
 def delete_message(request, message_id):
     message = get_object_or_404(Message, id=int(message_id))
+    if request.user.userinfo != message.owner:
+        raise PermissionDenied
     for file_pointer in message.file_pointers.all():
         unique_file = file_pointer.unique_file
         file_pointer.delete()
         if unique_file.file_pointers.count() == 0:
             unique_file.delete()
-    remove_perm('message_ownership', request.user, message)
     remove_perm('message_processing', request.user, message)
     message.delete()
     return redirect('home_page')
