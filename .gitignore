@@ -2,3 +2,4 @@
 *.swp
 Django_active.py
 upload_file
+.DS_Store
