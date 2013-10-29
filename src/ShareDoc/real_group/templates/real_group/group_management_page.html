@@ -1,10 +1,16 @@
 {% extends 'base_with_navigation.html' %}
-{% block content %}
+
+{% load staticfiles %}
+{% block js %}
+<script src={% static 'real_group/group_management.js' %}></script>
+{% endblock %}
+
 {% load guardian_tags %}
+{% block content %}
 	<div id="link_to_group_page">
 		<a href={% url 'group_page' real_group_id=real_group.id %}>To Group Page</a>
 	</div>
-	<div id="remove_manager">
+	<div class="member_list">
 		<p>Manager List:</p>
 		<div>
 		{% for user in user_set %}
@@ -23,7 +29,7 @@
 		</div>
 
 	</div>
-	<div id="remove_user">
+	<div class="member_list">
 		<p>User List:</p>
 		<div>
 		{% for user in user_set %}
@@ -41,79 +47,65 @@
 		</div>
 	</div>
 
-	<div id="group_basic_info">
-		<div id="modify_group_name">
-		<p>Modify Group Name</p>
-		<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
-			{% csrf_token %}
-			{{form_group_name.as_p}}
-			<input type="submit" name="group_name_submit" value="Submit"/>
-		</form>	
+	<div class="group_basic_info">
+		<div id="display_group_name">
+			Group Name: <span>{{real_group.name}}</span>
+			<a href="#">[Change]</a>
 		</div>
 		<div id="modify_group_name">
-		<p>Modify Group Description</p>
-		<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
-			{% csrf_token %}
-			{{form_group_description.as_p}}
-			<input type="submit" name="group_description_submit" value="Submit"/>
-		</form>	
+			<p>Modify Group Name</p>
+			<p class="error"></p>
+			<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
+				{% csrf_token %}
+				{{form_group_name.as_p}}
+				<input type="submit" name="group_name_submit" value="Submit"/>
+				<input type="button" value="Cancel"/>
+			</form>	
 		</div>
-		
 	</div>
 
-	<div id="apply_to_project">
+	<div class="group_basic_info">
+		<div id="display_group_description">
+			Group Description: <span>{{real_group.description}}</span>
+			<a href="#">[Change]</a>
+		</div>
+		<div id="modify_group_description">
+			<p>Modify Group Description</p>
+			<p class="error"></p>
+			<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
+				{% csrf_token %}
+				{{form_group_description.as_p}}
+				<input type="submit" name="group_description_submit" value="Submit"/>
+				<input type="button" value="Cancel"/>
+			</form>	
+		</div>
+	</div>
+
+	<div class="apply_confirm">
 		<p>Add Group To Project</p>
 		<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
 			{% csrf_token %}
 			{{form_apply_to_project.as_p}}
 			<input type="submit" name="RTP_submit" value="Search"/>
 		</form>	
-		{% if form_apply_to_project.add_project_set != "None" %}
-			<div id="search_result">
-			{% for project in form_apply_to_project.add_project_set %}
-				<div>
-					<p>{{project.name}}
-					{% if real_group not in project.real_groups.all %}
-					<a href={% url 'real_group_apply_to_project' real_group_id=real_group.id project_id=project.id %}>Add</a>
-					{% else %}
-					[Already In Project]
-					{% endif %}
-					</p>
-				</div>
-			{% empty %}
-				<p>Can't Find Related Project.</p>
-			{% endfor %}
-			</div>
 
-		{% endif %}
+		<div class="search_result">
+		</div>
+	
 	</div>
 
 
-	<div id="add_user">
+	<div class="apply_confirm">
 		<p>Add User</p>
+		<p class="error"></p>
 		<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
 			{% csrf_token %}
 			{{form_add_user.as_p}}
 			<input type="submit" name="RTU_submit" value="Search"/>
 		</form>	
-		{% if form_add_user.add_user_set != "None" %}
-			<div id="search_result">
-			{% for user in form_add_user.add_user_set %}
-				<div>
-					<p>{{user.username}}
-					{% get_obj_perms user for real_group as "perms" %}
-					{% if "real_group_membership" not in perms %}
-					<a href={% url 'invite_user_to_real_group' real_group_id=real_group.id user_info_id=user.userinfo.id %}>Add</a>
-					{% else %}
-					[Already In Group]
-					{% endif %}
-					</p>
-				</div>
-			{% empty %}
-				<p>Can't Find Related User.</p>
-			{% endfor %}
-			</div>
 
-		{% endif %}
+		<div class="search_result">
+		</div>
+
 	</div>
 {% endblock %}

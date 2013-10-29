@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 # django dependency
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
 # auth dependency
@@ -283,4 +284,4 @@ def user_apply_to_project(request, user_info_id, project_id):
 @login_required
 def real_group_apply_to_project(request, real_group_id, project_id):
     construct_real_group_project_ac(real_group_id, project_id, "ACTION_RTP")
-    return redirect('group_management_page', real_group_id=real_group_id)
+    return HttpResponse('OK')

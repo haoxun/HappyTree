@@ -14,12 +14,8 @@ urlpatterns = patterns('',
             'real_group.views.group_list_page', 
             name='group_list_page'),
         # class view test
-        url(r'^(?P<real_group_id>\d+)/management/cls/$', 
-            GroupManagementPage.as_view(),
-            name='cls_group_management_page'),
-
         url(r'^(?P<real_group_id>\d+)/management/$', 
-            'real_group.views.group_management_page', 
+            GroupManagementPage.as_view(),
             name='group_management_page'),
         # delete user from group
         url(r'^delete_user/(?P<real_group_id>\d+)/(?P<user_info_id>\d+)/$',

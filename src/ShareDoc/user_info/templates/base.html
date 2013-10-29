@@ -4,7 +4,7 @@
 <head>
 	<title>{{page_title}}</title>
 	<style>{% block css %}{% endblock %}</style>
-	<script src="http://codeorigin.jquery.com/jquery-1.10.2.min.js"></script>
+	<script src={% static 'jquery-1.10.2.min.js' %}></script>
 	<script src={% static 'jquery.cookie.js' %}></script>
 	<script src={% static 'django_csrf.js' %}></script>
 	{% block js %}{% endblock %}

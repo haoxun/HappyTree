@@ -23,6 +23,16 @@ $(function() {
 
 });
 
+//$(function() {
+//	$('div.member_list a').click(function(event) {
+//		event.preventDefault();
+//		$.get($(this).attr('href'), function(data) {
+//			console.log(data);
+//		});
+//		$(this).parent().fadeOut('fast');
+//	});
+//});
+
 $(function() {
 	var get_post_str = function() {
 		var form = $(this);

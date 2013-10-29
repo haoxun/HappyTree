@@ -1,8 +1,10 @@
 from __future__ import unicode_literals
 # django dependency
+from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
+from django.views.generic.base import View
 # auth dependency
 from guardian.decorators import permission_required_or_403, permission_required
 from guardian.shortcuts import assign_perm, remove_perm, get_users_with_perms, \
@@ -23,6 +25,7 @@ from ShareDoc.utils import url_with_querystring, extract_from_GET
 from real_group.utils import construct_user_real_group_ac
 # python library
 from datetime import datetime
+import json
 
 @login_required
 def create_group_page(request):
@@ -107,10 +110,6 @@ def group_list_page(request):
                   'real_group/group_list_page.html',
                   render_data_dict)
 
-# replace with class view
-from django.http import HttpResponse
-from django.views.generic.base import View
-import json
 class GroupManagementPage(View):
     """
     This class manage the process logic of group management page.
@@ -138,7 +137,7 @@ class GroupManagementPage(View):
                 'user_set': get_users_with_perms(real_group),
         }
         return render(request,
-                      'real_group/cls_group_management_page.html',
+                      'real_group/group_management_page.html',
                       render_data_dict)
     
     # form process, base on AJAX POST.
@@ -247,71 +246,6 @@ class GroupManagementPage(View):
         real_group = get_object_or_404(RealGroup, id=int(real_group_id))
         handler = self._gen_handler(request)
         return handler(request, real_group)
-
-@permission_required_or_403('real_group_management', (RealGroup, 'id', 'real_group_id',))
-def group_management_page(request, real_group_id):
-    """
-    show management page of a group
-    """
-    real_group_id = int(real_group_id)
-    real_group = get_object_or_404(RealGroup, id=real_group_id)
-    group = real_group.group
-    if request.method == 'POST':
-        # build form with data
-        form_group_name = GroupNameHandlerForm(request.POST)
-        form_group_description = GroupDescriptionHandlerForm(request.POST)
-        form_add_user = AddUserForm(request.POST)
-        form_apply_to_project = RealGroupApplyToProjectForm(request.POST)
-
-        if form_group_name.is_valid():
-            # update group info, short-circuit
-            name = form_group_name.cleaned_data['name']
-            real_group.name = name
-            real_group.save()
-            return redirect('group_management_page',
-                            real_group_id=real_group_id)
-
-        # deal with the situation of empty description
-        if form_group_description.is_valid():
-            # add user
-            description = form_group_description.cleaned_data['description']
-            real_group.description = description
-            real_group.save()
-            return redirect('group_management_page',
-                            real_group_id=real_group_id)
-
-        if form_add_user.is_valid():
-            # unbound name, description
-            form_group_name = GroupNameHandlerForm()
-            form_group_description = GroupDescriptionHandlerForm()
-            form_apply_to_project = RealGroupApplyToProjectForm()
-
-        if form_apply_to_project.is_valid():
-            form_group_name = GroupNameHandlerForm()
-            form_group_description = GroupDescriptionHandlerForm()
-            form_add_user = AddUserForm()
-
-
-    else:
-        form_group_name = GroupNameHandlerForm()
-        form_group_description = GroupDescriptionHandlerForm()
-        form_add_user = AddUserForm()
-        form_apply_to_project = RealGroupApplyToProjectForm()
-    
-    # rendering    
-    render_data_dict = {
-            'request': request,
-            'form_group_name': form_group_name,            
-            'form_group_description': form_group_description,
-            'form_apply_to_project': form_apply_to_project,
-            'form_add_user': form_add_user,
-            'real_group': real_group,
-            'user_set': get_users_with_perms(real_group),
-    }
-    return render(request,
-                  'real_group/group_management_page.html',
-                  render_data_dict)
-
 
 @permission_required_or_403('real_group_management', (RealGroup, 'id', 'real_group_id',))
 def invite_user_to_real_group(request, user_info_id, real_group_id):
