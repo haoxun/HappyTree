@@ -14,8 +14,9 @@ from real_group.models import RealGroup, UserInfo_RealGroup_AC
 # form
 from real_group.forms import GroupNameHandlerForm, GroupDescriptionHandlerForm, \
                              AddUserForm, ApplyToGroupForm
-from project.forms import RealGroupApplyToForm
+from project.forms import RealGroupApplyToProjectForm
 # decorator
+from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 # util
 from ShareDoc.utils import url_with_querystring, extract_from_GET
@@ -106,6 +107,147 @@ def group_list_page(request):
                   'real_group/group_list_page.html',
                   render_data_dict)
 
+# replace with class view
+from django.http import HttpResponse
+from django.views.generic.base import View
+import json
+class GroupManagementPage(View):
+    """
+    This class manage the process logic of group management page.
+    """
+    @method_decorator(login_required)
+    @method_decorator(permission_required_or_403('real_group_management', 
+                      (RealGroup, 'id', 'real_group_id',)))
+    def dispatch(self, *args, **kwargs):
+        return super(GroupManagementPage, self).dispatch(*args, **kwargs)
+
+    def get(self, request, real_group_id):
+        real_group = get_object_or_404(RealGroup, id=int(real_group_id))
+        # form
+        form_group_name = GroupNameHandlerForm()
+        form_group_description = GroupDescriptionHandlerForm()
+        form_add_user = AddUserForm()
+        form_apply_to_project = RealGroupApplyToProjectForm()
+        render_data_dict = {
+                'request': request,
+                'form_group_name': form_group_name,            
+                'form_group_description': form_group_description,
+                'form_apply_to_project': form_apply_to_project,
+                'form_add_user': form_add_user,
+                'real_group': real_group,
+                'user_set': get_users_with_perms(real_group),
+        }
+        return render(request,
+                      'real_group/cls_group_management_page.html',
+                      render_data_dict)
+    
+    # form process, base on AJAX POST.
+    def _group_info_handler(self, request, real_group, form_cls, field_name):
+        form = form_cls(request.POST)
+        if form.is_valid():
+            field = form.cleaned_data[field_name]
+            setattr(real_group, field_name, field)
+            real_group.save()
+            json_data = json.dumps({
+                            'error': False,
+                            'data' : {field_name: field},
+                        })
+            return HttpResponse(json_data, content_type='application/json')
+        else:
+            errors_dict = dict(form.errors)
+            for key, value in errors_dict.items():
+                errors_dict[key] = "; ".join(value)
+            json_data = json.dumps({
+                            'error': True,
+                            'data': errors_dict,
+                        })
+            return HttpResponse(json_data, content_type='application/json')
+    
+    def _apply_confirm_handler(self, 
+                               request, 
+                               real_group, 
+                               form_cls,
+                               target_set_generator):
+        form = form_cls(request.POST)
+        if form.is_valid():
+            target_set = target_set_generator(form, real_group)
+            json_data = json.dumps({
+                            'error': False,
+                            'data': target_set,
+                        })
+            return HttpResponse(json_data, content_type='application/json')
+        else:
+            errors_dict = dict(form.errors)
+            for key, value in errors_dict.items():
+                errors_dict[key] = "; ".join(value)
+            json_data = json.dumps({
+                            'error': errors_dict,
+                        })
+            return HttpResponse(json_data, content_type='application/json')
+
+    def _add_user_generator(self, form_add_user, real_group):
+        add_user_set = {}
+        for user in form_add_user.add_user_set:
+            if user.has_perm('real_group_membership', real_group):
+                # already in group, not display
+                continue
+            keywords = {'real_group_id': real_group.id,
+                        'user_info_id': user.userinfo.id}
+            add_user_set[user.username] = \
+                    reverse('invite_user_to_real_group',
+                            kwargs=keywords)
+        return add_user_set
+    
+    def _add_project_set(self, form_apply_to_project, real_group):
+        add_project_set = {}
+        for project in form_apply_to_project.add_project_set:
+            keywords = {'real_group_id': real_group.id,
+                        'project_id': project.id}
+            add_project_set[project.name] = \
+                    reverse('real_group_apply_to_project',
+                            kwargs=keywords)
+        return add_project_set
+
+    def _gen_handler(self, request):
+        if "group_name_submit" in request.POST:
+            return self._group_name_handler
+        elif "group_description_submit" in request.POST:
+            return self._group_description_handler
+        elif "RTU_submit" in request.POST:
+            return self._real_group_apply_to_user_handler
+        elif "RTP_submit" in request.POST:
+            return self._real_group_apply_to_project_handler
+        else:
+            raise PermissionDenied
+
+    def _group_name_handler(self, request, real_group):
+        return self._group_info_handler(request, 
+                                        real_group, 
+                                        GroupNameHandlerForm,
+                                        'name')
+    
+    def _group_description_handler(self, request, real_group):
+        return self._group_info_handler(request, 
+                                        real_group, 
+                                        GroupDescriptionHandlerForm,
+                                        'description')
+
+    def _real_group_apply_to_user_handler(self, request, real_group):
+        return self._apply_confirm_handler(request,
+                                           real_group,
+                                           AddUserForm,
+                                           self._add_user_generator)
+    def _real_group_apply_to_project_handler(self, request, real_group):
+        return self._apply_confirm_handler(request,
+                                           real_group,
+                                           RealGroupApplyToProjectForm,
+                                           self._add_project_set)
+
+    def post(self, request, real_group_id):
+        real_group = get_object_or_404(RealGroup, id=int(real_group_id))
+        handler = self._gen_handler(request)
+        return handler(request, real_group)
+
 @permission_required_or_403('real_group_management', (RealGroup, 'id', 'real_group_id',))
 def group_management_page(request, real_group_id):
     """
@@ -119,7 +261,7 @@ def group_management_page(request, real_group_id):
         form_group_name = GroupNameHandlerForm(request.POST)
         form_group_description = GroupDescriptionHandlerForm(request.POST)
         form_add_user = AddUserForm(request.POST)
-        form_apply_to_project = RealGroupApplyToForm(request.POST)
+        form_apply_to_project = RealGroupApplyToProjectForm(request.POST)
 
         if form_group_name.is_valid():
             # update group info, short-circuit
@@ -142,7 +284,7 @@ def group_management_page(request, real_group_id):
             # unbound name, description
             form_group_name = GroupNameHandlerForm()
             form_group_description = GroupDescriptionHandlerForm()
-            form_apply_to_project = RealGroupApplyToForm()
+            form_apply_to_project = RealGroupApplyToProjectForm()
 
         if form_apply_to_project.is_valid():
             form_group_name = GroupNameHandlerForm()
@@ -154,7 +296,7 @@ def group_management_page(request, real_group_id):
         form_group_name = GroupNameHandlerForm()
         form_group_description = GroupDescriptionHandlerForm()
         form_add_user = AddUserForm()
-        form_apply_to_project = RealGroupApplyToForm()
+        form_apply_to_project = RealGroupApplyToProjectForm()
     
     # rendering    
     render_data_dict = {

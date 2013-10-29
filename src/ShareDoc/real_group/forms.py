@@ -43,7 +43,8 @@ class AddUserForm(forms.Form):
         if 'username' not in self.cleaned_data:
             return self.cleaned_data
         username = self.cleaned_data['username']
-        self._add_user_set = User.objects.filter(username__icontains=username)
+        self._add_user_set = User.objects.filter(username__icontains=username,
+                                                 id__gte=0)
         return self.cleaned_data
 
 class ApplyToGroupForm(GroupNameHandlerForm):
