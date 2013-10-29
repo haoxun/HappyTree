@@ -68,7 +68,11 @@ $(function() {
 		var form = $(this);
 		$.post('.', post_str, function(json_data) {
 			if(json_data.error) {
-				form.parent().children('p.error').text(json_data.error);	
+				error_msg = "";
+				$.each(json_data.error, function(index, value) {
+					error_msg += index + ":" + value;
+				});
+				form.parent().children('p.error').text(error_msg);
 			}
 			else {
 				var search_result = form.parent().children('div.search_result');

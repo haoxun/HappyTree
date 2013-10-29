@@ -83,6 +83,7 @@
 
 	<div class="apply_confirm">
 		<p>Add Group To Project</p>
+		<p class="error"></p>
 		<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
 			{% csrf_token %}
 			{{form_apply_to_project.as_p}}

@@ -27,9 +27,101 @@ from real_group.utils import construct_user_real_group_ac
 from datetime import datetime
 import json
 
-@login_required
-def create_group_page(request):
-    if request.method == "POST":
+@permission_required_or_403('real_group_membership', (RealGroup, 'id', 'real_group_id',))
+def group_page(request, real_group_id):
+    """
+    recive RealGroup id as the paremeter.
+    """
+    real_group_id = int(real_group_id)
+    real_group = get_object_or_404(RealGroup, id=real_group_id)
+    user_set = get_users_with_perms(real_group)
+
+    render_data_dict = {
+            'request': request,
+            'real_group': real_group,
+            'user_set': user_set,
+    }
+    return render(request, 
+                  'real_group/group_page.html', 
+                  render_data_dict)
+    
+class ApplyConfirmHandler(object):
+    """
+    handler of the situations that somebody search sth via a form.
+    """
+    def _apply_confirm_handler(self, 
+                               request, 
+                               applier, 
+                               form_cls,
+                               target_set_generator):
+        form = form_cls(request.POST)
+        if form.is_valid():
+            target_set = target_set_generator(form, applier)
+            json_data = json.dumps({
+                            'error': False,
+                            'data': target_set,
+                        })
+            return HttpResponse(json_data, content_type='application/json')
+        else:
+            error_dict = dict(form.errors)
+            for key, value in error_dict.items():
+                error_dict[key] = "; ".join(value)
+            json_data = json.dumps({
+                            'error': error_dict,
+                        })
+            return HttpResponse(json_data, content_type='application/json')
+
+class GroupListPage(View, ApplyConfirmHandler):
+    """
+    This class manage the process logic of presenting groups, including
+    1. links to groups.
+    2. searching groups to attend.
+    3. create group.
+    """
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(GroupListPage, self).dispatch(*args, **kwargs)
+
+    def get(self, request):
+        form_apply_to_group = ApplyToGroupForm()
+        form_group_name = GroupNameHandlerForm()    
+        form_group_description = GroupDescriptionHandlerForm()
+        real_group_set = get_objects_for_user(request.user, 
+                                              'real_group.real_group_membership')
+        render_data_dict = {
+                'form_apply_to_group': form_apply_to_group,
+                'form_group_name': form_group_name,
+                'form_group_description': form_group_description,
+                'request': request,
+                'real_group_set': real_group_set,
+        }
+        return render(request, 
+                      'real_group/group_list_page.html',
+                      render_data_dict)
+        
+    def _handler_factory(self, request):
+        if 'UTR_submit' in request.POST:
+            return self._user_apply_to_real_group
+        elif 'create_group_submit' in request.POST:
+            return self._create_group
+
+    def _add_group_generator(self, form, user_info):
+        add_group_set = {}
+        for real_group in form.add_group_set:
+            keywords = {'user_info_id': user_info.id,
+                        'real_group_id': real_group.id}
+            add_group_set[real_group.name] = \
+                    reverse('user_apply_to_real_group',
+                            kwargs=keywords)
+        return add_group_set
+
+    
+    def _user_apply_to_real_group(self, request):
+        return self._apply_confirm_handler(request,
+                                           request.user.userinfo,
+                                           ApplyToGroupForm,
+                                           self._add_group_generator)
+    def _create_group(self, request):
         form_group_name = GroupNameHandlerForm(request.POST)    
         form_group_description = GroupDescriptionHandlerForm(request.POST)
         if form_group_name.is_valid() and form_group_description.is_valid():
@@ -57,60 +149,31 @@ def create_group_page(request):
             # relate user to group
             group.user_set.add(request.user)
             # redirect to group page
-            return redirect('group_page',
-                            real_group_id=real_group.id)
-    else:
-        form_group_name = GroupNameHandlerForm()    
-        form_group_description = GroupDescriptionHandlerForm()
-    render_data_dict = {
-            'form_group_name': form_group_name,            
-            'form_group_description': form_group_description,
-    }
-    return render(request,
-                  'real_group/create_group_page.html',
-                  render_data_dict)
+            keywords = {'real_group_id': real_group.id}
+            json_data = json.dumps({
+                            'error': False,
+                            'url': reverse('group_page',
+                                           kwargs=keywords),
+                        })
+            return HttpResponse(json_data, content_type='application/json')
+        else:
+            error_dict = dict(form_group_name.errors)
+            error_dict.update(form_group_description.errors)
+            error_list = []
+            for key, value in error_dict.items():
+                error_dict[key] = "; ".join(value)
+                error_list.append(key + ":" + error_dict[key])
+            json_data = json.dumps({
+                            'error': "; ".join(error_list),
+                            'url': None,
+                        })
+            return HttpResponse(json_data, content_type='application/json')
 
-@permission_required_or_403('real_group_membership', (RealGroup, 'id', 'real_group_id',))
-def group_page(request, real_group_id):
-    """
-    recive RealGroup id as the paremeter.
-    """
-    real_group_id = int(real_group_id)
-    real_group = get_object_or_404(RealGroup, id=real_group_id)
-    user_set = get_users_with_perms(real_group)
+    def post(self, request):
+        handler = self._handler_factory(request)
+        return handler(request)
 
-    render_data_dict = {
-            'request': request,
-            'real_group': real_group,
-            'user_set': user_set,
-    }
-    return render(request, 
-                  'real_group/group_page.html', 
-                  render_data_dict)
-
-@login_required
-def group_list_page(request):
-    """
-    show groups related to the user
-    """
-    if request.method == "POST":
-        form_apply_to_group = ApplyToGroupForm(request.POST)
-    else:
-        form_apply_to_group = ApplyToGroupForm()
-
-    real_group_set = get_objects_for_user(request.user, 
-                                          'real_group.real_group_membership')
-    render_data_dict = {
-            'request': request,
-            'real_group_set': real_group_set,
-            'form_apply_to_group': form_apply_to_group,
-    }
-
-    return render(request, 
-                  'real_group/group_list_page.html',
-                  render_data_dict)
-
-class GroupManagementPage(View):
+class GroupManagementPage(View, ApplyConfirmHandler):
     """
     This class manage the process logic of group management page.
     """
@@ -153,34 +216,12 @@ class GroupManagementPage(View):
                         })
             return HttpResponse(json_data, content_type='application/json')
         else:
-            errors_dict = dict(form.errors)
-            for key, value in errors_dict.items():
-                errors_dict[key] = "; ".join(value)
+            error_dict = dict(form.errors)
+            for key, value in error_dict.items():
+                error_dict[key] = "; ".join(value)
             json_data = json.dumps({
                             'error': True,
-                            'data': errors_dict,
-                        })
-            return HttpResponse(json_data, content_type='application/json')
-    
-    def _apply_confirm_handler(self, 
-                               request, 
-                               real_group, 
-                               form_cls,
-                               target_set_generator):
-        form = form_cls(request.POST)
-        if form.is_valid():
-            target_set = target_set_generator(form, real_group)
-            json_data = json.dumps({
-                            'error': False,
-                            'data': target_set,
-                        })
-            return HttpResponse(json_data, content_type='application/json')
-        else:
-            errors_dict = dict(form.errors)
-            for key, value in errors_dict.items():
-                errors_dict[key] = "; ".join(value)
-            json_data = json.dumps({
-                            'error': errors_dict,
+                            'data': error_dict,
                         })
             return HttpResponse(json_data, content_type='application/json')
 
@@ -207,7 +248,7 @@ class GroupManagementPage(View):
                             kwargs=keywords)
         return add_project_set
 
-    def _gen_handler(self, request):
+    def _handler_factory(self, request):
         if "group_name_submit" in request.POST:
             return self._group_name_handler
         elif "group_description_submit" in request.POST:
@@ -244,19 +285,18 @@ class GroupManagementPage(View):
 
     def post(self, request, real_group_id):
         real_group = get_object_or_404(RealGroup, id=int(real_group_id))
-        handler = self._gen_handler(request)
+        handler = self._handler_factory(request)
         return handler(request, real_group)
 
 @permission_required_or_403('real_group_management', (RealGroup, 'id', 'real_group_id',))
 def invite_user_to_real_group(request, user_info_id, real_group_id):
     construct_user_real_group_ac(user_info_id, real_group_id, "ACTION_RTU")
-    return redirect('group_management_page',
-                    real_group_id=int(real_group_id))
+    return HttpResponse('OK')
 
 @login_required
 def user_apply_to_real_group(request, user_info_id, real_group_id):
     construct_user_real_group_ac(user_info_id, real_group_id, "ACTION_UTR")
-    return redirect('group_list_page')
+    return HttpResponse('OK')
 
 @permission_required_or_403('real_group_management', (RealGroup, 'id', 'real_group_id',))
 def delete_user_from_group(request, real_group_id, user_info_id):
