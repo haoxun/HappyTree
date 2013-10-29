@@ -23,7 +23,8 @@ from django.contrib.auth.decorators import login_required
 # util
 from ShareDoc.utils import url_with_querystring, extract_from_GET
 from real_group.utils import construct_user_real_group_ac, \
-                             ApplyConfirmHandler
+                             ApplyConfirmHandler, \
+                             BasicInfoHandler
 # python library
 from datetime import datetime
 
@@ -151,7 +152,8 @@ class GroupListPage(View, ApplyConfirmHandler):
         handler = self._handler_factory(request)
         return handler(request)
 
-class GroupManagementPage(View, ApplyConfirmHandler):
+
+class GroupManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
     """
     This class manage the process logic of group management page.
     """
@@ -181,28 +183,7 @@ class GroupManagementPage(View, ApplyConfirmHandler):
                       'real_group/group_management_page.html',
                       render_data_dict)
     
-    # form process, base on AJAX POST.
-    def _group_info_handler(self, request, real_group, form_cls, field_name):
-        form = form_cls(request.POST)
-        if form.is_valid():
-            field = form.cleaned_data[field_name]
-            setattr(real_group, field_name, field)
-            real_group.save()
-            json_data = json.dumps({
-                            'error': False,
-                            'data' : {field_name: field},
-                        })
-            return HttpResponse(json_data, content_type='application/json')
-        else:
-            error_dict = dict(form.errors)
-            for key, value in error_dict.items():
-                error_dict[key] = "; ".join(value)
-            json_data = json.dumps({
-                            'error': True,
-                            'data': error_dict,
-                        })
-            return HttpResponse(json_data, content_type='application/json')
-
+    
     def _add_user_generator(self, form_add_user, real_group):
         add_user_set = {}
         for user in form_add_user.add_user_set:
@@ -242,13 +223,13 @@ class GroupManagementPage(View, ApplyConfirmHandler):
             raise PermissionDenied
 
     def _group_name_handler(self, request, real_group):
-        return self._group_info_handler(request, 
+        return self._basic_info_handler(request, 
                                         real_group, 
                                         GroupNameHandlerForm,
                                         'name')
     
     def _group_description_handler(self, request, real_group):
-        return self._group_info_handler(request, 
+        return self._basic_info_handler(request, 
                                         real_group, 
                                         GroupDescriptionHandlerForm,
                                         'description')

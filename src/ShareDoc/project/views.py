@@ -1,8 +1,10 @@
 from __future__ import unicode_literals
 # django dependency
 from django.http import HttpResponse
+from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
+from django.views.generic.base import View
 # auth dependency
 from django.contrib.auth.decorators import login_required
 from guardian.decorators import permission_required_or_403, permission_required
@@ -18,9 +20,12 @@ from project.models import UserInfo_Project_AC, RealGroup_Project_AC, \
 from project.forms import ProjectNameHandlerForm, ProjectDescriptionHandlerForm, \
                           AddUserForm, AddRealGroupForm, ApplyToProjectForm
 # decorator
+from django.utils.decorators import method_decorator
 # util
 from project.utils import construct_user_project_ac, \
                           construct_real_group_project_ac
+from real_group.utils import ApplyConfirmHandler, \
+                             BasicInfoHandler
 # python library
 from datetime import datetime
 
@@ -105,6 +110,106 @@ def project_file_list_page(request, project_id):
     return render(request,
                   'project/project_file_list_page.html',
                   render_data_dict)
+
+
+class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
+    """
+    This class handle the configuration process of project.
+    """
+    @method_decorator(login_required)
+    @method_decorator(permission_required_or_403('project.project_management', 
+                      (Project, 'id', 'project_id',)))
+    def dispatch(self, *args, **kwargs):
+        return super(ProjectManagementPage, self).dispatch(*args, **kwargs)
+
+    def get(self, request, project_id):
+        project = get_object_or_404(Project, id=int(project_id))
+        form_project_name = ProjectNameHandlerForm()
+        form_project_description = ProjectDescriptionHandlerForm()
+        form_add_user = AddUserForm()
+        form_add_real_group = AddRealGroupForm()
+
+        render_data_dict = {
+                'request': request,
+                'project': project,
+                'user_set': get_users_with_perms(project),
+                'form_project_name': form_project_name,
+                'form_project_description': form_project_description,
+                'form_add_user': form_add_user,
+                'form_add_real_group': form_add_real_group,
+        }
+        return render(request,
+                      'project/cls_project_management_page.html',
+                      render_data_dict)
+
+    def _add_user_generator(self, form_add_user, project):
+        add_user_set = {}
+        for user in form_add_user.add_user_set:
+            if user.has_perm('project_management', project):
+                # already in group, not display
+                continue
+            keywords = {'project_id': project.id,
+                        'user_info_id': user.userinfo.id}
+            add_user_set[user.username] = \
+                    reverse('invite_user_to_project',
+                            kwargs=keywords)
+        return add_user_set
+
+    def _add_real_group_generator(self, form_add_real_group, project):
+        add_real_group_set = {}
+        for real_group in form_add_real_group.add_real_group_set:
+            if project.real_groups.filter(id=real_group.id):
+                # real group already in real_group
+                continue
+            keywords = {'project_id': project.id,
+                        'real_group_id': real_group.id}
+            add_real_group_set[real_group.name] = \
+                    reverse('invite_real_group_to_project',
+                            kwargs=keywords)
+        return add_real_group_set
+
+
+    def _handler_factory(self, request):
+        if 'project_name_submit' in request.POST:
+            return self._project_name_handler
+        elif 'project_description_submit' in request.POST:
+            return self._project_description_handler
+        elif 'PTR_submit' in request.POST:
+            return self._project_apply_to_real_group_handler
+        elif 'PTU_submit' in request.POST:
+            return self._project_apply_to_user_handler
+
+    def _project_name_handler(self, request, project):
+        return self._basic_info_handler(request,
+                                        project,
+                                        ProjectNameHandlerForm,
+                                        'name')
+
+    def _project_description_handler(self, request, project):
+        return self._basic_info_handler(request,
+                                        project,
+                                        ProjectDescriptionHandlerForm,
+                                        'description')
+
+    def _project_apply_to_user_handler(self, request, project):
+        return self._apply_confirm_handler(request,
+                                           project,
+                                           AddUserForm,
+                                           self._add_user_generator)
+
+    def _project_apply_to_real_group_handler(self, request, project):
+        return self._apply_confirm_handler(request,
+                                           project,
+                                           AddRealGroupForm,
+                                           self._add_real_group_generator)
+    
+    def post(self, request, project_id):
+        project = get_object_or_404(Project, id=int(project_id))
+        handler = self._handler_factory(request)
+        return handler(request, project)
+
+
+
 
 
 

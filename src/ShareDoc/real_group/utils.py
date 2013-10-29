@@ -68,5 +68,25 @@ class ApplyConfirmHandler(object):
                         })
             return HttpResponse(json_data, content_type='application/json')
 
-
-
+class BasicInfoHandler(object):
+    # form process, base on AJAX POST.
+    def _basic_info_handler(self, request, target, form_cls, field_name):
+        form = form_cls(request.POST)
+        if form.is_valid():
+            field = form.cleaned_data[field_name]
+            setattr(target, field_name, field)
+            target.save()
+            json_data = json.dumps({
+                            'error': False,
+                            'data' : {field_name: field},
+                        })
+            return HttpResponse(json_data, content_type='application/json')
+        else:
+            error_dict = dict(form.errors)
+            for key, value in error_dict.items():
+                error_dict[key] = "; ".join(value)
+            json_data = json.dumps({
+                            'error': True,
+                            'data': error_dict,
+                        })
+            return HttpResponse(json_data, content_type='application/json')

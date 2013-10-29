@@ -1,9 +1,7 @@
 from __future__ import unicode_literals
 from django.conf.urls import patterns, include, url
 
-# Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
+from project.views import ProjectManagementPage
 
 urlpatterns = patterns('',
     # Examples:
@@ -20,8 +18,14 @@ urlpatterns = patterns('',
     url(r'^(?P<project_id>\d+)/message_list/$', 'file_storage.views.project_message_page', name='project_message_page'),
     # show files related to porject
     url(r'^(?P<project_id>\d+)/file_list/$', 'project.views.project_file_list_page', name='project_file_list_page'),
+    # class view management page
+    url(r'^management/(?P<project_id>\d+)/cls/$', 
+        ProjectManagementPage.as_view(),
+        name='cls_project_management_page'),
     # management page
-    url(r'^management/(?P<project_id>\d+)/$', 'project.views.project_management_page', name='project_management_page'),
+    url(r'^management/(?P<project_id>\d+)/$', 
+        'project.views.project_management_page', 
+        name='project_management_page'),
     # change role of user
     url(r'^process/user_role/(?P<project_id>\d+)/(?P<user_info_id>\d+)/(?P<decision>True|False)/$', 
         'project.views.process_user_role_on_project',
