@@ -22,10 +22,10 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 # util
 from ShareDoc.utils import url_with_querystring, extract_from_GET
-from real_group.utils import construct_user_real_group_ac
+from real_group.utils import construct_user_real_group_ac, \
+                             ApplyConfirmHandler
 # python library
 from datetime import datetime
-import json
 
 @permission_required_or_403('real_group_membership', (RealGroup, 'id', 'real_group_id',))
 def group_page(request, real_group_id):
@@ -45,31 +45,6 @@ def group_page(request, real_group_id):
                   'real_group/group_page.html', 
                   render_data_dict)
     
-class ApplyConfirmHandler(object):
-    """
-    handler of the situations that somebody search sth via a form.
-    """
-    def _apply_confirm_handler(self, 
-                               request, 
-                               applier, 
-                               form_cls,
-                               target_set_generator):
-        form = form_cls(request.POST)
-        if form.is_valid():
-            target_set = target_set_generator(form, applier)
-            json_data = json.dumps({
-                            'error': False,
-                            'data': target_set,
-                        })
-            return HttpResponse(json_data, content_type='application/json')
-        else:
-            error_dict = dict(form.errors)
-            for key, value in error_dict.items():
-                error_dict[key] = "; ".join(value)
-            json_data = json.dumps({
-                            'error': error_dict,
-                        })
-            return HttpResponse(json_data, content_type='application/json')
 
 class GroupListPage(View, ApplyConfirmHandler):
     """
@@ -108,6 +83,9 @@ class GroupListPage(View, ApplyConfirmHandler):
     def _add_group_generator(self, form, user_info):
         add_group_set = {}
         for real_group in form.add_group_set:
+            if user_info.user.has_perm('real_group_membership', real_group):
+                # user already in group
+                continue
             keywords = {'user_info_id': user_info.id,
                         'real_group_id': real_group.id}
             add_group_set[real_group.name] = \
@@ -241,6 +219,9 @@ class GroupManagementPage(View, ApplyConfirmHandler):
     def _add_project_set(self, form_apply_to_project, real_group):
         add_project_set = {}
         for project in form_apply_to_project.add_project_set:
+            if project.real_groups.filter(id=real_group.id):
+                # real group already in project
+                continue
             keywords = {'real_group_id': real_group.id,
                         'project_id': project.id}
             add_project_set[project.name] = \

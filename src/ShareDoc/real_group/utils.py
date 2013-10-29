@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 # django dependency
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 # auth dependency
@@ -10,6 +11,7 @@ from real_group.models import RealGroup, UserInfo_RealGroup_AC
 # form
 # decorator
 # util
+import json
 # python library
 
 def construct_user_real_group_ac(user_info_id, real_group_id, direction):
@@ -39,6 +41,32 @@ def construct_user_real_group_ac(user_info_id, real_group_id, direction):
                     assign_perm('real_group.process_user_real_group_ac',
                                 user,
                                 real_group_user_ac)
+
+class ApplyConfirmHandler(object):
+    """
+    handler of the situations that somebody search sth via a form.
+    """
+    def _apply_confirm_handler(self, 
+                               request, 
+                               applier, 
+                               form_cls,
+                               target_set_generator):
+        form = form_cls(request.POST)
+        if form.is_valid():
+            target_set = target_set_generator(form, applier)
+            json_data = json.dumps({
+                            'error': False,
+                            'data': target_set,
+                        })
+            return HttpResponse(json_data, content_type='application/json')
+        else:
+            error_dict = dict(form.errors)
+            for key, value in error_dict.items():
+                error_dict[key] = "; ".join(value)
+            json_data = json.dumps({
+                            'error': error_dict,
+                        })
+            return HttpResponse(json_data, content_type='application/json')
 
 
 
