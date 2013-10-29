@@ -19,13 +19,13 @@ urlpatterns = patterns('',
     # show files related to porject
     url(r'^(?P<project_id>\d+)/file_list/$', 'project.views.project_file_list_page', name='project_file_list_page'),
     # class view management page
-    url(r'^management/(?P<project_id>\d+)/cls/$', 
-        ProjectManagementPage.as_view(),
-        name='cls_project_management_page'),
-    # management page
     url(r'^management/(?P<project_id>\d+)/$', 
-        'project.views.project_management_page', 
+        ProjectManagementPage.as_view(),
         name='project_management_page'),
+    # management page
+    #url(r'^management/(?P<project_id>\d+)/$', 
+    #    'project.views.project_management_page', 
+    #    name='project_management_page'),
     # change role of user
     url(r'^process/user_role/(?P<project_id>\d+)/(?P<user_info_id>\d+)/(?P<decision>True|False)/$', 
         'project.views.process_user_role_on_project',

@@ -139,7 +139,7 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
                 'form_add_real_group': form_add_real_group,
         }
         return render(request,
-                      'project/cls_project_management_page.html',
+                      'project/project_management_page.html',
                       render_data_dict)
 
     def _add_user_generator(self, form_add_user, project):
@@ -207,64 +207,6 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
         project = get_object_or_404(Project, id=int(project_id))
         handler = self._handler_factory(request)
         return handler(request, project)
-
-
-
-
-
-
-@permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))
-def project_management_page(request, project_id):
-    """
-    management of member's paticipation, member's role, authorizaion;
-    management of project's default permission.
-    management of project's name and description.
-    """
-    project = get_object_or_404(Project, id=int(project_id))
-    if request.method == 'POST':
-        form_project_name = ProjectNameHandlerForm(request.POST)
-        form_project_description = ProjectDescriptionHandlerForm(request.POST)
-        form_add_user = AddUserForm(request.POST)
-        form_add_real_group = AddRealGroupForm(request.POST)
-        if form_project_name.is_valid(): 
-            name = form_project_name.cleaned_data['name']
-            project.name = name
-            project.save()
-            return redirect('project_management_page', project_id=project.id)
-        if form_project_description.is_valid():
-            description = form_project_description.cleaned_data['description']
-            project.description = description
-            project.save()
-            return redirect('project_management_page', project_id=project.id)
-        
-        if form_add_user.is_valid():
-            form_project_name = ProjectNameHandlerForm()
-            form_project_description = ProjectDescriptionHandlerForm()
-            form_add_real_group = AddRealGroupForm()
-
-        if form_add_real_group.is_valid():
-            form_project_name = ProjectNameHandlerForm()
-            form_project_description = ProjectDescriptionHandlerForm()
-            form_add_user = AddUserForm()
-    else:
-        form_project_name = ProjectNameHandlerForm()
-        form_project_description = ProjectDescriptionHandlerForm()
-        form_add_user = AddUserForm()
-        form_add_real_group = AddRealGroupForm()
-
-    render_data_dict = {
-            'request': request,
-            'project': project,
-            'user_set': get_users_with_perms(project),
-            'form_project_name': form_project_name,
-            'form_project_description': form_project_description,
-            'form_add_user': form_add_user,
-            'form_add_real_group': form_add_real_group,
-    }
-    return render(request,
-                  'project/project_management_page.html',
-                  render_data_dict)
-
 
 @permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))
 def process_user_role_on_project(request, project_id, user_info_id, decision):

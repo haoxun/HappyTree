@@ -1,7 +1,12 @@
-
 {% extends 'base_with_navigation.html' %}
-{% block content %}
+
+{% load staticfiles %}
+{% block js %}
+<script src={% static 'project/project_management.js' %}></script>
+{% endblock %}
+
 {% load guardian_tags %}
+{% block content %}
 	<div id=project_navigation>
 		<a href={% url 'project_message_page' project_id=project.id %}>Message List</a>
 		<a href={% url 'project_file_list_page' project_id=project.id %}>Files Of Project</a>
@@ -63,26 +68,44 @@
 		</div>
 	</div>
 
-	<div id="project_basic_info">
-		<div id="modify_project_name">
-		<p>Modify Project Name</p>
-		<form method="post" action={% url 'project_management_page' project_id=project.id %}>
-			{% csrf_token %}
-			{{form_project_name.as_p}}
-			<input type="submit" name="project_name_submit" value="Submit"/>
-		</form>	
+	<div class="project_basic_info">
+		<div id="display_project_name">
+			Project Name: <span>{{project.name}}</span>
+			<a href="#">[Change]</a>
 		</div>
+
 		<div id="modify_project_name">
-		<p>Modify Project Description</p>
-		<form method="post" action={% url 'project_management_page' project_id=project.id %}>
-			{% csrf_token %}
-			{{form_project_description.as_p}}
-			<input type="submit" name="project_description_submit" value="Submit"/>
-		</form>	
+			<p>Modify Project Name</p>
+			<p class="error"></p>
+			<form method="post" action={% url 'project_management_page' project_id=project.id %}>
+				{% csrf_token %}
+				{{form_project_name.as_p}}
+				<input type="submit" name="project_name_submit" value="Submit"/>
+				<input type="button" value="Cancel"/>
+			</form>	
+		</div>
+	</div>
+
+	<div class="project_basic_info">
+		<div id="display_project_description">
+			Project Description: <span>{{project.description}}</span>
+			<a href="#">[Change]</a>
+		</div>
+		
+		<div id="modify_project_description">
+			<p>Modify Project Description</p>
+			<p class="error"></p>
+			<form method="post" action={% url 'project_management_page' project_id=project.id %}>
+				{% csrf_token %}
+				{{form_project_description.as_p}}
+				<input type="submit" name="project_description_submit" value="Submit"/>
+				<input type="button" value="Cancel"/>
+			</form>	
 		</div>
 	</div>
 
 	<div id="project_default_permission">
+		<span>Defualt Member Permission: </span>
 		{% if project.project_group.download %}	
 		<a href={% url 'process_default_permission_on_project'  project_id=project.id kind="download" decision="False" %}>Can Download(Unset)</a>
 		{% else %}
@@ -103,57 +126,31 @@
 
 	</div>
 
-	<div id="add_user">
-		<p>Add User</p>
-		<form method="post" action={% url 'project_management_page' project_id=project.id %}>
-			{% csrf_token %}
-			{{form_add_user.as_p}}
-			<input type="submit" name="PTU_submit" value="Search"/>
-		</form>	
-		{% if form_add_user.add_user_set != "None" %}
-			<div id="search_result">
-			{% for user in form_add_user.add_user_set %}
-				<div>
-					<p>{{user.username}}
-					{% get_obj_perms user for project as "perms" %}
-					{% if "project_membership" not in perms %}
-					<a href={% url 'invite_user_to_project' project_id=project.id user_info_id=user.userinfo.id %}>Add</a>
-					{% else %}
-					[Already In Project]
-					{% endif %}
-					</p>
-				</div>
-			{% empty %}
-				<p>Can't Find Related User.</p>
-			{% endfor %}
-			</div>
-		{% endif %}
-	</div>
-
-	<div id="add_real_group">
-		<p>Add Real Group</p>
+	<div class="apply_confirm">
+		<p>Invite Group To Project</p>
+		<p class="error"></p>
 		<form method="post" action={% url 'project_management_page' project_id=project.id %}>
 			{% csrf_token %}
 			{{form_add_real_group.as_p}}
 			<input type="submit" name="PTR_submit" value="Search"/>
 		</form>	
-		{% if form_add_real_group.add_real_group_set != "None" %}
-			<div id="search_result">
-			{% for real_group in form_add_real_group.add_real_group_set %}
-				<div>
-					<p>{{real_group.name}}
-					{% if real_group not in project.real_groups.all %}
-					<a href={% url 'invite_real_group_to_project' project_id=project.id real_group_id=real_group.id %}>Add</a>
-					{% else %}
-					[Already In Project]
-					{% endif %}
-					</p>
-				</div>
-			{% empty %}
-				<p>Can't Find Related User.</p>
-			{% endfor %}
-			</div>
-		{% endif %}
+
+		<div class="search_result">
+		</div>
+	
+	</div>
+	<div class="apply_confirm">
+		<p>Invite User</p>
+		<p class="error"></p>
+		<form method="post" action={% url 'project_management_page' project_id=project.id %}>
+			{% csrf_token %}
+			{{form_add_user.as_p}}
+			<input type="submit" name="PTU_submit" value="Search"/>
+		</form>	
+
+		<div class="search_result">
+		</div>
+
 	</div>
 
 {% endblock %}
