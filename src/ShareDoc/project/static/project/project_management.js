@@ -1,3 +1,19 @@
+var set_link_behavior = function() {
+	$(this).find('a').click(function(event) {
+		event.preventDefault();
+		var url = $(this).attr('href');
+		$.get(url, load_user_and_perm);
+	});
+}
+var load_user_and_perm = function() {
+	$('#manager_list').load('.', {'load_manager_list': null}, set_link_behavior);
+	$('#member_list').load('.', {'load_member_list': null}, set_link_behavior);
+	$('#project_default_perm').load('.', {'load_default_perm': null}, set_link_behavior);
+}
+
+$(function() {
+	load_user_and_perm.call();
+});
 $(function() {
 	$('#modify_project_name').hide();
 	$('#modify_project_description').hide();

@@ -22,6 +22,7 @@ from project.forms import ProjectNameHandlerForm, ProjectDescriptionHandlerForm,
 # decorator
 from django.utils.decorators import method_decorator
 # util
+from django.template.loader import render_to_string
 from project.utils import construct_user_project_ac, \
                           construct_real_group_project_ac
 from real_group.utils import ApplyConfirmHandler, \
@@ -166,7 +167,6 @@ class ProjectFileListPage(View):
             file_pointer_set.extend(message.file_pointers.all())
         render_data_dict = {
                 'project': project,
-                'request': request,
                 'file_pointer_set': file_pointer_set,
         }
         return render(request,
@@ -240,6 +240,37 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
             return self._project_apply_to_real_group_handler
         elif 'PTU_submit' in request.POST:
             return self._project_apply_to_user_handler
+        elif 'load_manager_list' in request.POST:
+            return self._manager_list_handler
+        elif 'load_member_list' in request.POST:
+            return self._member_list_handler
+        elif 'load_default_perm' in request.POST:
+            return self._default_perm_handler
+
+    def _get_html_response(self, request, project, template_name):
+        render_data_dict = {
+                'request': request,
+                'project': project,
+                'user_set': get_users_with_perms(project),
+        }
+        html = render_to_string(template_name,
+                                render_data_dict)
+        return HttpResponse(html)
+
+
+    def _manager_list_handler(self, request, project):
+        return self._get_html_response(request,
+                                       project,
+                                       'project/manager_list.html')
+    def _member_list_handler(self, request, project):
+        return self._get_html_response(request,
+                                       project,
+                                       'project/member_list.html')
+    def _default_perm_handler(self, request, project):
+        return self._get_html_response(request,
+                                       project,
+                                       'project/default_perm.html')
+
 
     def _project_name_handler(self, request, project):
         return self._basic_info_handler(request,
@@ -297,7 +328,7 @@ def process_user_role_on_project(request, project_id, user_info_id, decision):
             remove_perm('project_delete', user_info.user, project)
     else:
         raise PermissionDenied
-    return redirect('project_management_page', project_id=project.id)
+    return HttpResponse('OK')
 
 
 @permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))
@@ -314,10 +345,9 @@ def delete_user_from_project(request, project_id, user_info_id):
     # remove perms
     for perm in project_permissions:
         remove_perm(perm, user_info.user, project)
-    return redirect('project_management_page', project_id=project.id)
-
-
+    return HttpResponse('OK')
     
+
 @permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))
 def process_user_permission_on_project(request, 
                                        project_id, 
@@ -344,7 +374,8 @@ def process_user_permission_on_project(request,
     perm = "project_{}".format(kind)
     take_action(perm, user_info.user, project)
 
-    return redirect('project_management_page', project_id=project.id)
+    return HttpResponse('OK')
+
 
 @permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))
 def process_default_permission_on_project(request, 
@@ -370,7 +401,8 @@ def process_default_permission_on_project(request,
         raise PermissionDenied
     setattr(project_group, kind, val)
     project_group.save()
-    return redirect('project_management_page', project_id=project.id)
+
+    return HttpResponse('OK')
 
 
 @permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))

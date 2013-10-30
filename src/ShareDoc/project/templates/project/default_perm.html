@@ -1,0 +1,20 @@
+<span>Defualt Member Permission: </span>
+{% if project.project_group.download %}	
+<a href="{% url 'process_default_permission_on_project'  project_id=project.id kind="download" decision="False" %}">Can Download(Unset)</a>
+{% else %}
+<a href="{% url 'process_default_permission_on_project'  project_id=project.id kind="download" decision="True" %}">Cannot Download(Set)</a>
+{% endif %}
+
+{% if project.project_group.upload %}	
+<a href="{% url 'process_default_permission_on_project'  project_id=project.id kind="upload" decision="False" %}">Can Upload(Unset)</a>
+{% else %}
+<a href="{% url 'process_default_permission_on_project'  project_id=project.id kind="upload" decision="True" %}">Cannot Upload(Set)</a>
+{% endif %}
+
+{% if project.project_group.delete %}	
+<a href="{% url 'process_default_permission_on_project'  project_id=project.id kind="delete" decision="False" %}">Can Delete(Unset)</a>
+{% else %}
+<a href="{% url 'process_default_permission_on_project'  project_id=project.id kind="delete" decision="True" %}">Cannot Delete(Set)</a>
+{% endif %}
+
+

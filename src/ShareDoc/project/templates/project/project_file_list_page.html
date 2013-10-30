@@ -5,10 +5,12 @@
 <script src={% static 'project/project_file_list.js' %}></script>
 {% endblock %}
 
+{% load guardian_tags %}
 {% block content %}
 	<div id=project_navigation>
 		<a href={% url 'project_message_page' project_id=project.id %}>Message List</a>
 		<a href={% url 'project_file_list_page' project_id=project.id %}>Files Of Project</a>
+		{% get_obj_perms user for project as "perms" %}
 		{% if 'project_management' in perms %}
 		<a href={% url 'project_management_page' project_id=project.id %}>Managememt</a>
 		{% endif %}

@@ -1,0 +1,18 @@
+{% load guardian_tags %}
+
+<p>Manager List:</p>
+<div>
+{% for user in user_set %}
+	{% get_obj_perms user for project as "perms" %}
+	{% get_obj_perms request.user for project as "request_user_perms" %}
+	{% if "project_management" in perms %}
+	<div>
+		<p>{{user.username}}
+		{% if "project_ownership" not in perms and "project_ownership" in request_user_perms %}
+		<a href="{% url 'process_user_role_on_project' project_id=project.id user_info_id=user.userinfo.id decision="False" %}">Remove Manager</a>
+		{% endif %}
+		</p>
+	</div>	
+	{% endif %}
+{% endfor %}
+</div>
