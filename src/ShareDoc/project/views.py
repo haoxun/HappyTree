@@ -33,68 +33,6 @@ import json
 project_permissions = [permission \
         for permission, description in Project._meta.permissions]
 
-@login_required
-def create_project_page(request):
-    if request.method == 'POST':
-        form_project_name = ProjectNameHandlerForm(request.POST)
-        form_project_description = ProjectDescriptionHandlerForm(request.POST)
-        if form_project_name.is_valid() and form_project_description.is_valid():
-            # extract data
-            name = form_project_name.cleaned_data['name']
-            description = form_project_description.cleaned_data['description']
-            # create project
-            unique_name = (
-                    '[project]',
-                    request.user.username,
-                    unicode(datetime.now()),
-            )
-            unique_name = "".join(unique_name)
-
-            group = Group.objects.create(name=unique_name)
-            project_group = ProjectGroup.objects.create(
-                                group=group,
-                                download=True,
-                                upload=False,
-                                delete=False)
-            project = Project.objects.create(
-                        name=name,
-                        description=description,
-                        project_group=project_group)
-            # asociate with creator
-            group.user_set.add(request.user)
-            for perm in project_permissions:
-                assign_perm(perm, request.user, project)
-            # return redirect('')
-            return redirect('project_message_page', project_id=project.id)
-    else:
-        form_project_name = ProjectNameHandlerForm()
-        form_project_description = ProjectDescriptionHandlerForm()
-
-    render_data_dict = {
-            'form_project_name': form_project_name,
-            'form_project_description': form_project_description
-    }
-    return render(request,
-                  'project/create_project_page.html',
-                  render_data_dict)
-
-@login_required
-def project_list_page(request):
-    project_set = get_objects_for_user(request.user, 'project.project_membership')
-
-    if request.method == 'POST':
-        form_apply_to_project = ApplyToProjectForm(request.POST)
-    else:
-        form_apply_to_project = ApplyToProjectForm()
-
-    render_data_dict = {
-            'project_set': project_set,
-            'form_apply_to_project': form_apply_to_project,
-    }
-    return render(request,
-                  'project/project_list_page.html',
-                  render_data_dict)
-
 class ProjectListPage(View, ApplyConfirmHandler):
     """
     This class handle the process of project list page, including
@@ -120,7 +58,7 @@ class ProjectListPage(View, ApplyConfirmHandler):
                 'form_project_description': form_project_description
         }
         return render(request,
-                      'project/cls_project_list_page.html',
+                      'project/project_list_page.html',
                       render_data_dict)
 
 

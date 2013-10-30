@@ -11,16 +11,10 @@ urlpatterns = patterns('',
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
-    # Uncomment the next line to enable the admin:
-    url(r'^create/$', 'project.views.create_project_page', name='create_project_page'),
-    # project lsit
-    url(r'^list/$', 
-        'project.views.project_list_page', 
-        name='project_list_page'),
     # class view project lsit
-    url(r'^list/cls/$', 
+    url(r'^list/$', 
         ProjectListPage.as_view(),
-        name='cls_project_list_page'),
+        name='project_list_page'),
     # show message related to project
     url(r'^(?P<project_id>\d+)/message_list/$', 'file_storage.views.project_message_page', name='project_message_page'),
     # show files related to porject
