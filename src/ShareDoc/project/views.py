@@ -368,19 +368,17 @@ def process_default_permission_on_project(request,
 @permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))
 def invite_user_to_project(request, project_id, user_info_id):
     construct_user_project_ac(user_info_id, project_id, 'ACTION_PTU')
-    return redirect('project_management_page', project_id=project_id)
-    
-
+    return HttpResponse('OK')
 
 @permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))
 def invite_real_group_to_project(request, project_id, real_group_id):
     construct_real_group_project_ac(real_group_id, project_id, "ACTION_PTR")
-    return redirect('project_management_page', project_id=project_id)
+    return HttpResponse('OK')
 
 @login_required
 def user_apply_to_project(request, user_info_id, project_id):
     construct_user_project_ac(user_info_id, project_id, "ACTION_UTP")
-    return redirect('project_list_page')
+    return HttpResponse('OK')
 
 @login_required
 def real_group_apply_to_project(request, real_group_id, project_id):

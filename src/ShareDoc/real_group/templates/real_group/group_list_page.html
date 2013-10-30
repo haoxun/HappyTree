@@ -13,12 +13,14 @@
 	<ul>
 	{% for real_group in real_group_set %}
 		<li><a href={% url 'group_page' real_group_id=real_group.id %}>{{real_group.name}}</a></li>
+	{% empty %}
+		<p>There's No Group For You.</p>
 	{% endfor %}
 	</ul>
 	</div>
 
 	<div id="apply_to_group">
-		<a href="#">Attend a Group</a>
+		<a href="#">Attend Group</a>
 		<div>
 			<p>Search Group</p>
 			<p class="error"></p>

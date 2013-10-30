@@ -27,6 +27,7 @@ from real_group.utils import construct_user_real_group_ac, \
                              BasicInfoHandler
 # python library
 from datetime import datetime
+import json
 
 @permission_required_or_403('real_group_membership', (RealGroup, 'id', 'real_group_id',))
 def group_page(request, real_group_id):

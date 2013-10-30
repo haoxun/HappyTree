@@ -14,13 +14,13 @@
 			{% for project in project_set %}
 				<li><a href={% url 'project_message_page' project_id=project.id %}>{{project.name}}</a></li>
 			{% empty %}
-				<p>There's Not Project For You.</p>
+				<p>There's No Project For You.</p>
 			{% endfor %}
 		</ul>
 	</div>
 	
 	<div id="apply_to_project">
-		<a href="#">Attend a project</a>
+		<a href="#">Attend Project</a>
 		<div>
 			<p>Search Project</p>
 			<p class="error"></p>
@@ -36,7 +36,7 @@
 		</div>
 	</div>
 	<div id="creat_project">
-		<a href="#">Create project</a>
+		<a href="#">Create Project</a>
 		<div>
 			<p>Create Project</p>
 			<p class="error"></p>
