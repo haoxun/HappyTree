@@ -15,16 +15,8 @@ urlpatterns = patterns('',
     # url(r'^admin/', include(admin.site.urls)),
 
     # class view create message
-    url(r'^create/cls/$', 
+    url(r'^create/$', 
         CreateMessagePage.as_view(),
-        name='cls_create_message_page'),
-    # init message
-    url(r'^init/$', 
-        'file_storage.views.init_message_page', 
-        name='init_message_page'),
-    # create message 
-    url(r'^(?P<message_id>\d+)/create/$', 
-        'file_storage.views.create_message_page', 
         name='create_message_page'),
     # delete message
     url(r'^(?P<message_id>\d+)/delete/$', 

@@ -28,6 +28,7 @@ import os
 import mimetypes
 mimetypes.init()
 
+
 class CreateMessagePage(View):
     """
     This class handle the process of creating message, including
@@ -76,7 +77,7 @@ class CreateMessagePage(View):
                 'form_post_message': form_post_message,
         }
         return render(request,
-                      'file_storage/cls_create_message_page.html',
+                      'file_storage/create_message_page.html',
                       render_data_dict)
 
     def _handler_factory(self, request):
@@ -147,84 +148,6 @@ class CreateMessagePage(View):
         handler = self._handler_factory(request)
         return handler(request, message)
 
-
-@login_required
-def init_message_page(request):
-    # extract current processing message
-    message = get_objects_for_user(request.user, 'project.message_processing')
-    if message:
-        message = message[0]
-        return redirect('create_message_page', message_id=message.id)
-    # if no current processing message, init one.
-    project_set = get_objects_for_user(request.user, 'project.project_upload')
-    if len(project_set) == 0:
-        # after finish dev, should give some error message about that,
-        # instead of raising PermissionDenied
-        raise PermissionDenied
-    message = Message.objects.create(project=project_set[0],
-                                     owner=request.user.userinfo)
-    assign_perm('message_processing', request.user, message)
-    return redirect('create_message_page', message_id=message.id)
-
-@login_required
-def create_message_page(request, message_id):
-    message = get_object_or_404(Message, id=int(message_id))
-    project_set = get_objects_for_user(request.user, 'project.project_upload')
-
-    if request.user.userinfo != message.owner:
-        raise PermissionDenied
-
-    if request.method == 'POST':
-        form_select_project = ProjectChoiceForm(project_set, request.POST)
-        form_file_upload = FileUploadForm(request.POST, request.FILES)
-        form_post_message = MessageInfoForm(request.POST)
-        
-        if form_file_upload.is_valid():
-            uploaded_file = request.FILES['uploaded_file']
-            md5 = gen_MD5_of_UploadedFile(uploaded_file)
-            # get unique file
-            unique_file = UniqueFile.objects.filter(md5=md5)
-            if not unique_file:
-                # create unique file
-                unique_file = UniqueFile.objects.create(md5=md5)
-                # save md5 as its filename
-                unique_file.file.save(md5, uploaded_file)
-            else:
-                unique_file = unique_file[0]
-            # gen file pointer
-            file_pointer = FilePointer.objects.create(
-                                name=uploaded_file.name,
-                                unique_file=unique_file,
-                                message=message)
-            return redirect('create_message_page', message_id=message_id)
-
-        if form_post_message.is_valid() and form_select_project.is_valid():
-            # set message info
-            message.title = form_post_message.cleaned_data['title']
-            message.description = form_post_message.cleaned_data['description']
-            # target project
-            project_id = form_select_project.cleaned_data['project_id']
-            message.project = get_object_or_404(Project, id=int(project_id))
-            # set post
-            message.post_flag = True
-            message.save()
-            remove_perm('message_processing', request.user, message)
-            return redirect('home_page')
-    else:
-        form_select_project = ProjectChoiceForm(project_set)
-        form_file_upload = FileUploadForm()
-        form_post_message = MessageInfoForm()
-
-    render_data_dict = {
-            'request': request,
-            'message': message,
-            'form_select_project': form_select_project,
-            'form_file_upload': form_file_upload,
-            'form_post_message': form_post_message,
-    }
-    return render(request,
-                  'file_storage/create_message_page.html',
-                  render_data_dict)
 
 @login_required
 def delete_message(request, message_id):
