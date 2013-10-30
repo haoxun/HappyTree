@@ -5,10 +5,10 @@ from file_storage.models import FilePointer
 class FileUploadForm(forms.Form):
     uploaded_file = forms.FileField()
 
-    def clean(self):
-        if 'file_upload_submit' not in self.data:
-            raise forms.ValidationError("Not Being Submit")
-        return self.cleaned_data
+    #def clean(self):
+    #    if 'file_upload_submit' not in self.data:
+    #        raise forms.ValidationError("Not Being Submit")
+    #    return self.cleaned_data
             
 
 class ProjectChoiceForm(forms.Form):

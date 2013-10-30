@@ -82,30 +82,65 @@ class CreateMessagePage(View):
     def _handler_factory(self, request):
         if 'uploaded_file' in request.POST:
             return self._upload_file_handler
+        elif 'load_file_list' in request.POST:
+            return self._uploaded_file_list_handler
+        elif 'post_message_submit' in request.POST:
+            return self._post_message_handler
+    
+    def _post_message_handler(self, request, message):
+        form_select_project = ProjectChoiceForm(project_set, request.POST)
+        form_post_message = MessageInfoForm(request.POST)
+        if form_post_message.is_valid() and form_select_project.is_valid():
+            # set message info
+            message.title = form_post_message.cleaned_data['title']
+            message.description = form_post_message.cleaned_data['description']
+            # target project
+            project_id = form_select_project.cleaned_data['project_id']
+            message.project = get_object_or_404(Project, id=int(project_id))
+            # set post
+            message.post_flag = True
+            message.save()
+            remove_perm('message_processing', request.user, message)
+            return redirect('home_page')
+
+
+    def _uploaded_file_list_handler(self, request, message):
+        render_data_dict = {
+                'request': request,
+                'message': message
+        }
+        return render(request,
+                      'file_storage/uploaded_file_list.html',
+                      render_data_dict)
+
     
     def _upload_file_handler(self, request, message):
-        uploaded_file = request.FILES['uploaded_file']
-        # get or calculate MD5
-        # https://github.com/marcu87/hashme
-        md5 = request.POST.get('md5', None)
-        if md5 == None:
-            md5 = gen_MD5_of_UploadedFile(uploaded_file)
+        form_file_upload = FileUploadForm(request.POST, request.FILES)
+        if form_file_upload.is_valid():
+            uploaded_file = request.FILES['uploaded_file']
+            # get or calculate MD5
+            # https://github.com/marcu87/hashme
+            md5 = request.POST.get('md5', None)
+            if md5 == None:
+                md5 = gen_MD5_of_UploadedFile(uploaded_file)
 
-        # get unique file
-        unique_file = UniqueFile.objects.filter(md5=md5)
-        if not unique_file:
-            # create unique file
-            unique_file = UniqueFile.objects.create(md5=md5)
-            # save md5 as its filename
-            unique_file.file.save(md5, uploaded_file)
+            # get unique file
+            unique_file = UniqueFile.objects.filter(md5=md5)
+            if not unique_file:
+                # create unique file
+                unique_file = UniqueFile.objects.create(md5=md5)
+                # save md5 as its filename
+                unique_file.file.save(md5, uploaded_file)
+            else:
+                unique_file = unique_file[0]
+            # gen file pointer
+            file_pointer = FilePointer.objects.create(
+                                name=uploaded_file.name,
+                                unique_file=unique_file,
+                                message=message)
+            return HttpResponse("OK")
         else:
-            unique_file = unique_file[0]
-        # gen file pointer
-        file_pointer = FilePointer.objects.create(
-                            name=uploaded_file.name,
-                            unique_file=unique_file,
-                            message=message)
-        return HttpResponse("OK")
+            return HttpResponse("NOT OK")
 
     def post(self, request):
         message = self._get_message(request, forbid_init=True)
