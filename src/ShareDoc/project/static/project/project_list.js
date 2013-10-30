@@ -1,14 +1,14 @@
 $(function() {
-	$('#apply_to_group > div').hide()
-	$('#creat_group > div').hide()
+	$('#apply_to_project > div').hide()
+	$('#creat_project > div').hide()
 
-	$("#apply_to_group a, #creat_group a").click(function(event) {
+	$("#apply_to_project a, #creat_project a").click(function(event) {
 		event.preventDefault();
 		$(this).parent().children('div').slideDown('fast');
 		$(this).parent().find('input[type="text"]').val("");
 		$(this).fadeOut('fast');
 	});
-	$("#apply_to_group :button, #creat_group :button").click(function(event) {
+	$("#apply_to_project :button, #creat_project :button").click(function(event) {
 		$(this).parent().parent().fadeOut('fast');
 		$(this).parent().parent().parent().children('a').slideDown('fast');
 	});
@@ -23,7 +23,7 @@ $(function() {
 		post_str += ('&' + submit_name + '=');
 		return post_str;
 	};
-	$('#apply_to_group form').submit(function(event) {
+	$('#apply_to_project form').submit(function(event) {
 		event.preventDefault();
 		var post_str = get_post_str.call(this);
 		form = $(this);
@@ -65,7 +65,7 @@ $(function() {
 
 		});
 	});
-	$('#creat_group form').submit(function(event) {
+	$('#creat_project form').submit(function(event) {
 		event.preventDefault();
 		var post_str = get_post_str.call(this);
 		form = $(this);

@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from django.conf.urls import patterns, include, url
 
-from project.views import ProjectManagementPage
+from project.views import ProjectManagementPage, ProjectListPage
 
 urlpatterns = patterns('',
     # Examples:
@@ -13,7 +13,14 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^create/$', 'project.views.create_project_page', name='create_project_page'),
-    url(r'^list/$', 'project.views.project_list_page', name='project_list_page'),
+    # project lsit
+    url(r'^list/$', 
+        'project.views.project_list_page', 
+        name='project_list_page'),
+    # class view project lsit
+    url(r'^list/cls/$', 
+        ProjectListPage.as_view(),
+        name='cls_project_list_page'),
     # show message related to project
     url(r'^(?P<project_id>\d+)/message_list/$', 'file_storage.views.project_message_page', name='project_message_page'),
     # show files related to porject
@@ -22,10 +29,6 @@ urlpatterns = patterns('',
     url(r'^management/(?P<project_id>\d+)/$', 
         ProjectManagementPage.as_view(),
         name='project_management_page'),
-    # management page
-    #url(r'^management/(?P<project_id>\d+)/$', 
-    #    'project.views.project_management_page', 
-    #    name='project_management_page'),
     # change role of user
     url(r'^process/user_role/(?P<project_id>\d+)/(?P<user_info_id>\d+)/(?P<decision>True|False)/$', 
         'project.views.process_user_role_on_project',

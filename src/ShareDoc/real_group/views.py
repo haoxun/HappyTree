@@ -124,10 +124,9 @@ class GroupListPage(View, ApplyConfirmHandler):
             assign_perm('real_group_ownership', request.user, real_group)
             assign_perm('real_group_management', request.user, real_group)
             assign_perm('real_group_membership', request.user, real_group)
-
             # relate user to group
             group.user_set.add(request.user)
-            # redirect to group page
+            # response json data.
             keywords = {'real_group_id': real_group.id}
             json_data = json.dumps({
                             'error': False,

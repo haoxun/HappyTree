@@ -21,6 +21,7 @@
 		<a href="#">Attend a Group</a>
 		<div>
 			<p>Search Group</p>
+			<p class="error"></p>
 			<form method="post" action={% url 'group_list_page' %}>
 				{% csrf_token %}
 				{{form_apply_to_group.as_p}}

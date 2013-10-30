@@ -28,6 +28,7 @@ from real_group.utils import ApplyConfirmHandler, \
                              BasicInfoHandler
 # python library
 from datetime import datetime
+import json
 
 project_permissions = [permission \
         for permission, description in Project._meta.permissions]
@@ -94,6 +95,118 @@ def project_list_page(request):
                   'project/project_list_page.html',
                   render_data_dict)
 
+class ProjectListPage(View, ApplyConfirmHandler):
+    """
+    This class handle the process of project list page, including
+    1. presenting links to projects.
+    2. search project to attend.
+    3. create project.
+    """
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(ProjectListPage, self).dispatch(*args, **kwargs)
+
+    def get(self, request):
+        project_set = get_objects_for_user(request.user, 
+                                           'project.project_membership')
+        form_apply_to_project = ApplyToProjectForm()
+        form_project_name = ProjectNameHandlerForm()
+        form_project_description = ProjectDescriptionHandlerForm()
+
+        render_data_dict = {
+                'project_set': project_set,
+                'form_apply_to_project': form_apply_to_project,
+                'form_project_name': form_project_name,
+                'form_project_description': form_project_description
+        }
+        return render(request,
+                      'project/cls_project_list_page.html',
+                      render_data_dict)
+
+
+    def _add_project_generator(self, form_add_project, user_info):
+        add_project_set = {}
+        for project in form_add_project.add_project_set:
+            if user_info.user.has_perm('project_membership', project):
+                # already in proejct, not display
+                continue
+            keywords = {'project_id': project.id,
+                        'user_info_id': user_info.id}
+            add_project_set[project.name] = \
+                    reverse('user_apply_to_project',
+                            kwargs=keywords)
+        return add_project_set
+
+    def _handler_factory(self, request):
+        if 'UTP_submit' in request.POST:
+            return self._user_apply_to_project_handler
+        if 'create_project_submit' in request.POST:
+            return self._create_project
+
+    def _user_apply_to_project_handler(self, request):
+        return self._apply_confirm_handler(request,
+                                           request.user.userinfo,
+                                           ApplyToProjectForm,
+                                           self._add_project_generator)
+    def _create_project(self, request):
+        form_project_name = ProjectNameHandlerForm(request.POST)
+        form_project_description = ProjectDescriptionHandlerForm(request.POST)
+        if form_project_name.is_valid() and form_project_description.is_valid():
+            # extract data
+            name = form_project_name.cleaned_data['name']
+            description = form_project_description.cleaned_data['description']
+            # create project
+            unique_name = (
+                    '[project]',
+                    request.user.username,
+                    unicode(datetime.now()),
+            )
+            unique_name = "".join(unique_name)
+
+            group = Group.objects.create(name=unique_name)
+            project_group = ProjectGroup.objects.create(
+                                group=group,
+                                download=True,
+                                upload=False,
+                                delete=False)
+            project = Project.objects.create(
+                        name=name,
+                        description=description,
+                        project_group=project_group)
+            # asociate with creator
+            group.user_set.add(request.user)
+            for perm in project_permissions:
+                assign_perm(perm, request.user, project)
+             # response json data.
+            keywords = {'project_id': project.id}
+            json_data = json.dumps({
+                            'error': False,
+                            'url': reverse('project_message_page',
+                                           kwargs=keywords),
+                        })
+            return HttpResponse(json_data, content_type='application/json')
+        else:
+            error_dict = dict(form_project_name.errors)
+            error_dict.update(form_project_description.errors)
+            error_list = []
+            for key, value in error_dict.items():
+                error_dict[key] = "; ".join(value)
+                error_list.append(key + ":" + error_dict[key])
+            json_data = json.dumps({
+                            'error': "; ".join(error_list),
+                            'url': None,
+                        })
+            return HttpResponse(json_data, content_type='application/json')
+
+
+    def post(self, request):
+        handler = self._handler_factory(request)
+        return handler(request)
+
+
+
+
+
 @permission_required_or_403('project.project_membership', (Project, 'id', 'project_id'))
 def project_file_list_page(request, project_id):
     project = get_object_or_404(Project, id=int(project_id))
@@ -110,6 +223,9 @@ def project_file_list_page(request, project_id):
     return render(request,
                   'project/project_file_list_page.html',
                   render_data_dict)
+
+
+
 
 
 class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
