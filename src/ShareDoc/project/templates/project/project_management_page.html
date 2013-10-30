@@ -78,7 +78,6 @@
 			<p>Modify Project Name</p>
 			<p class="error"></p>
 			<form method="post" action={% url 'project_management_page' project_id=project.id %}>
-				{% csrf_token %}
 				{{form_project_name.as_p}}
 				<input type="submit" name="project_name_submit" value="Submit"/>
 				<input type="button" value="Cancel"/>
@@ -96,7 +95,6 @@
 			<p>Modify Project Description</p>
 			<p class="error"></p>
 			<form method="post" action={% url 'project_management_page' project_id=project.id %}>
-				{% csrf_token %}
 				{{form_project_description.as_p}}
 				<input type="submit" name="project_description_submit" value="Submit"/>
 				<input type="button" value="Cancel"/>
@@ -130,7 +128,6 @@
 		<p>Invite Group To Project</p>
 		<p class="error"></p>
 		<form method="post" action={% url 'project_management_page' project_id=project.id %}>
-			{% csrf_token %}
 			{{form_add_real_group.as_p}}
 			<input type="submit" name="PTR_submit" value="Search"/>
 		</form>	
@@ -143,7 +140,6 @@
 		<p>Invite User</p>
 		<p class="error"></p>
 		<form method="post" action={% url 'project_management_page' project_id=project.id %}>
-			{% csrf_token %}
 			{{form_add_user.as_p}}
 			<input type="submit" name="PTU_submit" value="Search"/>
 		</form>	

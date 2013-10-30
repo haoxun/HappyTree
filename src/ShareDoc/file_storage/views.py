@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.core.servers.basehttp import FileWrapper
 from django.utils.http import urlencode
+from django.views.generic.base import View
 # auth dependency
 from django.contrib.auth.decorators import login_required
 from guardian.decorators import permission_required_or_403, permission_required
@@ -17,6 +18,7 @@ from file_storage.models import UniqueFile, FilePointer
 # form
 from file_storage.forms import ProjectChoiceForm, FileUploadForm, MessageInfoForm
 # decorator
+from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_GET
 # util
 from file_storage.utils import gen_MD5_of_UploadedFile
@@ -25,6 +27,91 @@ from datetime import datetime
 import os
 import mimetypes
 mimetypes.init()
+
+class CreateMessagePage(View):
+    """
+    This class handle the process of creating message, including
+    1. init a message.
+    2. handle the basic info of the message.
+    3. handle the uploading file.
+    """
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(CreateMessagePage, self).dispatch(*args, **kwargs)
+    
+    def _get_message(self, request, forbid_init=False):
+         # extract current processing message
+        message = get_objects_for_user(request.user, 
+                                       'project.message_processing')
+        if message:
+            message = message[0]
+        else:
+            if forbid_init:
+                raise PermissionDenied
+            # if no current processing message, init one.
+            project_set = get_objects_for_user(request.user, 
+                                               'project.project_upload')
+            if len(project_set) == 0:
+                # after finish dev, should give some error message about that,
+                # instead of raising PermissionDenied
+                raise PermissionDenied
+            message = Message.objects.create(project=project_set[0],
+                                             owner=request.user.userinfo)
+            assign_perm('message_processing', request.user, message)
+        return message
+
+    def get(self, request):
+        message = self._get_message(request)
+        project_set = get_objects_for_user(request.user, 
+                                           'project.project_upload')
+        form_select_project = ProjectChoiceForm(project_set)
+        form_file_upload = FileUploadForm()
+        form_post_message = MessageInfoForm()
+
+        render_data_dict = {
+                'request': request,
+                'message': message,
+                'form_select_project': form_select_project,
+                'form_file_upload': form_file_upload,
+                'form_post_message': form_post_message,
+        }
+        return render(request,
+                      'file_storage/cls_create_message_page.html',
+                      render_data_dict)
+
+    def _handler_factory(self, request):
+        if 'uploaded_file' in request.POST:
+            return self._upload_file_handler
+    
+    def _upload_file_handler(self, request, message):
+        uploaded_file = request.FILES['uploaded_file']
+        # get or calculate MD5
+        # Notice that the meaning of following md5 is totally different!
+        # https://github.com/marcu87/hashme
+        md5 = request.POST.get('md5', None)
+        if md5 == None:
+            md5 = gen_MD5_of_UploadedFile(uploaded_file)
+
+        # get unique file
+        unique_file = UniqueFile.objects.filter(md5=md5)
+        if not unique_file:
+            # create unique file
+            unique_file = UniqueFile.objects.create(md5=md5)
+            # save md5 as its filename
+            unique_file.file.save(md5, uploaded_file)
+        else:
+            unique_file = unique_file[0]
+        # gen file pointer
+        file_pointer = FilePointer.objects.create(
+                            name=uploaded_file.name,
+                            unique_file=unique_file,
+                            message=message)
+        return HttpResponse("OK")
+
+    def post(self, request):
+        message = self._get_message(request, forbid_init=True)
+        handler = self._handler_factory(request)
+        return handler(request, message)
 
 
 @login_required

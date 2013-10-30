@@ -25,7 +25,6 @@
 			<p>Search Group</p>
 			<p class="error"></p>
 			<form method="post" action={% url 'group_list_page' %}>
-				{% csrf_token %}
 				{{form_apply_to_group.as_p}}
 				<input type="submit" name="UTR_submit" value="Search"/>
 				<input type="button" value="Cancel" />
@@ -41,7 +40,6 @@
 			<p>Create Group</p>
 			<p class="error"></p>
 			<form method="post" action={% url 'group_list_page' %}>
-				{% csrf_token %}
 				{{form_group_name.as_p}}
 				{{form_group_description.as_p}}
 				<input type="submit" name="create_group_submit" value="Submit" />

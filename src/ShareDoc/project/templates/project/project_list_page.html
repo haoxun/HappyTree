@@ -25,7 +25,6 @@
 			<p>Search Project</p>
 			<p class="error"></p>
 			<form method="post" action={% url 'project_list_page' %}>
-				{% csrf_token %}
 				{{form_apply_to_project.as_p}}
 				<input type="submit" name="UTP_submit" value="Search"/>
 				<input type="button" value="Cancel" />
@@ -41,7 +40,6 @@
 			<p>Create Project</p>
 			<p class="error"></p>
 			<form method="post" action={% url 'project_list_page' %}>
-				{% csrf_token %}
 				{{form_project_name.as_p}}
 				{{form_project_description.as_p}}
 				<input type="submit" name="create_project_submit" value="Submit" />

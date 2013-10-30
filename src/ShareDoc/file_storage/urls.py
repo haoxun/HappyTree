@@ -1,9 +1,7 @@
 from __future__ import unicode_literals
 from django.conf.urls import patterns, include, url
 
-# Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
+from file_storage.views import CreateMessagePage
 
 urlpatterns = patterns('',
     # Examples:
@@ -16,6 +14,10 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
 
+    # class view create message
+    url(r'^create/cls/$', 
+        CreateMessagePage.as_view(),
+        name='cls_create_message_page'),
     # init message
     url(r'^init/$', 
         'file_storage.views.init_message_page', 
