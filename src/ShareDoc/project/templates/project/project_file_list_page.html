@@ -1,34 +1,23 @@
 {% extends 'base_with_navigation.html' %}
-{% load guardian_tags %}
+
+{% load staticfiles %}
+{% block js %}
+<script src={% static 'project/project_file_list.js' %}></script>
+{% endblock %}
+
 {% block content %}
-{% get_obj_perms user for project as "perms" %}
 	<div id=project_navigation>
 		<a href={% url 'project_message_page' project_id=project.id %}>Message List</a>
 		<a href={% url 'project_file_list_page' project_id=project.id %}>Files Of Project</a>
-
 		{% if 'project_management' in perms %}
 		<a href={% url 'project_management_page' project_id=project.id %}>Managememt</a>
 		{% endif %}
 	</div>
 	<div id="project_file_list">
 		<p>Uploaded File</p>
-		{% for file_pointer in file_pointer_set %}
-			<div id="file_pointer">
-				<p>{{file_pointer.name}}
-				{% if 'project_download' in perms %}
-				<a href={% url 'download_file' file_pointer_id=file_pointer.id%}>Download</a>
-				{% endif %}
+		<div id="file_list">
 
-				{% if 'project_delete' in perms %}
-				<a href="{% url 'delete_file_pointer_from_message' file_pointer_id=file_pointer.id %}?next={{request.get_full_path|urlencode}}">Remove</a>
-				{% endif %}
-				</p>
-			</div>
-		{% empty %}
-			<div id='no_file_pointer'>
-					<p>No File in the Project</p>
-			</div>
-		{% endfor %}
+		</div>
 	</div>
 
 {% endblock %}

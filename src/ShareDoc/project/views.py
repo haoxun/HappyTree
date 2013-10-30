@@ -143,27 +143,35 @@ class ProjectListPage(View, ApplyConfirmHandler):
 
 
 
+class ProjectFileListPage(View):
+    @method_decorator(login_required)
+    @method_decorator(permission_required_or_403('project.project_membership', 
+                                                 (Project, 'id', 'project_id')))
+    def dispatch(self, *args, **kwargs):
+        return super(ProjectFileListPage, self).dispatch(*args, **kwargs)
 
-
-@permission_required_or_403('project.project_membership', (Project, 'id', 'project_id'))
-def project_file_list_page(request, project_id):
-    project = get_object_or_404(Project, id=int(project_id))
-    message_set = project.messages.filter(post_flag=True).order_by('-post_time')
-    file_pointer_set = []
-    for message in message_set:
-        file_pointer_set.extend(message.file_pointers.all())
-
-    render_data_dict = {
-            'request': request,
-            'project': project,
-            'file_pointer_set': file_pointer_set,
-    }
-    return render(request,
-                  'project/project_file_list_page.html',
-                  render_data_dict)
-
-
-
+    def get(self, request, project_id):
+        project = get_object_or_404(Project, id=int(project_id))
+        render_data_dict = {
+                'project': project,
+        }
+        return render(request,
+                      'project/project_file_list_page.html',
+                      render_data_dict)
+    def post(self, request, project_id):
+        project = get_object_or_404(Project, id=int(project_id))
+        message_set = project.messages.filter(post_flag=True).order_by('-post_time')
+        file_pointer_set = []
+        for message in message_set:
+            file_pointer_set.extend(message.file_pointers.all())
+        render_data_dict = {
+                'project': project,
+                'request': request,
+                'file_pointer_set': file_pointer_set,
+        }
+        return render(request,
+                      'project/project_file_list.html',
+                      render_data_dict)
 
 
 class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):

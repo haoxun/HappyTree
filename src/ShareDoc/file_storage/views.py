@@ -89,6 +89,8 @@ class CreateMessagePage(View):
             return self._post_message_handler
     
     def _post_message_handler(self, request, message):
+        project_set = get_objects_for_user(request.user, 
+                                           'project.project_upload')
         form_select_project = ProjectChoiceForm(project_set, request.POST)
         form_post_message = MessageInfoForm(request.POST)
         if form_post_message.is_valid() and form_select_project.is_valid():
@@ -183,7 +185,7 @@ def delete_file_pointer_from_message(request, file_pointer_id):
     # smart pointer
     if unique_file.file_pointers.count() == 0:
         unique_file.delete()
-    return redirect(reverse_url)
+    return HttpResponse('OK')
 
 @login_required
 def download_file(request, file_pointer_id):

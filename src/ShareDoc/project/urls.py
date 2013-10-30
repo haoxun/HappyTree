@@ -1,7 +1,9 @@
 from __future__ import unicode_literals
 from django.conf.urls import patterns, include, url
 
-from project.views import ProjectManagementPage, ProjectListPage
+from project.views import ProjectManagementPage, \
+                          ProjectListPage, \
+                          ProjectFileListPage
 
 urlpatterns = patterns('',
     # Examples:
@@ -16,9 +18,13 @@ urlpatterns = patterns('',
         ProjectListPage.as_view(),
         name='project_list_page'),
     # show message related to project
-    url(r'^(?P<project_id>\d+)/message_list/$', 'file_storage.views.project_message_page', name='project_message_page'),
+    url(r'^(?P<project_id>\d+)/message_list/$', 
+        'file_storage.views.project_message_page', 
+        name='project_message_page'),
     # show files related to porject
-    url(r'^(?P<project_id>\d+)/file_list/$', 'project.views.project_file_list_page', name='project_file_list_page'),
+    url(r'^(?P<project_id>\d+)/file_list/$', 
+        ProjectFileListPage.as_view(),
+        name='project_file_list_page'),
     # class view management page
     url(r'^management/(?P<project_id>\d+)/$', 
         ProjectManagementPage.as_view(),
