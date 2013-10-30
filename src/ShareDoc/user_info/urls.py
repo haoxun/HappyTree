@@ -1,9 +1,7 @@
 from __future__ import unicode_literals
 from django.conf.urls import patterns, include, url
 
-# Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
+from user_info.views import ApplyConfirmPage
 
 urlpatterns = patterns('',
     # Examples:
@@ -15,7 +13,9 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', 'user_info.views.accept_confirm_page', name='ac_page'),
+    url(r'^$', 
+        ApplyConfirmPage.as_view(),
+        name='ac_page'),
     url(r'process/user_project/(?P<ac_id>\d+)/(?P<decision>ACCEPT|DENY)/$',
         'user_info.views.process_user_project_ac', 
         name='process_user_project_ac'),

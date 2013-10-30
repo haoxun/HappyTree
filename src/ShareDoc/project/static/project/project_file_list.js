@@ -1,6 +1,6 @@
 var load_file_list = function() {
 	$('#file_list').load('.', {'load_file_list': null}, function() {
-		$('#file_list a:contains("Remove")').click(function(event) {
+		$('#file_list a.remove').click(function(event) {
 			event.preventDefault();
 			var url = $(this).attr('href');
 			$.get(url, load_file_list);

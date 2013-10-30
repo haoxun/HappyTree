@@ -1,84 +1,13 @@
 {% extends 'base_with_navigation.html' %}
 
+{% load staticfiles %}
+{% block js %}
+<script src={% static 'user_info/load_ac.js' %}></script>
+{% endblock %}
+
 {% block content %}
 <div id="ac_list">
-{% if user_to_project_ac or user_to_real_group_ac or project_to_user_ac or project_to_real_group_ac or real_group_to_user_ac or real_group_to_project_ac %}
-{% if user_to_project_ac|length %}
-<div id="user_to_project">
-	{% for ac in user_to_project_ac %}
-		<p>
-		{{ac.user_info.user.username}} want to attend your project {{ac.project.name}}
-		<a href={% url 'process_user_project_ac' ac_id=ac.id decision="ACCEPT" %}>Accept</a>
-		<a href={% url 'process_user_project_ac' ac_id=ac.id decision="DENY" %}>Deny</a>
-		</p>
-	{% endfor %}
-</div>
-{% endif %}
 
-{% if user_to_real_group_ac|length %}
-<div id="user_to_real_group_ac">
-	{% for ac in user_to_real_group_ac %}
-		<p>
-		{{ac.user_info.user.username}} want to attend your group {{ac.real_group.name}}
-		<a href={% url 'process_user_real_group_ac' ac_id=ac.id decision="ACCEPT" %}>Accept</a>
-		<a href={% url 'process_user_real_group_ac' ac_id=ac.id decision="DENY" %}>Deny</a>
-		</p>
-	{% endfor %}
 </div>
-{% endif %}
-
-{% if project_to_user_ac|length %}
-<div id="project_to_user_ac">
-	{% for ac in project_to_user_ac %}
-		<p>
-		project {{ac.project.name}}'s manager invite you to attend attend the project
-		<a href={% url 'process_user_project_ac' ac_id=ac.id decision="ACCEPT" %}>Accept</a>
-		<a href={% url 'process_user_project_ac' ac_id=ac.id decision="DENY" %}>Deny</a>
-		</p>
-	{% endfor %}
-</div>
-{% endif %}
-
-{% if project_to_real_group_ac|length %}
-<div id="project_to_real_group_ac">
-	{% for ac in project_to_real_group_ac %}
-		<p>
-		project {{ac.project.name}}'s manager invite your group {{ac.real_group.name}} to attend the project
-		<a href={% url 'process_real_group_project_ac' ac_id=ac.id decision="ACCEPT" %}>Accept</a>
-		<a href={% url 'process_real_group_project_ac' ac_id=ac.id decision="DENY" %}>Deny</a>
-		</p>
-	{% endfor %}
-</div>
-{% endif %}
-
-{% if real_group_to_user_ac|length %}
-<div id="real_group_to_user_ac">
-	{% for ac in real_group_to_user_ac %}
-		<p>
-		group {{ac.real_group.name}}'s manager invite you to attend the group
-		<a href={% url 'process_user_real_group_ac' ac_id=ac.id decision="ACCEPT" %}>Accept</a>
-		<a href={% url 'process_user_real_group_ac' ac_id=ac.id decision="DENY" %}>Deny</a>
-		</p>
-	{% endfor %}
-</div>
-{% endif %}
-
-{% if real_group_to_project_ac|length %}
-<div id="real_group_to_project_ac">
-	{% for ac in real_group_to_project_ac %}
-		<p>
-		group {{ac.real_group.name}} want to attend your project {{ac.project.name}}
-		<a href={% url 'process_real_group_project_ac' ac_id=ac.id decision="ACCEPT" %}>Accept</a>
-		<a href={% url 'process_real_group_project_ac' ac_id=ac.id decision="DENY" %}>Deny</a>
-		</p>
-	{% endfor %}
-</div>
-{% endif %}
-
-{% else %}
-	<p>No apply needed to be processed</p>	
-{% endif %}
-</div>
-
 {% endblock %}
 

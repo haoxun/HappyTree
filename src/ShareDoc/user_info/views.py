@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 # django dependency
+from django.http import HttpResponse
+from django.views.generic.base import View
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import PermissionDenied
 # auth dependency
@@ -15,10 +17,13 @@ from real_group.models import RealGroup, UserInfo_RealGroup_AC
 from project.models import UserInfo_Project_AC, RealGroup_Project_AC
 # form
 # decorator
+from django.utils.decorators import method_decorator
 # util
 from user_info.utils import gen_models_debug_info
+from django.template.loader import render_to_string
 # python library
 import operator
+import re
 
 @login_required
 def home_page(request):
@@ -38,69 +43,108 @@ def logout_user(request):
     logout(request)
     return redirect('login_page')
 
-@login_required
-def accept_confirm_page(request):
-    user_to_project_ac = []
-    project_to_user_ac = []
-    user_to_real_group_ac = []
-    real_group_to_user_ac = []
-    real_group_to_project_ac = []
-    project_to_real_group_ac = []
-    
-    user_project_ac = \
-            get_objects_for_user(request.user,
-                                 'project.process_user_project_ac')
-    real_group_project_ac = \
-            get_objects_for_user(request.user, 
-                                 'project.process_real_group_project_ac')
-    user_real_group_ac = \
-            get_objects_for_user(request.user,
-                                 'real_group.process_user_real_group_ac')
-    # classify
-    real_group_set = get_objects_for_user(request.user, 
-                                          'real_group.real_group_management')
-    project_set = get_objects_for_user(request.user, 
-                                       'project.project_management')
+class ApplyConfirmPage(View):
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(ApplyConfirmPage, self).dispatch(*args, **kwargs)
 
-    for ac in user_project_ac:
-        if ac.project in project_set:
-            user_to_project_ac.append(ac)
-        else:
-            project_to_user_ac.append(ac)
-    for ac in real_group_project_ac:
-        if ac.project in project_set:
-            real_group_to_project_ac.append(ac)
-        elif ac.real_group in real_group_set:
-            project_to_real_group_ac.append(ac)
-    for ac in user_real_group_ac:
-        if ac.real_group in real_group_set:
-            user_to_real_group_ac.append(ac)
-        else:
-            real_group_to_user_ac.append(ac)
+    def get(self, request):
+        return render(request,
+                      'user_info/ac_list.html')
 
-    # ordering
-    def sort_ac(ac):
-        return sorted(ac, key=lambda x: x.created_time, reverse=True)
-    user_to_project_ac = sort_ac(user_to_project_ac)
-    user_to_real_group_ac = sort_ac(user_to_real_group_ac)
-    project_to_user_ac = sort_ac(project_to_user_ac)
-    project_to_real_group_ac = sort_ac(project_to_real_group_ac)
-    real_group_to_user_ac = sort_ac(real_group_to_user_ac)
-    real_group_to_project_ac = sort_ac(real_group_to_project_ac)
+    # response ac list
+    def post(self, request):
+        def sort_ac(ac):
+            return sorted(ac, key=lambda x: x.created_time, reverse=True)
 
-    render_data_dict = {
-            'user_to_project_ac': user_to_project_ac,
-            'user_to_real_group_ac': user_to_real_group_ac,
-            'project_to_user_ac': project_to_user_ac,
-            'project_to_real_group_ac': project_to_real_group_ac,
-            'real_group_to_user_ac': real_group_to_user_ac,
-            'real_group_to_project_ac': real_group_to_project_ac,
-    }
+        def separate_user_project_ac(ac_list):
+            UTP_ac = []
+            PTU_ac = []
+            for ac in ac_list:
+                if ac.project in project_set:
+                    UTP_ac.append(ac)
+                else:
+                    PTU_ac.append(ac)
+            return sort_ac(UTP_ac), sort_ac(PTU_ac)
 
-    return render(request,
-                  'user_info/ac_list.html',
-                  render_data_dict)
-    
+        def separate_real_group_project_ac(ac_list):
+            RTP_ac = []
+            PTR_ac = []
+            for ac in ac_list:
+                if ac.project in project_set:
+                    RTP_ac.append(ac)
+                elif ac.real_group in real_group_set:
+                    PTR_ac.append(ac)
+            return sort_ac(RTP_ac), sort_ac(PTR_ac)
+
+        def separate_user_real_gorup_ac(ac_list):
+            UTR_ac = []
+            RTU_ac = []
+            for ac in ac_list:
+                if ac.real_group in real_group_set:
+                    UTR_ac.append(ac)
+                else:
+                    RTU_ac.append(ac)
+            return sort_ac(UTR_ac), sort_ac(RTU_ac)
+
+        def check_empty(display_list):
+            empty = True
+            for html in display_list:
+                text = re.sub(r'<div (\W|\w+)*?>', '', html)
+                text = re.sub(r'</div>', '', text)
+                text = text.strip()
+                if text:
+                    empty = False
+                    break
+            if empty:
+                return render_to_string('user_info/non_ac.html')
+            else:
+                return display_list
+
+
+        # non-direction relation
+        user_project_ac = \
+                get_objects_for_user(request.user,
+                                     'project.process_user_project_ac')
+        real_group_project_ac = \
+                get_objects_for_user(request.user, 
+                                     'project.process_real_group_project_ac')
+        user_real_group_ac = \
+                get_objects_for_user(request.user,
+                                     'real_group.process_user_real_group_ac')
+        # Sth in which user can make decision
+        real_group_set = get_objects_for_user(request.user, 
+                                              'real_group.real_group_management')
+        project_set = get_objects_for_user(request.user, 
+                                           'project.project_management')
+
+        UTP_ac, PTU_ac = separate_user_project_ac(user_project_ac)
+        RTP_ac, PTR_ac = separate_real_group_project_ac(real_group_project_ac)
+        UTR_ac, RTU_ac = separate_user_real_gorup_ac(user_real_group_ac)
+
+        # rendering
+        html_UTP = render_to_string('user_info/UTP.html', 
+                                    {'user_to_project_ac': UTP_ac})
+        html_PTU = render_to_string('user_info/PTU.html', 
+                                    {'project_to_user_ac': PTU_ac})
+        html_RTP = render_to_string('user_info/RTP.html', 
+                                    {'real_group_to_project_ac': RTP_ac})
+        html_PTR = render_to_string('user_info/PTR.html', 
+                                    {'project_to_real_group_ac': PTR_ac})
+        html_UTR = render_to_string('user_info/UTR.html', 
+                                    {'user_to_real_group_ac': UTR_ac})
+        html_RTU = render_to_string('user_info/RTU.html', 
+                                    {'real_group_to_user_ac': RTU_ac})
+        display_list = [
+            html_UTP, 
+            html_PTU, 
+            html_RTP, 
+            html_PTR, 
+            html_UTR, 
+            html_RTU,
+        ]
+        display_list = check_empty(display_list)
+        return HttpResponse("".join(display_list))
 
 @login_required
 def process_user_project_ac(request, ac_id, decision):

@@ -8,7 +8,7 @@
 		{% endif %}
 
 		{% if 'project_delete' in perms %}
-			<a href="{% url 'delete_file_pointer_from_message' file_pointer_id=file_pointer.id %}?next={{request.get_full_path|urlencode}}">Remove</a>
+			<a class="remove" href="{% url 'delete_file_pointer_from_message' file_pointer_id=file_pointer.id %}?next={{request.get_full_path|urlencode}}">Remove</a>
 		{% endif %}
 		</p>
 	</div>
