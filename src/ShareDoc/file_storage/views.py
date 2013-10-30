@@ -86,7 +86,6 @@ class CreateMessagePage(View):
     def _upload_file_handler(self, request, message):
         uploaded_file = request.FILES['uploaded_file']
         # get or calculate MD5
-        # Notice that the meaning of following md5 is totally different!
         # https://github.com/marcu87/hashme
         md5 = request.POST.get('md5', None)
         if md5 == None:

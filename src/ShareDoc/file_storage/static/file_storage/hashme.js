@@ -31,7 +31,12 @@ var hashMe = function (file, callbackFunction) {
     };
     
     this.md5sum = function (start, end) {
-        this._hash = rstr2hex(rstr_md5(start + end));
+	if(start.size != 65536) {
+    	    this._hash = rstr2hex(rstr_md5(start));
+	}
+	else {
+            this._hash = rstr2hex(rstr_md5(start + end));
+	}
         callback(this._hash);
     };
     
