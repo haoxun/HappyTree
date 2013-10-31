@@ -1,4 +1,17 @@
+var set_link_behavior = function() {
+	$('div.member_list a').click(function(event) {
+		event.preventDefault();
+		url = $(this).attr('href');
+		$.get(url);
+		load_member_list();
+	});
+}
+var load_member_list = function() {
+	$('#group_manager_and_member').load('.', {'load_manager_and_member_list': null}, set_link_behavior);
+}
 $(function() {
+	load_member_list();
+
 	$('#modify_group_name').hide();
 	$('#modify_group_description').hide();
 
@@ -23,15 +36,8 @@ $(function() {
 
 });
 
-//$(function() {
-//	$('div.member_list a').click(function(event) {
-//		event.preventDefault();
-//		$.get($(this).attr('href'), function(data) {
-//			console.log(data);
-//		});
-//		$(this).parent().fadeOut('fast');
-//	});
-//});
+
+
 
 $(function() {
 	var get_post_str = function() {

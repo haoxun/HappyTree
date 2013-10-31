@@ -1,18 +1,27 @@
-var set_link_behavior = function() {
+var set_link_behavior = function(callback) {
 	$(this).find('a').click(function(event) {
 		event.preventDefault();
 		var url = $(this).attr('href');
-		$.get(url, load_user_and_perm);
+		$.get(url, callback);
 	});
 }
-var load_user_and_perm = function() {
-	$('#manager_list').load('.', {'load_manager_list': null}, set_link_behavior);
-	$('#member_list').load('.', {'load_member_list': null}, set_link_behavior);
-	$('#project_default_perm').load('.', {'load_default_perm': null}, set_link_behavior);
+var load_user = function() {
+	$('#manager_list').load('.', {'load_manager_list': null}, function() {
+		set_link_behavior.call(this, load_user);
+	});
+	$('#member_list').load('.', {'load_member_list': null}, function() {
+		set_link_behavior.call(this, load_user);
+	});
+}
+var load_perm = function() {
+	$('#project_default_perm').load('.', {'load_default_perm': null}, function() {
+		set_link_behavior.call(this, load_perm);
+	});
 }
 
 $(function() {
-	load_user_and_perm.call();
+	load_user();
+	load_perm();
 });
 $(function() {
 	$('#modify_project_name').hide();

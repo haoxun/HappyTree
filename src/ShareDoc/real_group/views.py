@@ -21,6 +21,7 @@ from project.forms import RealGroupApplyToProjectForm
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 # util
+from django.template.loader import render_to_string
 from ShareDoc.utils import url_with_querystring, extract_from_GET
 from real_group.utils import construct_user_real_group_ac, \
                              ApplyConfirmHandler, \
@@ -171,13 +172,11 @@ class GroupManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
         form_add_user = AddUserForm()
         form_apply_to_project = RealGroupApplyToProjectForm()
         render_data_dict = {
-                'request': request,
                 'form_group_name': form_group_name,            
                 'form_group_description': form_group_description,
                 'form_apply_to_project': form_apply_to_project,
                 'form_add_user': form_add_user,
                 'real_group': real_group,
-                'user_set': get_users_with_perms(real_group),
         }
         return render(request,
                       'real_group/group_management_page.html',
@@ -219,8 +218,21 @@ class GroupManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
             return self._real_group_apply_to_user_handler
         elif "RTP_submit" in request.POST:
             return self._real_group_apply_to_project_handler
+        elif "load_manager_and_member_list" in request.POST:
+            return self._group_manager_and_member_list_handler
         else:
             raise PermissionDenied
+
+    def _group_manager_and_member_list_handler(self, request, real_group):
+        render_data_dict = {
+                'request': request,
+                'real_group': real_group,
+                'user_set': get_users_with_perms(real_group),
+        }
+        html = render_to_string('real_group/member_list.html',
+                                render_data_dict)
+        return HttpResponse(html)
+
 
     def _group_name_handler(self, request, real_group):
         return self._basic_info_handler(request, 
@@ -274,8 +286,7 @@ def delete_user_from_group(request, real_group_id, user_info_id):
     # delete user
     real_group.group.user_set.remove(user)
     remove_perm('real_group_membership', user, real_group)
-    return redirect('group_management_page',
-                    real_group_id=real_group_id)
+    return HttpResponse('OK')
 
 @permission_required_or_403('real_group_management', (RealGroup, 'id', 'real_group_id',))
 def process_user_permission(request, real_group_id, user_info_id, decision):
@@ -288,7 +299,4 @@ def process_user_permission(request, real_group_id, user_info_id, decision):
     user = get_object_or_404(UserInfo, id=int(user_info_id)).user
     real_group = get_object_or_404(RealGroup, id=int(real_group_id))
     tack_action('real_group_management', user, real_group)
-    return redirect('group_management_page',
-                    real_group_id=real_group_id)
-    
-
+    return HttpResponse('OK')

@@ -214,7 +214,8 @@ def download_file(request, file_pointer_id):
 
 
 
-@permission_required_or_403('project.project_membership', (Project, 'id', 'project_id'))
+@permission_required_or_403('project.project_membership', 
+                            (Project, 'id', 'project_id'))
 def project_message_page(request, project_id):
     project = get_object_or_404(Project, id=int(project_id))
     message_set = project.messages.filter(post_flag=True).order_by('-post_time')
