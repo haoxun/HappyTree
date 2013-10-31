@@ -10,15 +10,13 @@
 
 {% block content %}
 	<div>
-		<p>Uploaded File</p>
 		<div id="file_list">
 		</div>
 	</div>
 
 	<div id="file_upload">
 		<form enctype="multipart/form-data" method="post" action={% url 'create_message_page' %}>
-			{{form_file_upload.as_p}}
-			<input type="submit" name="file_upload_submit" value="Submit" />
+			<input id="id_uploaded_file" type="file" name="uploaded_file" />
 		</form>	
 	</div>
 	<div id="post_message">

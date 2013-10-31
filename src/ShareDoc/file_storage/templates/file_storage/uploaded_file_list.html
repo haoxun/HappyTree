@@ -1,8 +1,7 @@
 {% for file_pointer in message.file_pointers.all %}
-				<div id="file_pointer">
-					<p>{{file_pointer.name}}
+				<div class="file_pointer">
+					{{file_pointer.name}}
 					<a href="{% url 'delete_file_pointer_from_message' file_pointer_id=file_pointer.id %}?next={{request.get_full_path|urlencode}}">Remove</a>
-					</p>
 				</div>
 {% empty %}
 	<p>There's no uploaded file</p>

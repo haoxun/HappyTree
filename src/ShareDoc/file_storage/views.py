@@ -66,14 +66,12 @@ class CreateMessagePage(View):
         project_set = get_objects_for_user(request.user, 
                                            'project.project_upload')
         form_select_project = ProjectChoiceForm(project_set)
-        form_file_upload = FileUploadForm()
         form_post_message = MessageInfoForm()
 
         render_data_dict = {
                 'request': request,
                 'message': message,
                 'form_select_project': form_select_project,
-                'form_file_upload': form_file_upload,
                 'form_post_message': form_post_message,
         }
         return render(request,
@@ -118,15 +116,13 @@ class CreateMessagePage(View):
 
     
     def _upload_file_handler(self, request, message):
-        form_file_upload = FileUploadForm(request.POST, request.FILES)
-        if form_file_upload.is_valid():
-            uploaded_file = request.FILES['uploaded_file']
+        uploaded_file = request.FILES['uploaded_file']
+        if uploaded_file:
             # get or calculate MD5
             # https://github.com/marcu87/hashme
             md5 = request.POST.get('md5', None)
             if md5 == None:
                 md5 = gen_MD5_of_UploadedFile(uploaded_file)
-
             # get unique file
             unique_file = UniqueFile.objects.filter(md5=md5)
             if not unique_file:
