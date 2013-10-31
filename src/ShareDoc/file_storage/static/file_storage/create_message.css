@@ -1,0 +1,120 @@
+#home_message_list
+{
+	display:inline-block;
+	width:57%;
+	padding-left:2em;
+	
+}
+#create_message
+{
+	min-height:50px;
+	margin:20px 5px;
+	padding:1em;
+	background-color:#F6F5FA;
+	border-radius:7px;
+}
+#file_list
+{
+	padding:20px 0;
+	margin:10px;
+	border-radius:20px;
+	background-color:#EBEBEB;
+}
+#id_uploaded_file
+{
+	content: 'Select some files';
+	display: inline-block;
+	background: -webkit-linear-gradient(top, #f9f9f9, #e3e3e3);
+	border: 1px solid #999;
+	border-radius: 3px;
+	padding: 5px 8px;
+	outline: none;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	cursor: pointer;
+	text-shadow: 1px 1px #fff;
+	font-weight: 700;
+	font-size: 10pt;
+}
+#file_upload form
+{
+	text-align:center;
+}
+#post_message form div
+{
+	padding-left:50px;
+	padding-top:5px;
+	padding-bottom:5px;
+}
+#post_message form div input[type="text"]
+{
+	height: 25px;
+	padding-left: 10px;
+	border-radius: 5px; /*up to date browsers support this, but you can add prefixes if you want*/
+	border:0;
+	background-color:#C1DDE8;
+	font-size:1em;
+	width:80%;
+}
+#post_message form div textarea
+{
+	width: 600px;
+	height: 120px;
+	border: 3px solid #cccccc;
+	padding: 5px;
+	font-family: Tahoma, sans-serif;
+	background-position: bottom right;
+	background-repeat: no-repeat;
+	width:79%;
+}
+#label_description
+{
+	padding:0;
+	margin:0;
+	display:inline-block;
+	vertical-align:top;
+}
+#post_message form div select
+{
+	font-size:1em;
+}
+#final_operation
+{
+	text-align:right;
+	padding-right:12%;
+}
+#final_operation input
+{
+	font-size:1em;
+	width:20%;
+	padding:0;
+	margin:0;
+	
+}
+#final_operation a
+{
+	font-size:1em;
+	width:20%;
+	height:1.5em;
+	line-height:1.5em;
+	text-align:center;
+	display:inline-block;
+	margin:0;
+	text-decoration:none;
+	font-weight:bold;
+	color:#DCE7F5;
+	background-color:#9DB0C9;
+}
+
+p.remove
+{
+	text-align:center;
+	margin:0;
+}
+
+p.remove a
+{
+	color:#BF8747;
+	text-decoration:none;
+
+}

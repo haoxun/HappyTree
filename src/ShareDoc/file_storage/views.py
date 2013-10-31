@@ -103,6 +103,18 @@ class CreateMessagePage(View):
             message.save()
             remove_perm('message_processing', request.user, message)
             return redirect('home_page')
+        else:
+            render_data_dict = {
+                'request': request,
+                'message': message,
+                'form_select_project': form_select_project,
+                'form_post_message': form_post_message,
+            }
+            return render(request,
+                          'file_storage/create_message_page.html',
+                          render_data_dict)
+
+
 
 
     def _uploaded_file_list_handler(self, request, message):

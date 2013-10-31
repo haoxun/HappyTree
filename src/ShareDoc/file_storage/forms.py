@@ -27,7 +27,8 @@ class MessageInfoForm(forms.Form):
     title = forms.CharField(required=False,
                             max_length=50)
     description = forms.CharField(required=False,
-                                  max_length=500)
+                                  max_length=500,
+                                  widget=forms.Textarea)
     def clean(self):
         if 'post_message_submit' not in self.data:
             raise forms.ValidationError("Not Being Submit")
