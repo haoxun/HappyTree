@@ -1,5 +1,7 @@
 var load_file_list = function() {
+	$('#file_list').fadeOut('fast');
 	$('#file_list').load('.', {'load_file_list': null}, function() {
+		$('#file_list').fadeIn('fast');
 		$('#file_list a').click(function(event) {
 			event.preventDefault();
 			var url = $(this).attr('href');

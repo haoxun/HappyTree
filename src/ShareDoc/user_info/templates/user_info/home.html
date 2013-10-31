@@ -1,24 +1,35 @@
 {% extends 'base_with_navigation.html' %}
+
+{% load staticfiles %}
+{% block css %}
+<LINK href="{% static 'user_info/home.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
 {% load guardian_tags %}
 {% block content %}
-
 <div id="home_message_list">
 		{% for message in message_set %}
-			<div id="message">
+			<div class="message">
 				{% get_obj_perms user for message.project as "perms" %}
-				<p>
-					Posted by {{message.owner.user.username}}, In
-					<a href={% url 'project_message_page' project_id=message.project.id %}>{{message.project.name}}</a>
+				{% if message.title %}
+					<p class="title">{{message.title}}</p>
+				{% endif %}
+				<p class="post_by">
+					{{message.owner.user.username}} 发布于
+					<a href={% url 'project_message_page' project_id=message.project.id %}>{{message.project.name}}</a>项目
 				</p>
-				<p>Title: {{message.title}}</p>
-			   	<p>Description: {{message.description}}</p>
+				{% if message.description %}
+			   	<p class="description">{{message.description}}</p>
+				{% endif %}
+				<div class="files">
 				{% for file_pointer in message.file_pointers.all %}
-					<p>{{file_pointer.name}}
+					<p class="download">{{file_pointer.name}}
 					{% if 'project_download' in perms %}
-					<a href={% url 'download_file' file_pointer_id=file_pointer.id%}>Download</a>
+					[<a href={% url 'download_file' file_pointer_id=file_pointer.id%}>download</a>]
 					{% endif %}
 					</p>
 				{% endfor %}
+				</div>
 			</div>
 		{% empty %}
 			<div id="no_home_message">

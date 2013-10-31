@@ -1,6 +1,11 @@
+body
+{
+	background-color:#D7E5F7;
+}
 #navigation
 {
 	background-color:#1659BC;
+	border-radius:12px;
 }
 
 

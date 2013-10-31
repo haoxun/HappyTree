@@ -1,15 +1,12 @@
 {% extends 'base.html' %}
 
 {% load staticfiles %}
-{% block css %}
+{% block nev_css %}
 <LINK href="{% static 'navigation.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block navigation %}
 <ul>
-	<li>
-		<a href="#">{{user.username}}!</a>
-	</li>
 	<li>
 		<a href={% url 'home_page' %}>主页</a>
 	</li>
@@ -24,6 +21,10 @@
 	</li>
 	<li>
 		<a href="{% url 'ac_page' %}">消息</a> 
+	</li>
+	<li>
+		<a href="#">{{user.username}}!</a>
+	</li>
 	<li>
 		<a href="{% url 'logout_user' %}">退出</a> 
 	</li>

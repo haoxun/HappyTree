@@ -1,0 +1,62 @@
+.message
+{
+	min-height:50px;
+	display: block;
+	margin:20px 5px;
+	padding:1em;
+	background-color:#F6F5FA;
+	border-radius:7px;
+}
+
+#home_message_list
+{
+	display:inline-block;
+	width:57%;
+	padding-left:2em;
+	
+}
+
+p.title
+{
+	text-align:center;
+	margin:0;
+	padding:0;
+	font-weight:bold;
+	font-size:1.2em;
+}
+
+p.description
+{
+	margin:5px;
+	padding:0;
+}
+
+p.post_by
+{
+	font-weight:lighter;
+	font-size:0.9em;
+	min-width:10px;
+	text-align:right;
+	margin:0;
+	padding-right:7px;
+}
+
+div.files
+{
+	padding:20px 0;
+	border-radius:20px;
+	background-color:#EBEBEB;
+}
+
+p.download
+{
+	text-align:center;
+	margin:0;
+}
+
+p.download a
+{
+	color:#BF8747;
+	text-decoration:none;
+
+}
