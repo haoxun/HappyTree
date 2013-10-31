@@ -1,23 +1,31 @@
 {% extends 'base.html' %}
+
+{% load staticfiles %}
+{% block css %}
+<LINK href="{% static 'navigation.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
 {% block navigation %}
-	<span>
-		Hello {{user.username}}!
-	</span>
-	<span>
-		<a href={% url 'home_page' %}>Main Page</a>
-	</span>
-	<span>
-		<a href={% url 'create_message_page' %}>Post Messages!</a>
-	</span>
-	<span>
-		<a href="{% url 'group_list_page' %}">Groups</a> 
-	</span>
-	<span>
-		<a href="{% url 'project_list_page' %}">Projects</a> 
-	</span>
-	<span>
-		<a href="{% url 'ac_page' %}">Apply/Confirm</a> 
-	<span>
-		<a href="{% url 'logout_user' %}">Logout</a> 
-	</span>
+<ul>
+	<li>
+		<a href="#">{{user.username}}!</a>
+	</li>
+	<li>
+		<a href={% url 'home_page' %}>主页</a>
+	</li>
+	<li>
+		<a href={% url 'create_message_page' %}>上传</a>
+	</li>
+	<li>
+		<a href="{% url 'group_list_page' %}">群组</a> 
+	</li>
+	<li>
+		<a href="{% url 'project_list_page' %}">项目</a> 
+	</li>
+	<li>
+		<a href="{% url 'ac_page' %}">消息</a> 
+	<li>
+		<a href="{% url 'logout_user' %}">退出</a> 
+	</li>
+</ul>
 {% endblock %}

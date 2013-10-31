@@ -1,0 +1,18 @@
+table {
+border-collapse: collapse;
+}
+table td {
+white-space: nowrap; 
+border:1px solid black;
+padding:5px;
+vertical-align:text-top;
+}
+table th {
+white-space: nowrap; 
+border:1px solid black;
+padding:5px;
+vertical-align:text-top;
+}
+td br {
+border: 1px solid black;
+}

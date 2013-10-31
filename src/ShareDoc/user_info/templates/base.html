@@ -1,9 +1,10 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
 {% load staticfiles %}
-<!DOCTYPE html>
 <html>
 <head>
 	<title>{{page_title}}</title>
-	<style>{% block css %}{% endblock %}</style>
+	{% block css %}{% endblock %}
 	<script src={% static 'jquery-1.10.2.min.js' %}></script>
 	<script src={% static 'jquery.cookie.js' %}></script>
 	<script src={% static 'django_csrf.js' %}></script>
@@ -16,6 +17,6 @@
 	</div>	
 	<div id="content">
         	{% block content %}{% endblock %}
-    	</div>
+    </div>
 </body>
 </html>
