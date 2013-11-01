@@ -1,6 +1,7 @@
 var load_file_list = function() {
 	$('#file_list').fadeOut('fast');
-	$('#file_list').load('.', {'load_file_list': null}, function() {
+	var url = $('#file_list').attr('href');
+	$('#file_list').load(url, {'load_file_list': null}, function() {
 		$('#file_list').fadeIn('fast');
 		$('#file_list a').click(function(event) {
 			event.preventDefault();
@@ -23,6 +24,7 @@ var create_message_action = function() {
 		event.preventDefault();
 		event.stopPropagation();
 		var form = $(this);
+		var url = form.attr('href');
 		var file = $(this).find('input[type="file"]').get(0).files[0];
 		//There's a serious BUG!!!!!!
 		//Since the hashMe will somhow change the file, which leads to an estra upload.
@@ -37,7 +39,7 @@ var create_message_action = function() {
 		//	});
 		//});
 		form.ajaxSubmit({
-			url: '.',
+			url: url,
 			data: {'uploaded_file': null},
 			complete: load_file_list,
 		});

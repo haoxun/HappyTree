@@ -84,7 +84,8 @@ class CreateMessagePage(View):
         if 'load_message' in request.GET:
             return self._load_message_handler(request)
         else:
-            return render(request, 'file_storage/create_message_page.html')
+            # forbid direct access
+            raise PermissionDenied
 
     def _handler_factory(self, request):
         if 'uploaded_file' in request.POST:

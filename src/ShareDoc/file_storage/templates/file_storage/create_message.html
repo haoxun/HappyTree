@@ -1,7 +1,7 @@
-<div id="file_list">
+<div id="file_list" href="{% url 'create_message_page' %}">
 </div>
 <div id="file_upload">
-	<form enctype="multipart/form-data" method="post" action={# url 'create_message_page' #}>
+	<form enctype="multipart/form-data" method="post" action="{% url 'create_message_page' %}">
 		<input id="id_uploaded_file" type="file" name="uploaded_file" />
 	</form>	
 </div>
@@ -31,4 +31,3 @@
 		</div>
 	</form>	
 </div>
-

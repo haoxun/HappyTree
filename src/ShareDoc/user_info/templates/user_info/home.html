@@ -1,13 +1,27 @@
 {% extends 'base_with_navigation.html' %}
 
 {% load staticfiles %}
+{% block js %}
+<script src={% static 'file_storage/jquery.form.min.js' %}></script>
+<script src={% static 'file_storage/md5.js' %}></script>
+<script src={% static 'file_storage/hashme.js' %}></script>
+<script src={% static 'file_storage/create_message.js' %}></script>
+{% endblock %}
+
+{% load staticfiles %}
 {% block css %}
 <LINK href="{% static 'user_info/home.css' %}" rel="stylesheet" type="text/css">
+<LINK href="{% static 'file_storage/create_message.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% load guardian_tags %}
 {% block content %}
 <div id="home_message_list">
+		<div id="create_message">
+			<a id="init" href="{% url 'create_message_page' %}">创建消息</a>
+			<div id="init_target">
+			</div>
+		</div>
 		{% for message in message_set %}
 			<div class="message">
 				{% get_obj_perms user for message.project as "perms" %}
