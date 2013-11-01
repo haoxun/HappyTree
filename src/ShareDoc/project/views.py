@@ -2,38 +2,53 @@ from __future__ import unicode_literals
 # django dependency
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render
+from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.views.generic.base import View
 # auth dependency
 from django.contrib.auth.decorators import login_required
-from guardian.decorators import permission_required_or_403, permission_required
-from guardian.shortcuts import assign_perm, remove_perm, \
-                               get_users_with_perms, \
-                               get_objects_for_user
-# model 
-from guardian.models import User, Group
+from guardian.decorators import permission_required_or_403
+from guardian.decorators import permission_required
+from guardian.shortcuts import assign_perm
+from guardian.shortcuts import remove_perm
+from guardian.shortcuts import get_users_with_perms
+from guardian.shortcuts import get_objects_for_user
+# model
+from guardian.models import User
+from guardian.models import Group
 from user_info.models import UserInfo
-from real_group.models import RealGroup, UserInfo_RealGroup_AC
-from project.models import UserInfo_Project_AC, RealGroup_Project_AC, \
-                           Project, ProjectGroup, Message
+from real_group.models import RealGroup
+from real_group.models import UserInfo_RealGroup_AC
+from project.models import UserInfo_Project_AC
+from project.models import RealGroup_Project_AC
+from project.models import Project
+from project.models import ProjectGroup
+from project.models import Message
 # form
-from project.forms import ProjectNameHandlerForm, ProjectDescriptionHandlerForm, \
-                          AddUserForm, AddRealGroupForm, ApplyToProjectForm
+from project.forms import ProjectNameHandlerForm
+from project.forms import ProjectDescriptionHandlerForm
+from project.forms import AddUserForm
+from project.forms import AddRealGroupForm
+from project.forms import ApplyToProjectForm
 # decorator
 from django.utils.decorators import method_decorator
 # util
 from django.template.loader import render_to_string
-from project.utils import construct_user_project_ac, \
-                          construct_real_group_project_ac
-from real_group.utils import ApplyConfirmHandler, \
-                             BasicInfoHandler
+from project.utils import construct_user_project_ac
+from project.utils import construct_real_group_project_ac
+from real_group.utils import ApplyConfirmHandler
+from real_group.utils import BasicInfoHandler
 # python library
 from datetime import datetime
 import json
 
-project_permissions = [permission \
-        for permission, description in Project._meta.permissions]
+
+project_permissions = []
+for permission, description in Project._meta.permissions:
+    project_permissions.append(permission)
+
 
 class ProjectListPage(View, ApplyConfirmHandler):
     """
@@ -47,22 +62,21 @@ class ProjectListPage(View, ApplyConfirmHandler):
         return super(ProjectListPage, self).dispatch(*args, **kwargs)
 
     def get(self, request):
-        project_set = get_objects_for_user(request.user, 
+        project_set = get_objects_for_user(request.user,
                                            'project.project_membership')
         form_apply_to_project = ApplyToProjectForm()
         form_project_name = ProjectNameHandlerForm()
         form_project_description = ProjectDescriptionHandlerForm()
 
         render_data_dict = {
-                'project_set': project_set,
-                'form_apply_to_project': form_apply_to_project,
-                'form_project_name': form_project_name,
-                'form_project_description': form_project_description
+            'project_set': project_set,
+            'form_apply_to_project': form_apply_to_project,
+            'form_project_name': form_project_name,
+            'form_project_description': form_project_description,
         }
         return render(request,
                       'project/project_list_page.html',
                       render_data_dict)
-
 
     def _add_project_generator(self, form_add_project, user_info):
         add_project_set = {}
@@ -72,9 +86,10 @@ class ProjectListPage(View, ApplyConfirmHandler):
                 continue
             keywords = {'project_id': project.id,
                         'user_info_id': user_info.id}
-            add_project_set[project.name] = \
-                    reverse('user_apply_to_project',
-                            kwargs=keywords)
+            add_project_set[project.name] = reverse(
+                'user_apply_to_project',
+                kwargs=keywords,
+            )
         return add_project_set
 
     def _handler_factory(self, request):
@@ -88,31 +103,35 @@ class ProjectListPage(View, ApplyConfirmHandler):
                                            request.user.userinfo,
                                            ApplyToProjectForm,
                                            self._add_project_generator)
+
     def _create_project(self, request):
         form_project_name = ProjectNameHandlerForm(request.POST)
         form_project_description = ProjectDescriptionHandlerForm(request.POST)
-        if form_project_name.is_valid() and form_project_description.is_valid():
+        if form_project_name.is_valid() \
+                and form_project_description.is_valid():
             # extract data
             name = form_project_name.cleaned_data['name']
             description = form_project_description.cleaned_data['description']
             # create project
             unique_name = (
-                    '[project]',
-                    request.user.username,
-                    unicode(datetime.now()),
+                '[project]',
+                request.user.username,
+                unicode(datetime.now()),
             )
             unique_name = "".join(unique_name)
 
             group = Group.objects.create(name=unique_name)
             project_group = ProjectGroup.objects.create(
-                                group=group,
-                                download=True,
-                                upload=False,
-                                delete=False)
+                group=group,
+                download=True,
+                upload=False,
+                delete=False,
+            )
             project = Project.objects.create(
-                        name=name,
-                        description=description,
-                        project_group=project_group)
+                name=name,
+                description=description,
+                project_group=project_group,
+            )
             # asociate with creator
             group.user_set.add(request.user)
             for perm in project_permissions:
@@ -120,10 +139,10 @@ class ProjectListPage(View, ApplyConfirmHandler):
              # response json data.
             keywords = {'project_id': project.id}
             json_data = json.dumps({
-                            'error': False,
-                            'url': reverse('project_message_page',
-                                           kwargs=keywords),
-                        })
+                'error': False,
+                'url': reverse('project_message_page',
+                               kwargs=keywords),
+            })
             return HttpResponse(json_data, content_type='application/json')
         else:
             error_dict = dict(form_project_name.errors)
@@ -133,33 +152,34 @@ class ProjectListPage(View, ApplyConfirmHandler):
                 error_dict[key] = "; ".join(value)
                 error_list.append(key + ":" + error_dict[key])
             json_data = json.dumps({
-                            'error': "; ".join(error_list),
-                            'url': None,
-                        })
+                'error': "; ".join(error_list),
+                'url': None,
+            })
             return HttpResponse(json_data, content_type='application/json')
-
 
     def post(self, request):
         handler = self._handler_factory(request)
         return handler(request)
 
 
-
 class ProjectFileListPage(View):
     @method_decorator(login_required)
-    @method_decorator(permission_required_or_403('project.project_membership', 
-                                                 (Project, 'id', 'project_id')))
+    @method_decorator(
+        permission_required_or_403('project.project_membership',
+                                   (Project, 'id', 'project_id'))
+    )
     def dispatch(self, *args, **kwargs):
         return super(ProjectFileListPage, self).dispatch(*args, **kwargs)
 
     def get(self, request, project_id):
         project = get_object_or_404(Project, id=int(project_id))
         render_data_dict = {
-                'project': project,
+            'project': project,
         }
         return render(request,
                       'project/project_file_list_page.html',
                       render_data_dict)
+
     def post(self, request, project_id):
         project = get_object_or_404(Project, id=int(project_id))
         message_set = project.messages.filter(post_flag=True).order_by('-post_time')
@@ -167,8 +187,8 @@ class ProjectFileListPage(View):
         for message in message_set:
             file_pointer_set.extend(message.file_pointers.all())
         render_data_dict = {
-                'project': project,
-                'file_pointer_set': file_pointer_set,
+            'project': project,
+            'file_pointer_set': file_pointer_set,
         }
         return render(request,
                       'project/project_file_list.html',
@@ -180,7 +200,7 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
     This class handle the configuration process of project.
     """
     @method_decorator(login_required)
-    @method_decorator(permission_required_or_403('project.project_management', 
+    @method_decorator(permission_required_or_403('project.project_management',
                       (Project, 'id', 'project_id',)))
     def dispatch(self, *args, **kwargs):
         return super(ProjectManagementPage, self).dispatch(*args, **kwargs)
@@ -193,13 +213,13 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
         form_add_real_group = AddRealGroupForm()
 
         render_data_dict = {
-                'request': request,
-                'project': project,
-                'user_set': get_users_with_perms(project),
-                'form_project_name': form_project_name,
-                'form_project_description': form_project_description,
-                'form_add_user': form_add_user,
-                'form_add_real_group': form_add_real_group,
+            'request': request,
+            'project': project,
+            'user_set': get_users_with_perms(project),
+            'form_project_name': form_project_name,
+            'form_project_description': form_project_description,
+            'form_add_user': form_add_user,
+            'form_add_real_group': form_add_real_group,
         }
         return render(request,
                       'project/project_management_page.html',
@@ -213,9 +233,10 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
                 continue
             keywords = {'project_id': project.id,
                         'user_info_id': user.userinfo.id}
-            add_user_set[user.username] = \
-                    reverse('invite_user_to_project',
-                            kwargs=keywords)
+            add_user_set[user.username] = reverse(
+                'invite_user_to_project',
+                kwargs=keywords,
+            )
         return add_user_set
 
     def _add_real_group_generator(self, form_add_real_group, project):
@@ -226,11 +247,11 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
                 continue
             keywords = {'project_id': project.id,
                         'real_group_id': real_group.id}
-            add_real_group_set[real_group.name] = \
-                    reverse('invite_real_group_to_project',
-                            kwargs=keywords)
+            add_real_group_set[real_group.name] = reverse(
+                'invite_real_group_to_project',
+                kwargs=keywords,
+            )
         return add_real_group_set
-
 
     def _handler_factory(self, request):
         if 'project_name_submit' in request.POST:
@@ -250,28 +271,28 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
 
     def _get_html_response(self, request, project, template_name):
         render_data_dict = {
-                'request': request,
-                'project': project,
-                'user_set': get_users_with_perms(project),
+            'request': request,
+            'project': project,
+            'user_set': get_users_with_perms(project),
         }
         html = render_to_string(template_name,
                                 render_data_dict)
         return HttpResponse(html)
 
-
     def _manager_list_handler(self, request, project):
         return self._get_html_response(request,
                                        project,
                                        'project/manager_list.html')
+
     def _member_list_handler(self, request, project):
         return self._get_html_response(request,
                                        project,
                                        'project/member_list.html')
+
     def _default_perm_handler(self, request, project):
         return self._get_html_response(request,
                                        project,
                                        'project/default_perm.html')
-
 
     def _project_name_handler(self, request, project):
         return self._basic_info_handler(request,
@@ -296,13 +317,15 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
                                            project,
                                            AddRealGroupForm,
                                            self._add_real_group_generator)
-    
+
     def post(self, request, project_id):
         project = get_object_or_404(Project, id=int(project_id))
         handler = self._handler_factory(request)
         return handler(request, project)
 
-@permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))
+
+@permission_required_or_403('project.project_management',
+                            (Project, 'id', 'project_id'))
 def process_user_role_on_project(request, project_id, user_info_id, decision):
     project = get_object_or_404(Project, id=int(project_id))
     user_info = get_object_or_404(UserInfo, id=int(user_info_id))
@@ -332,7 +355,8 @@ def process_user_role_on_project(request, project_id, user_info_id, decision):
     return HttpResponse('OK')
 
 
-@permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))
+@permission_required_or_403('project.project_management',
+                            (Project, 'id', 'project_id'))
 def delete_user_from_project(request, project_id, user_info_id):
     project = get_object_or_404(Project, id=int(project_id))
     user_info = get_object_or_404(UserInfo, id=int(user_info_id))
@@ -347,12 +371,13 @@ def delete_user_from_project(request, project_id, user_info_id):
     for perm in project_permissions:
         remove_perm(perm, user_info.user, project)
     return HttpResponse('OK')
-    
 
-@permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))
-def process_user_permission_on_project(request, 
-                                       project_id, 
-                                       user_info_id, 
+
+@permission_required_or_403('project.project_management',
+                            (Project, 'id', 'project_id'))
+def process_user_permission_on_project(request,
+                                       project_id,
+                                       user_info_id,
                                        kind,
                                        decision):
     """
@@ -378,9 +403,10 @@ def process_user_permission_on_project(request,
     return HttpResponse('OK')
 
 
-@permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))
-def process_default_permission_on_project(request, 
-                                          project_id, 
+@permission_required_or_403('project.project_management',
+                            (Project, 'id', 'project_id'))
+def process_default_permission_on_project(request,
+                                          project_id,
                                           kind,
                                           decision):
     """
@@ -406,20 +432,25 @@ def process_default_permission_on_project(request,
     return HttpResponse('OK')
 
 
-@permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))
+@permission_required_or_403('project.project_management',
+                            (Project, 'id', 'project_id'))
 def invite_user_to_project(request, project_id, user_info_id):
     construct_user_project_ac(user_info_id, project_id, 'ACTION_PTU')
     return HttpResponse('OK')
 
-@permission_required_or_403('project.project_management', (Project, 'id', 'project_id'))
+
+@permission_required_or_403('project.project_management',
+                            (Project, 'id', 'project_id'))
 def invite_real_group_to_project(request, project_id, real_group_id):
     construct_real_group_project_ac(real_group_id, project_id, "ACTION_PTR")
     return HttpResponse('OK')
+
 
 @login_required
 def user_apply_to_project(request, user_info_id, project_id):
     construct_user_project_ac(user_info_id, project_id, "ACTION_UTP")
     return HttpResponse('OK')
+
 
 @login_required
 def real_group_apply_to_project(request, real_group_id, project_id):
