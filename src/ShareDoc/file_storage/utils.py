@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 import hashlib
 
+
 def gen_MD5_of_UploadedFile(file):
     m = hashlib.md5()
     CUT_SIZE = 65536
@@ -13,5 +14,3 @@ def gen_MD5_of_UploadedFile(file):
         end = file.read(CUT_SIZE)
         m.update(start + end)
     return m.hexdigest()
-    
-
