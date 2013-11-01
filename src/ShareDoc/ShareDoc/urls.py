@@ -1,9 +1,6 @@
 from __future__ import unicode_literals
 from django.conf.urls import patterns, include, url
-
-# Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
+from django.conf import settings
 
 urlpatterns = patterns('',
     # Examples:
@@ -25,7 +22,6 @@ urlpatterns = patterns('',
     
 )
 
-from django.conf import settings
 if settings.DEBUG:
     urlpatterns += patterns('',
         url(r'test/$', 'user_info.views.models_page'),
