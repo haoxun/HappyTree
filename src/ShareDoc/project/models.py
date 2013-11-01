@@ -4,6 +4,7 @@ from user_info.models import UserInfo
 from real_group.models import RealGroup
 from guardian.models import Group
 
+
 class ProjectGroup(models.Model):
     # fields
     # default permissions
@@ -17,6 +18,7 @@ class ProjectGroup(models.Model):
     def __unicode__(self):
         return '{}'.format(self.id)
 
+
 class Project(models.Model):
     # fields
     name = models.CharField(max_length=50)
@@ -28,30 +30,28 @@ class Project(models.Model):
     # hold all members of the project.
     project_group = models.OneToOneField(ProjectGroup)
     # apply/confirm relations
-    user_infos_ac = models.ManyToManyField(UserInfo, 
+    user_infos_ac = models.ManyToManyField(UserInfo,
                                            through="UserInfo_Project_AC")
     real_groups_ac = models.ManyToManyField(RealGroup,
                                             through="RealGroup_Project_AC")
-
     # ForeignKey
-    # project_groups: project groups to hold all attended users and permission management.
+    # project_groups: project groups
+    # to hold all attended users and permission management.
     # messages: messages related to the project.
-    
+
     class Meta:
         # can be hold by user
         permissions = (
-                ('project_ownership', 'owner of the project'),
-                ('project_membership', 'member of the project'),
-                ('project_management', 'manager of the project'),
-                ('project_download', 'can download file'),
-                ('project_delete', 'can delete file'),
-                ('project_upload', 'can upload file')
-                
+            ('project_ownership', 'owner of the project'),
+            ('project_membership', 'member of the project'),
+            ('project_management', 'manager of the project'),
+            ('project_download', 'can download file'),
+            ('project_delete', 'can delete file'),
+            ('project_upload', 'can upload file')
         )
 
     def __unicode__(self):
         return '{}'.format(self.name)
-
 
 
 # with consideration of circuit import problem,
@@ -65,11 +65,11 @@ class UserInfo_Project_AC(models.Model):
     STATUS_ACCEPT = 'ACCEPT'
     STATUS_DENY = 'DENY'
     # relations
-    user_info = models.ForeignKey(UserInfo, 
+    user_info = models.ForeignKey(UserInfo,
                                   related_name="projects_ac")
     # class defined in Project, no related_name needed.
     project = models.ForeignKey(Project)
-    
+
     # extra files
     created_time = models.DateTimeField(auto_now_add=True)
     # Action: "UserInfoToProject"(UTP), "ProjectToUserInfo"(PTU)
@@ -80,12 +80,13 @@ class UserInfo_Project_AC(models.Model):
     class Meta:
         # can be hold by users.
         permissions = (
-                ('process_user_project_ac', 'can process the accept/confirm'),
-
+            ('process_user_project_ac', 'can process the accept/confirm'),
         )
+
     def __unicode__(self):
         return '{}'.format(self.id)
-    
+
+
 class RealGroup_Project_AC(models.Model):
     ACTION_RTP = 'RTP'
     ACTION_PTR = 'PTR'
@@ -93,11 +94,11 @@ class RealGroup_Project_AC(models.Model):
     STATUS_ACCEPT = 'ACCEPT'
     STATUS_DENY = 'DENY'
     # relations
-    real_group = models.ForeignKey(RealGroup, 
+    real_group = models.ForeignKey(RealGroup,
                                    related_name="projects_ac")
     # class defined in Project, no related_name needed.
     project = models.ForeignKey(Project)
-    
+
     # extra files
     created_time = models.DateTimeField(auto_now_add=True)
     # Action: "RealGroupToProject"(RTP), "ProjectToRealGroup"(PTR)
@@ -108,14 +109,12 @@ class RealGroup_Project_AC(models.Model):
     class Meta:
         # can be hold by users.
         permissions = (
-                ('process_real_group_project_ac', 'can process the accept/confirm'),
-
+            ('process_real_group_project_ac', 'can process the accept/confirm'),
         )
+
     def __unicode__(self):
         return '{}'.format(self.id)
 
-
-    
 
 class Message(models.Model):
     # fields
@@ -134,9 +133,8 @@ class Message(models.Model):
     class Meta:
         # can be held by poster
         permissions = (
-                ('message_processing', 'owner of the message has not being post'),
-                
+            ('message_processing', 'owner of the message has not being post'),
         )
-    
+
     def __unicode__(self):
         return '{}'.format(self.id)

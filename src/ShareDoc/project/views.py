@@ -200,8 +200,10 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
     This class handle the configuration process of project.
     """
     @method_decorator(login_required)
-    @method_decorator(permission_required_or_403('project.project_management',
-                      (Project, 'id', 'project_id',)))
+    @method_decorator(
+        permission_required_or_403('project.project_management',
+                                   (Project, 'id', 'project_id',))
+    )
     def dispatch(self, *args, **kwargs):
         return super(ProjectManagementPage, self).dispatch(*args, **kwargs)
 
