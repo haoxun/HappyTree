@@ -1,22 +1,32 @@
 from __future__ import unicode_literals
 # django dependency
 from django.http import HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render
+from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.core.servers.basehttp import FileWrapper
 from django.utils.http import urlencode
 from django.views.generic.base import View
 # auth dependency
 from django.contrib.auth.decorators import login_required
-from guardian.decorators import permission_required_or_403, permission_required
-from guardian.shortcuts import assign_perm, remove_perm, get_users_with_perms, \
-                               get_objects_for_user
-# model 
-from guardian.models import User, Group
-from project.models import Message, Project
-from file_storage.models import UniqueFile, FilePointer
+from guardian.decorators import permission_required_or_403
+from guardian.decorators import permission_required
+from guardian.shortcuts import assign_perm
+from guardian.shortcuts import remove_perm
+from guardian.shortcuts import get_users_with_perms
+from guardian.shortcuts import get_objects_for_user
+# model
+from guardian.models import User
+from guardian.models import Group
+from project.models import Message
+from project.models import Project
+from file_storage.models import UniqueFile
+from file_storage.models import FilePointer
 # form
-from file_storage.forms import ProjectChoiceForm, FileUploadForm, MessageInfoForm
+from file_storage.forms import ProjectChoiceForm
+from file_storage.forms import FileUploadForm
+from file_storage.forms import MessageInfoForm
 # decorator
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_GET
@@ -40,10 +50,10 @@ class CreateMessagePage(View):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(CreateMessagePage, self).dispatch(*args, **kwargs)
-    
+
     def _get_message(self, request, forbid_init=False):
          # extract current processing message
-        message = get_objects_for_user(request.user, 
+        message = get_objects_for_user(request.user,
                                        'project.message_processing')
         if message:
             message = message[0]
@@ -51,7 +61,7 @@ class CreateMessagePage(View):
             if forbid_init:
                 raise PermissionDenied
             # if no current processing message, init one.
-            project_set = get_objects_for_user(request.user, 
+            project_set = get_objects_for_user(request.user,
                                                'project.project_upload')
             if len(project_set) == 0:
                 # after finish dev, should give some error message about that,
@@ -64,21 +74,20 @@ class CreateMessagePage(View):
 
     def _load_message_handler(self, request):
         message = self._get_message(request)
-        project_set = get_objects_for_user(request.user, 
+        project_set = get_objects_for_user(request.user,
                                            'project.project_upload')
         form_select_project = ProjectChoiceForm(project_set)
         form_post_message = MessageInfoForm()
 
         render_data_dict = {
-                'request': request,
-                'message': message,
-                'form_select_project': form_select_project,
-                'form_post_message': form_post_message,
+            'request': request,
+            'message': message,
+            'form_select_project': form_select_project,
+            'form_post_message': form_post_message,
         }
         return render(request,
                       'file_storage/create_message.html',
                       render_data_dict)
-
 
     def get(self, request):
         if 'load_message' in request.GET:
@@ -95,9 +104,9 @@ class CreateMessagePage(View):
         elif 'post_message_submit' in request.POST:
             return self._post_message_handler
 
-    
+
     def _post_message_handler(self, request, message):
-        project_set = get_objects_for_user(request.user, 
+        project_set = get_objects_for_user(request.user,
                                            'project.project_upload')
         form_select_project = ProjectChoiceForm(project_set, request.POST)
         form_post_message = MessageInfoForm(request.POST)
@@ -126,21 +135,20 @@ class CreateMessagePage(View):
 
     def _uploaded_file_list_handler(self, request, message):
         render_data_dict = {
-                'request': request,
-                'message': message
+            'request': request,
+            'message': message
         }
         return render(request,
                       'file_storage/uploaded_file_list.html',
                       render_data_dict)
 
-    
     def _upload_file_handler(self, request, message):
         uploaded_file = request.FILES['uploaded_file']
         if uploaded_file:
             # get or calculate MD5
             # https://github.com/marcu87/hashme
             md5 = request.POST.get('md5', None)
-            if md5 == None:
+            if md5 is None:
                 md5 = gen_MD5_of_UploadedFile(uploaded_file)
             # get unique file
             unique_file = UniqueFile.objects.filter(md5=md5)
@@ -153,9 +161,10 @@ class CreateMessagePage(View):
                 unique_file = unique_file[0]
             # gen file pointer
             file_pointer = FilePointer.objects.create(
-                                name=uploaded_file.name,
-                                unique_file=unique_file,
-                                message=message)
+                name=uploaded_file.name,
+                unique_file=unique_file,
+                message=message,
+            )
             return HttpResponse("OK")
         else:
             return HttpResponse("NOT OK")
@@ -186,12 +195,12 @@ def delete_message(request, message_id):
 def delete_file_pointer_from_message(request, file_pointer_id):
     file_pointer = get_object_or_404(FilePointer, id=int(file_pointer_id))
     unique_file = file_pointer.unique_file
-    message = file_pointer.message 
+    message = file_pointer.message
     project = message.project
     if not request.user.has_perm('project_delete', project):
         raise PermissionDenied
 
-    reverse_url = request.GET.get('next', None) 
+    reverse_url = request.GET.get('next', None)
     if not reverse_url:
         raise PermissionDenied
 
@@ -201,6 +210,7 @@ def delete_file_pointer_from_message(request, file_pointer_id):
     if unique_file.file_pointers.count() == 0:
         unique_file.delete()
     return HttpResponse('OK')
+
 
 @login_required
 def download_file(request, file_pointer_id):
@@ -219,37 +229,25 @@ def download_file(request, file_pointer_id):
     content_type = os.path.splitext(file_name)[-1]
     content_type = mimetypes.types_map.get(content_type,
                                            'application/octet-stream')
-    response = HttpResponse(file_wrapper, 
+    response = HttpResponse(file_wrapper,
                             content_type=content_type)
-    response['Content-Disposition'] = \
-                    "attachment; filename={0}; filename*=utf-8''{0}".format(encode_file_name)
+    content_disposition = "attachment; filename={0}; filename*=utf-8''{0}"
+    response['Content-Disposition'] = content_disposition.format(encode_file_name)
     response['Content-Length'] = unique_file.file.size
     return response
 
 
-
-
-@permission_required_or_403('project.project_membership', 
+@permission_required_or_403('project.project_membership',
                             (Project, 'id', 'project_id'))
 def project_message_page(request, project_id):
     project = get_object_or_404(Project, id=int(project_id))
     message_set = project.messages.filter(post_flag=True).order_by('-post_time')
 
     render_data_dict = {
-            'project': project,
-            'message_set': message_set,
+        'project': project,
+        'message_set': message_set,
     }
 
     return render(request,
                   'file_storage/project_message_page.html',
                   render_data_dict)
-
-
-
-
-            
-
-
-    
-    
-
