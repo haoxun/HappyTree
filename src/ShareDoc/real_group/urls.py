@@ -29,5 +29,4 @@ urlpatterns = patterns('',
         url(r'^(?P<real_group_id>\d+)/apply_to_group/(?P<user_info_id>\d+)/$', 
             'real_group.views.user_apply_to_real_group',
             name='user_apply_to_real_group'),
-
 )

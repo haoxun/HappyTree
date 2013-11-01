@@ -4,15 +4,18 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 # auth dependency
-from guardian.shortcuts import assign_perm, get_users_with_perms
-# model 
+from guardian.shortcuts import assign_perm
+from guardian.shortcuts import get_users_with_perms
+# model
 from user_info.models import UserInfo
-from real_group.models import RealGroup, UserInfo_RealGroup_AC
+from real_group.models import RealGroup
+from real_group.models import UserInfo_RealGroup_AC
 # form
 # decorator
 # util
 import json
 # python library
+
 
 def construct_user_real_group_ac(user_info_id, real_group_id, direction):
     if direction != 'ACTION_RTU' and direction != 'ACTION_UTR':
@@ -26,14 +29,17 @@ def construct_user_real_group_ac(user_info_id, real_group_id, direction):
             action_status=UserInfo_RealGroup_AC.STATUS_WAIT):
         # ensure there's only one ac
         real_group_user_ac = UserInfo_RealGroup_AC.objects.create(
-                        user_info=user_info,
-                        real_group=real_group,
-                        action_code=getattr(UserInfo_RealGroup_AC, direction),
-                        action_status=UserInfo_RealGroup_AC.STATUS_WAIT)
+            user_info=user_info,
+            real_group=real_group,
+            action_code=getattr(UserInfo_RealGroup_AC, direction),
+            action_status=UserInfo_RealGroup_AC.STATUS_WAIT,
+        )
         if direction == 'ACTION_RTU':
-            assign_perm('real_group.process_user_real_group_ac',
-                    user_info.user,
-                    real_group_user_ac)
+            assign_perm(
+                'real_group.process_user_real_group_ac',
+                user_info.user,
+                real_group_user_ac,
+            )
         else:
             real_group_user_set = get_users_with_perms(real_group)
             for user in real_group_user_set:
@@ -42,31 +48,33 @@ def construct_user_real_group_ac(user_info_id, real_group_id, direction):
                                 user,
                                 real_group_user_ac)
 
+
 class ApplyConfirmHandler(object):
     """
     handler of the situations that somebody search sth via a form.
     """
-    def _apply_confirm_handler(self, 
-                               request, 
-                               applier, 
+    def _apply_confirm_handler(self,
+                               request,
+                               applier,
                                form_cls,
                                target_set_generator):
         form = form_cls(request.POST)
         if form.is_valid():
             target_set = target_set_generator(form, applier)
             json_data = json.dumps({
-                            'error': False,
-                            'data': target_set,
-                        })
+                'error': False,
+                'data': target_set,
+            })
             return HttpResponse(json_data, content_type='application/json')
         else:
             error_dict = dict(form.errors)
             for key, value in error_dict.items():
                 error_dict[key] = "; ".join(value)
             json_data = json.dumps({
-                            'error': error_dict,
-                        })
+                'error': error_dict,
+            })
             return HttpResponse(json_data, content_type='application/json')
+
 
 class BasicInfoHandler(object):
     # form process, base on AJAX POST.
@@ -77,16 +85,16 @@ class BasicInfoHandler(object):
             setattr(target, field_name, field)
             target.save()
             json_data = json.dumps({
-                            'error': False,
-                            'data' : {field_name: field},
-                        })
+                'error': False,
+                'data': {field_name: field},
+            })
             return HttpResponse(json_data, content_type='application/json')
         else:
             error_dict = dict(form.errors)
             for key, value in error_dict.items():
                 error_dict[key] = "; ".join(value)
             json_data = json.dumps({
-                            'error': True,
-                            'data': error_dict,
-                        })
+                'error': True,
+                'data': error_dict,
+            })
             return HttpResponse(json_data, content_type='application/json')
