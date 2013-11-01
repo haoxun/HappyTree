@@ -2,19 +2,27 @@ from __future__ import unicode_literals
 # django dependency
 from django.http import HttpResponse
 from django.views.generic.base import View
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render
+from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 # auth dependency
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-from guardian.decorators import permission_required_or_403, permission_required
-from guardian.shortcuts import assign_perm, remove_perm, get_users_with_perms, \
-                               get_objects_for_user
-# model 
+from guardian.decorators import permission_required_or_403
+from guardian.decorators import permission_required
+from guardian.shortcuts import assign_perm
+from guardian.shortcuts import remove_perm
+from guardian.shortcuts import get_users_with_perms
+from guardian.shortcuts import get_objects_for_user
+# model
 from guardian.models import User, Group
+from guardian.models import Group
 from user_info.models import UserInfo
 from real_group.models import RealGroup, UserInfo_RealGroup_AC
+from real_group.models import UserInfo_RealGroup_AC
 from project.models import UserInfo_Project_AC, RealGroup_Project_AC
+from project.models import RealGroup_Project_AC
 # form
 # decorator
 from django.utils.decorators import method_decorator
@@ -25,23 +33,26 @@ from django.template.loader import render_to_string
 import operator
 import re
 
+
 @login_required
 def home_page(request):
-    project_set = get_objects_for_user(request.user, 
+    project_set = get_objects_for_user(request.user,
                                        'project.project_membership')
     message_set = []
     for project in project_set:
         message_set.extend(project.messages.filter(post_flag=True))
     message_set = sorted(message_set, key=lambda x: x.post_time, reverse=True)
-    
+
     return render(request,
                   'user_info/home.html',
                   {'message_set': message_set})
+
 
 @login_required
 def logout_user(request):
     logout(request)
     return redirect('login_page')
+
 
 class ApplyConfirmPage(View):
     @method_decorator(login_required)
@@ -101,50 +112,57 @@ class ApplyConfirmPage(View):
             else:
                 return display_list
 
-
         # non-direction relation
-        user_project_ac = \
-                get_objects_for_user(request.user,
-                                     'project.process_user_project_ac')
-        real_group_project_ac = \
-                get_objects_for_user(request.user, 
-                                     'project.process_real_group_project_ac')
-        user_real_group_ac = \
-                get_objects_for_user(request.user,
-                                     'real_group.process_user_real_group_ac')
+        user_project_ac = get_objects_for_user(
+            request.user,
+            'project.process_user_project_ac',
+        )
+        real_group_project_ac = get_objects_for_user(
+            request.user,
+            'project.process_real_group_project_ac',
+        )
+        user_real_group_ac = get_objects_for_user(
+            request.user,
+            'real_group.process_user_real_group_ac',
+        )
         # Sth in which user can make decision
-        real_group_set = get_objects_for_user(request.user, 
-                                              'real_group.real_group_management')
-        project_set = get_objects_for_user(request.user, 
-                                           'project.project_management')
+        real_group_set = get_objects_for_user(
+            request.user,
+            'real_group.real_group_management',
+        )
+        project_set = get_objects_for_user(
+            request.user,
+            'project.project_management',
+        )
 
         UTP_ac, PTU_ac = separate_user_project_ac(user_project_ac)
         RTP_ac, PTR_ac = separate_real_group_project_ac(real_group_project_ac)
         UTR_ac, RTU_ac = separate_user_real_gorup_ac(user_real_group_ac)
 
         # rendering
-        html_UTP = render_to_string('user_info/UTP.html', 
+        html_UTP = render_to_string('user_info/UTP.html',
                                     {'user_to_project_ac': UTP_ac})
-        html_PTU = render_to_string('user_info/PTU.html', 
+        html_PTU = render_to_string('user_info/PTU.html',
                                     {'project_to_user_ac': PTU_ac})
-        html_RTP = render_to_string('user_info/RTP.html', 
+        html_RTP = render_to_string('user_info/RTP.html',
                                     {'real_group_to_project_ac': RTP_ac})
-        html_PTR = render_to_string('user_info/PTR.html', 
+        html_PTR = render_to_string('user_info/PTR.html',
                                     {'project_to_real_group_ac': PTR_ac})
-        html_UTR = render_to_string('user_info/UTR.html', 
+        html_UTR = render_to_string('user_info/UTR.html',
                                     {'user_to_real_group_ac': UTR_ac})
-        html_RTU = render_to_string('user_info/RTU.html', 
+        html_RTU = render_to_string('user_info/RTU.html',
                                     {'real_group_to_user_ac': RTU_ac})
         display_list = [
-            html_UTP, 
-            html_PTU, 
-            html_RTP, 
-            html_PTR, 
-            html_UTR, 
+            html_UTP,
+            html_PTU,
+            html_RTP,
+            html_PTR,
+            html_UTR,
             html_RTU,
         ]
         display_list = check_empty(display_list)
         return HttpResponse("".join(display_list))
+
 
 @login_required
 def process_user_project_ac(request, ac_id, decision):
@@ -177,9 +195,10 @@ def process_user_project_ac(request, ac_id, decision):
                     user_project_ac)
     return redirect('ac_page')
 
+
 @login_required
 def process_user_real_group_ac(request, ac_id, decision):
-    user_real_group_ac = get_object_or_404(UserInfo_RealGroup_AC, 
+    user_real_group_ac = get_object_or_404(UserInfo_RealGroup_AC,
                                            id=int(ac_id))
     if user_real_group_ac.action_status != UserInfo_RealGroup_AC.STATUS_WAIT:
         raise PermissionDenied
@@ -203,6 +222,7 @@ def process_user_real_group_ac(request, ac_id, decision):
                     user,
                     user_real_group_ac)
     return redirect('ac_page')
+
 
 @login_required
 def process_real_group_project_ac(request, ac_id, decision):
@@ -242,9 +262,6 @@ def process_real_group_project_ac(request, ac_id, decision):
     return redirect('ac_page')
 
 
-
-
-
 # for test, showing all models
 def models_page(request):
     from guardian.models import User, Group
@@ -254,25 +271,20 @@ def models_page(request):
     from file_storage.models import FilePointer, UniqueFile
     from project.models import UserInfo_Project_AC, RealGroup_Project_AC
     model_set = [
-            User, 
-            UserInfo, 
-            Group, 
-            RealGroup, 
-            Project, 
-            ProjectGroup, 
-            Message, 
-            FilePointer, 
-            UniqueFile, 
-            UserInfo_RealGroup_AC,
-            UserInfo_Project_AC,
-            RealGroup_Project_AC,
+        User,
+        UserInfo,
+        Group,
+        RealGroup,
+        Project,
+        ProjectGroup,
+        Message,
+        FilePointer,
+        UniqueFile,
+        UserInfo_RealGroup_AC,
+        UserInfo_Project_AC,
+        RealGroup_Project_AC,
     ]
     printed_html = gen_models_debug_info(model_set)
     return render(request,
                   'test/test_page.html',
                   {'table': printed_html})
-        
-            
-     
-    
-

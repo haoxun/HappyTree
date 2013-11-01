@@ -8,7 +8,8 @@ from django.views.generic.base import View
 # auth dependency
 from django.contrib.auth.decorators import login_required
 from guardian.decorators import permission_required_or_403, permission_required
-from guardian.shortcuts import assign_perm, remove_perm, get_users_with_perms, \
+from guardian.shortcuts import assign_perm, remove_perm, \
+                               get_users_with_perms, \
                                get_objects_for_user
 # model 
 from guardian.models import User, Group
