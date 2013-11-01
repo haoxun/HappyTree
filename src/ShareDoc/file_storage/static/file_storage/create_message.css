@@ -34,7 +34,7 @@
 	content: 'Select some files';
 	display: inline-block;
 	background: -webkit-linear-gradient(top, #f9f9f9, #e3e3e3);
-	border: 1px solid #999;
+	border: 5px solid #C8D1DE;
 	border-radius: 3px;
 	padding: 5px 8px;
 	outline: none;
@@ -51,7 +51,7 @@
 }
 .form_div
 {
-	padding-left:50px;
+	padding-left:5%;
 	padding-top:5px;
 	padding-bottom:5px;
 }
@@ -90,7 +90,7 @@
 #final_operation
 {
 	text-align:right;
-	padding-right:12%;
+	padding-right:10%;
 }
 #final_operation input
 {
