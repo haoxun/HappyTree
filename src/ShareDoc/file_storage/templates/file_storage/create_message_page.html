@@ -14,41 +14,11 @@
 
 {% block content %}
 <div id="home_message_list">
-<div id="create_message">
-	<div id="file_list">
+	<div id="create_message">
+			<a id="init" href="{% url 'create_message_page' %}">创建消息</a>
+		<div id="init_target">
+		</div>
 	</div>
-	<div id="file_upload">
-		<form enctype="multipart/form-data" method="post" action={# url 'create_message_page' #}>
-			<input id="id_uploaded_file" type="file" name="uploaded_file" />
-		</form>	
-	</div>
-	<div id="post_message">
-		<form method="post" action={% url 'create_message_page' %}>
-			{% csrf_token %}
-			<div>
-				{{form_post_message.title.errors}}
-				<label for="id_title">标题</label>
-				{{form_post_message.title}}
-			</div>
-			<div id="input_description">
-				{{form_post_message.description.errors}}
-				<p id="label_description">
-				<label for="id_description">描述</label>
-				</p>
-				{{form_post_message.description}}
-			</div>
-			<div>
-				{{form_select_project.project_id.errors}}
-				<label for="id_project_id">项目</label>
-				{{form_select_project.project_id}}
-			</div>
-			<div id="final_operation">
-				<input type="submit" name="post_message_submit" value="发布" />
-				<input type="button" value="取消" onclick="location.href='{% url 'delete_message' message_id=message.id %}';">
-			</div>
-		</form>	
-	</div>
-</div>
 </div>
 
 {% endblock %}

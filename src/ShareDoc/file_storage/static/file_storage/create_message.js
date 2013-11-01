@@ -14,7 +14,7 @@ var load_file_list = function() {
 
 	});
 }
-$(function() {
+var create_message_action = function() {
 	load_file_list();
 	$('#id_uploaded_file').change(function() {
 		$('#file_upload form').submit();
@@ -43,5 +43,27 @@ $(function() {
 		});
 		return false; 
 	});
+}
 
+$(function() {
+	$('#init_target').hide();
+	$('#init').click(function(event) {
+		event.preventDefault();
+		var url = $(this).attr('href');
+		$.get(url, {'load_message': null}, function(data) {
+			$('#init').fadeOut('fast');
+			$('#init_target').html(data);
+			create_message_action();
+			$('#init_target').slideDown('fast');
+			$('#final_operation input[type="button"]').click(function(event) {
+				event.preventDefault();
+				event.stopPropagation();
+				$('#init_target').slideUp('fast');
+				$('#init').fadeIn('fast');
+				var url = $(this).attr('href');
+				$.get(url);
+			});
+
+		});
+	});
 });

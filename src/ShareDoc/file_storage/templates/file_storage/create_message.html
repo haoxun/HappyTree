@@ -1,0 +1,34 @@
+<div id="file_list">
+</div>
+<div id="file_upload">
+	<form enctype="multipart/form-data" method="post" action={# url 'create_message_page' #}>
+		<input id="id_uploaded_file" type="file" name="uploaded_file" />
+	</form>	
+</div>
+<div id="post_message">
+	<form method="post" action="{% url 'create_message_page' %}">
+		{% csrf_token %}
+		<div class="form_div">
+			{{form_post_message.title.errors}}
+			<label for="id_title">标题</label>
+			{{form_post_message.title}}
+		</div>
+		<div class="form_div">
+			{{form_post_message.description.errors}}
+			<p id="label_description">
+			<label for="id_description">描述</label>
+			</p>
+			{{form_post_message.description}}
+		</div>
+		<div class="form_div">
+			{{form_select_project.project_id.errors}}
+			<label for="id_project_id">项目</label>
+			{{form_select_project.project_id}}
+		</div>
+		<div id="final_operation" class="form_div">
+			<input type="submit" name="post_message_submit" value="发布" />
+			<input type="button" value="取消" href="{% url 'delete_message' message_id=message.id %}">
+		</div>
+	</form>	
+</div>
+

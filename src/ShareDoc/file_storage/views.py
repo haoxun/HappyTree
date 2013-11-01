@@ -21,6 +21,7 @@ from file_storage.forms import ProjectChoiceForm, FileUploadForm, MessageInfoFor
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_GET
 # util
+from django.template.loader import render_to_string
 from file_storage.utils import gen_MD5_of_UploadedFile
 # python library
 from datetime import datetime
@@ -61,7 +62,7 @@ class CreateMessagePage(View):
             assign_perm('message_processing', request.user, message)
         return message
 
-    def get(self, request):
+    def _load_message_handler(self, request):
         message = self._get_message(request)
         project_set = get_objects_for_user(request.user, 
                                            'project.project_upload')
@@ -75,8 +76,15 @@ class CreateMessagePage(View):
                 'form_post_message': form_post_message,
         }
         return render(request,
-                      'file_storage/create_message_page.html',
+                      'file_storage/create_message.html',
                       render_data_dict)
+
+
+    def get(self, request):
+        if 'load_message' in request.GET:
+            return self._load_message_handler(request)
+        else:
+            return render(request, 'file_storage/create_message_page.html')
 
     def _handler_factory(self, request):
         if 'uploaded_file' in request.POST:
@@ -85,6 +93,7 @@ class CreateMessagePage(View):
             return self._uploaded_file_list_handler
         elif 'post_message_submit' in request.POST:
             return self._post_message_handler
+
     
     def _post_message_handler(self, request, message):
         project_set = get_objects_for_user(request.user, 
@@ -113,9 +122,6 @@ class CreateMessagePage(View):
             return render(request,
                           'file_storage/create_message_page.html',
                           render_data_dict)
-
-
-
 
     def _uploaded_file_list_handler(self, request, message):
         render_data_dict = {

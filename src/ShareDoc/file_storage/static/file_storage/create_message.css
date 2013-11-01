@@ -5,9 +5,16 @@
 	padding-left:2em;
 	
 }
+#init
+{
+	display:block;
+	line-height:30px;
+	min-height:30px;
+	text-align:center;
+	text-decoration:none;
+}
 #create_message
 {
-	min-height:50px;
 	margin:20px 5px;
 	padding:1em;
 	background-color:#F6F5FA;
@@ -40,13 +47,13 @@
 {
 	text-align:center;
 }
-#post_message form div
+.form_div
 {
 	padding-left:50px;
 	padding-top:5px;
 	padding-bottom:5px;
 }
-#post_message form div input[type="text"]
+#post_message input[type="text"]
 {
 	height: 25px;
 	padding-left: 10px;
@@ -56,7 +63,7 @@
 	font-size:1em;
 	width:80%;
 }
-#post_message form div textarea
+#post_message textarea
 {
 	width: 600px;
 	height: 120px;
@@ -74,7 +81,7 @@
 	display:inline-block;
 	vertical-align:top;
 }
-#post_message form div select
+#post_message select
 {
 	font-size:1em;
 }
