@@ -1,13 +1,18 @@
 from __future__ import unicode_literals
+
+
 def gen_models_debug_info(model_set):
     import cgi
     from django.utils.safestring import mark_safe
+
     def wrap_sth(sth, foot=None):
-        if foot == None:
+        if foot is None:
             foot = sth
+
         def _wrap(target):
             return "<{0}>{1}</{2}>".format(sth, unicode(target), foot)
         return _wrap
+
     printed_models = []
     for model in model_set:
         field_set = model._meta.get_all_field_names()
@@ -23,9 +28,14 @@ def gen_models_debug_info(model_set):
                     except:
                         val = None
                 # deal with many-to-many, many-to-one situation
-                if val.__class__.__name__ in ['ManyRelatedManager', 'RelatedManager']:
-                    related_instances = [cgi.escape(unicode(related_instance)) \
-                                            for related_instance in val.all()]
+                if val.__class__.__name__ in [
+                        'ManyRelatedManager',
+                        'RelatedManager']:
+                    related_instances = []
+                    for related_instance in val.all():
+                        related_instances.append(
+                            cgi.escape(unicode(related_instance))
+                        )
                     val = "<br/>".join(related_instances)
                 else:
                     val = cgi.escape(unicode(val))
@@ -46,11 +56,11 @@ def gen_models_debug_info(model_set):
         printed_instances = wrap_sth('tbody')(printed_instances)
         # table
         printed_table = "".join([
-                            printed_model_name,
-                            printed_fields, 
-                            printed_instances])
+            printed_model_name,
+            printed_fields,
+            printed_instances
+        ])
         printed_table = wrap_sth('table')(printed_table)
         printed_models.append(printed_table)
 
     return mark_safe("".join(printed_models))
-

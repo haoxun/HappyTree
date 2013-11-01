@@ -16,12 +16,12 @@ from guardian.shortcuts import remove_perm
 from guardian.shortcuts import get_users_with_perms
 from guardian.shortcuts import get_objects_for_user
 # model
-from guardian.models import User, Group
+from guardian.models import User
 from guardian.models import Group
 from user_info.models import UserInfo
-from real_group.models import RealGroup, UserInfo_RealGroup_AC
+from real_group.models import RealGroup 
 from real_group.models import UserInfo_RealGroup_AC
-from project.models import UserInfo_Project_AC, RealGroup_Project_AC
+from project.models import UserInfo_Project_AC 
 from project.models import RealGroup_Project_AC
 # form
 # decorator
