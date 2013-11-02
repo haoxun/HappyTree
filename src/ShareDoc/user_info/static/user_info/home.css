@@ -7,13 +7,25 @@
 	background-color:#F6F5FA;
 	border-radius:7px;
 }
+#left_empty
+{
+	padding:0;
+	margin:0;
+	display:inline-block;
+	width:28%;
+}
+#left_not_empty
+{
+	padding:0;
+	margin:0;
+	display:inline-block;
+	width:70%;
+}
 
 #home_message_list
 {
 	display:inline-block;
 	width:57%;
-	padding-left:2em;
-	
 }
 
 p.title
