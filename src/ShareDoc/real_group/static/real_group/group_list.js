@@ -1,7 +1,7 @@
 $(function() {
 	hide_dom('#apply_to_group > div, #creat_group > div');
 	set_trigger_link("#apply_to_group a, #creat_group a");
-	set_cancel_buttom("#apply_to_group :button, #creat_group :button");
+	set_cancel_button("#apply_to_group :button, #creat_group :button");
 });
 
 $(function() {

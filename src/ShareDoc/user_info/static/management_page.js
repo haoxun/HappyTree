@@ -1,20 +1,22 @@
-var hide_dom = function(dom_str) {
-	$(dom_str).hide();
-}
-
 var set_trigger_link = function(link_dom_str) {
 	$(link_dom_str).click(function(event) {
 		event.preventDefault();
-		$(this).parent().children('div').slideDown('fast');
-		$(this).parent().find('input[type="text"]').val("");
-		$(this).fadeOut('fast');
+		var display = $(this).parent();
+		var modify = $(this).parent().parent().children('div[id^="modify"]');
+		var display_content = display.children('span').text();
+		modify.find('p.error').text("");
+		modify.find('input[type="text"]').val(display_content);
+		display.fadeOut('fast');
+		modify.slideDown('fast');
 	});
 }
 
 var set_cancel_button = function(button_dom_str) {
 	$(button_dom_str).click(function(event) {
+		event.preventDefault();
 		$(this).parent().parent().slideUp('fast');
-		$(this).parent().parent().parent().children('a').fadeIn('fast');
+		var display = $(this).parent().parent().parent().children('div[id^="display"]');
+		display.fadeIn('fast');
 	});
 }
 
@@ -26,18 +28,41 @@ var get_post_str = function() {
 	return post_str;
 };
 
+var set_basic_info_form = function(form_dom_str) {
+	$(form_dom_str).submit(function(event) {
+		event.preventDefault();
+		post_str = get_post_str.call(this);
+		form = $(this);
+		$.post('.', post_str, function(json_data) {
+			if(json_data.error) {
+				error_msg = "";
+				$.each(json_data.data, function(index, value) {
+					error_msg += index + ":" + value;
+				});
+				form.parent().children('p.error').text(error_msg);
+			}
+			else {
+				$.each(json_data.data, function(index, value) {
+					form.parent().parent().find('span').text(value);
+				});
+				form.find(':button').click();
+			}
+		});
+	});
+}
+
 var set_search_form = function(form_dom_str) {
 	$(form_dom_str).submit(function(event) {
 		event.preventDefault();
-		var post_str = get_post_str.call(this);
-		form = $(this);
+		post_str = get_post_str.call(this);
+		var form = $(this);
 		$.post('.', post_str, function(json_data) {
 			if(json_data.error) {
 				error_msg = "";
 				$.each(json_data.error, function(index, value) {
 					error_msg += index + ":" + value;
 				});
-				form.parent().children('p.error').text(error_msg);	
+				form.parent().children('p.error').text(error_msg);
 			}
 			else {
 				var search_result = form.parent().children('div.search_result');
@@ -50,7 +75,7 @@ var set_search_form = function(form_dom_str) {
 						entry_html = "<p>";
 					       	entry_html += index;
 					       	entry_html += '<a href="' + value + '">';
-						entry_html += "Attend";
+						entry_html += "Add";
 						entry_html += "</a>";
 						entry_html += "</p>";
 						html += entry_html;
@@ -66,22 +91,5 @@ var set_search_form = function(form_dom_str) {
 				});
 			}
 		});
-	});
-}
-
-var set_create_form = function(form_dom_str) {
-	$(form_dom_str).submit(function(event) {
-		event.preventDefault();
-		var post_str = get_post_str.call(this);
-		form = $(this);
-		$.post('.', post_str, function(json_data) {
-			if(json_data.error) {
-				form.parent().children('p.error').text(json_data.error);
-			}
-			else {
-				window.location.href = json_data.url;
-			}
-		});
-
 	});
 }
