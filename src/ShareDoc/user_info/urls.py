@@ -25,5 +25,8 @@ urlpatterns = patterns('',
     url(r'process/real_group_project/(?P<ac_id>\d+)/(?P<decision>ACCEPT|DENY)/$',
         'user_info.views.process_real_group_project_ac', 
         name='process_real_group_project_ac'),
+    # gravatar test
+    url('gravatar/(?P<email>(\w|\W)+)/$',
+        'user_info.views.user_image_test'),
 
 )

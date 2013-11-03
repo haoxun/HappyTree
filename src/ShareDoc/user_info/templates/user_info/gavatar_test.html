@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+
+{% load gravatar %}
+{% block content %}
+{% gravatar_img_for_email email %}
+{% endblock %}

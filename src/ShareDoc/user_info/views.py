@@ -54,6 +54,12 @@ def logout_user(request):
     return redirect('login_page')
 
 
+def user_image_test(request, email):
+    return render(request,
+                  'user_info/gavatar_test.html',
+                  {'email': email})
+
+
 class ApplyConfirmPage(View):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
