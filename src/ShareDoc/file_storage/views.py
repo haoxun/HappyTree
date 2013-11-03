@@ -201,7 +201,7 @@ def delete_file_pointer_from_message(request, file_pointer_id):
         raise PermissionDenied
 
     reverse_url = request.GET.get('next', None)
-    if not reverse_url:
+    if reverse_url is None:
         raise PermissionDenied
 
     # delete file pointer
