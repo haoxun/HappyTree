@@ -1,22 +1,27 @@
-var set_trigger_link = function(link_dom_str) {
+var copy_text = function(display, modify) {
+	var display_content = display.children('span').text();
+	modify.find('p.error').text("");
+	modify.find('input[type="text"]').val(display_content);
+}
+var set_trigger_link = function(link_dom_str, common_ancestor, show_dom_str, hide_dom_str, callback) {
+	callback = typeof a !== 'undefined' ? callback : copy_text; 
 	$(link_dom_str).click(function(event) {
 		event.preventDefault();
-		var display = $(this).parent();
-		var modify = $(this).parent().parent().children('div[id^="modify"]');
-		var display_content = display.children('span').text();
-		modify.find('p.error').text("");
-		modify.find('input[type="text"]').val(display_content);
+		var display = $(this).parents(common_ancestor).children(show_dom_str);
+		var modify = $(this).parents(common_ancestor).children(hide_dom_str);
+
+		callback(display, modify);
+
 		display.fadeOut('fast');
 		modify.slideDown('fast');
 	});
 }
 
-var set_cancel_button = function(button_dom_str) {
+var set_cancel_button = function(button_dom_str, common_ancestor, hide_dom_str, show_dom_str) {
 	$(button_dom_str).click(function(event) {
 		event.preventDefault();
-		$(this).parent().parent().slideUp('fast');
-		var display = $(this).parent().parent().parent().children('div[id^="display"]');
-		display.fadeIn('fast');
+		$(this).parents(common_ancestor).children(hide_dom_str).slideUp('fast');
+		$(this).parents(common_ancestor).children(show_dom_str).fadeIn('fast');
 	});
 }
 

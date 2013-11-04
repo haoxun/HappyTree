@@ -21,7 +21,9 @@ class ProjectNameHandlerForm(forms.Form):
 
 class ProjectDescriptionHandlerForm(forms.Form):
     description = forms.CharField(required=False,
-                                  max_length=500)
+                                  max_length=500,
+                                  widget=forms.Textarea)
+    
 
     def clean(self):
         if 'project_description_submit' not in self.data \

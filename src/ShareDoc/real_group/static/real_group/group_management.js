@@ -20,8 +20,18 @@ $(function() {
 	$('#modify_group_name').hide();
 	$('#modify_group_description').hide();
 
-	set_trigger_link('div.group_basic_info a');
-	set_cancel_button('div.group_basic_info form :button');
+	set_trigger_link(
+		'div.group_basic_info a',
+		'div.group_basic_info', 
+		'div[id^="display"]',
+		'div[id^="modify"]'
+    	);
+	set_cancel_button(
+		'div.group_basic_info :button', 
+		'div.group_basic_info', 
+		'div[id^="modify"]',
+		'div[id^="display"]'
+    	);
 });
 
 $(function() {

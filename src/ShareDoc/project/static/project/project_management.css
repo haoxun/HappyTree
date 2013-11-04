@@ -3,3 +3,148 @@
 	display:inline-block;
 	width:57%;
 }
+
+#manager_list > p
+{
+	text-align:center;		
+}
+#manager_list
+{
+	min-height:50px;
+	display: block;
+	margin:20px 5px;
+	padding:1em;
+	background-color:#F6F5FA;
+	border-radius:7px;
+}
+
+.manager > p
+{
+	text-align:center;
+}
+
+.manager a
+{
+	text-decoration:none;
+	font-size:0.9em;
+	color:#6BA3ED;
+}
+
+#member_list > p
+{
+	text-align:center;		
+}
+#member_list
+{
+	min-height:50px;
+	display: block;
+	margin:20px 5px;
+	padding:1em;
+	background-color:#F6F5FA;
+	border-radius:7px;
+}
+
+.member > p
+{
+	text-align:center;
+}
+
+.member a
+{
+	text-decoration:none;
+	font-size:0.9em;
+	color:#6BA3ED;
+}
+
+.project_basic_info
+{
+	min-height:20px;
+	display: block;
+	margin:20px 5px;
+	padding:1em;
+	background-color:#F6F5FA;
+	border-radius:7px;
+}
+
+.project_basic_info > p
+{
+	text-align:center;
+}
+
+.form_div
+{
+	padding-left:5%;
+	padding-top:5px;
+	padding-bottom:5px;
+}
+.project_basic_info input[type="text"]
+{
+	height: 25px;
+	padding-left: 10px;
+	border-radius: 5px; /*up to date browsers support this, but you can add prefixes if you want*/
+	border:0;
+	background-color:#C1DDE8;
+	font-size:1em;
+	width:92%;
+}
+.project_basic_info textarea
+{
+	width: 600px;
+	height: 120px;
+	border: 3px solid #cccccc;
+	padding: 5px;
+	font-family: Tahoma, sans-serif;
+	background-position: bottom right;
+	background-repeat: no-repeat;
+	width:90%;
+}
+
+#display_project_name
+{
+	padding-left:5%;
+	padding-bottom:20px;
+}
+
+#display_project_description
+{
+	padding-left:5%;
+	padding-bottom:20px;
+}
+
+.final_operation input
+{
+	font-size:1em;
+	width:20%;
+	padding:0;
+	margin:0;
+}
+
+.final_operation
+{
+	text-align:right;
+	padding-right:6%;
+}
+
+#project_default_perm
+{
+	min-height:50px;
+	display: block;
+	margin:20px 5px;
+	padding:1em;
+	background-color:#F6F5FA;
+	border-radius:7px;
+	text-align:center;
+	padding-bottom:20px;
+}
+
+#project_default_perm a
+{
+	text-decoration:none;
+	font-size:0.9em;
+	color:#6BA3ED;
+}
+
+#project_default_perm > p
+{
+	text-align:center;
+}

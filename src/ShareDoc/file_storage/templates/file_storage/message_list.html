@@ -16,7 +16,7 @@
 		{% for file_pointer in message.file_pointers.all %}
 			<p class="download">{{file_pointer.name}}
 			{% if 'project_download' in perms %}
-			[<a href="{% url 'download_file' file_pointer_id=file_pointer.id%}">download</a>]
+			<a href="{% url 'download_file' file_pointer_id=file_pointer.id%}">[download]</a>
 			{% endif %}
 			</p>
 		{% endfor %}

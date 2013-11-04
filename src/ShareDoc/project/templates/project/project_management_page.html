@@ -2,8 +2,8 @@
 
 {% load staticfiles %}
 {% block js %}
-<script src={% static 'management_page.js' %}></script>
-<script src={% static 'project/project_management.js' %}></script>
+<script src="{% static 'management_page.js' %}"></script>
+<script src="{% static 'project/project_management.js' %}"></script>
 {% endblock %}
 
 {% block css %}
@@ -29,35 +29,47 @@
 		</div>
 
 		<div class="project_basic_info">
+		    <p>项目名称</p>
 			<div id="display_project_name">
-				Project Name: <span>{{project.name}}</span>
-				<a href="#">[Change]</a>
+				<span>{{project.name}}</span>
+				<a href="#">[修改]</a>
 			</div>
 
 			<div id="modify_project_name">
-				<p>Modify Project Name</p>
 				<p class="error"></p>
-				<form method="post" action={% url 'project_management_page' project_id=project.id %}>
-					{{form_project_name.as_p}}
-					<input type="submit" name="project_name_submit" value="Submit"/>
-					<input type="button" value="Cancel"/>
+				<form method="post" action="{% url 'project_management_page' project_id=project.id %}">
+					<div class="form_div">
+						{{form_project_name.name.errors}}
+						{{form_project_name.name}}
+					</div>
+					{#form_project_name.as_p#}
+					<div class="final_operation form_div">
+						<input type="submit" name="project_name_submit" value="修改"/>
+						<input type="button" value="取消"/>
+					</div>
 				</form>	
 			</div>
 		</div>
 
 		<div class="project_basic_info">
+		    <p>项目描述</p>
 			<div id="display_project_description">
-				Project Description: <span>{{project.description}}</span>
-				<a href="#">[Change]</a>
+				<span>{{project.description}}</span>
+				<a href="#">[修改]</a>
 			</div>
 			
 			<div id="modify_project_description">
-				<p>Modify Project Description</p>
 				<p class="error"></p>
-				<form method="post" action={% url 'project_management_page' project_id=project.id %}>
-					{{form_project_description.as_p}}
-					<input type="submit" name="project_description_submit" value="Submit"/>
-					<input type="button" value="Cancel"/>
+				<form method="post" action="{% url 'project_management_page' project_id=project.id %}">
+					<div class="form_div">
+						{{form_project_description.description.errors}}
+						{{form_project_description.description}}
+					</div>
+					{#form_project_description.as_p#}
+					<div class="final_operation form_div">
+						<input type="submit" name="project_description_submit" value="修改"/>
+						<input type="button" value="取消"/>
+					</div>
 				</form>	
 			</div>
 		</div>
@@ -68,7 +80,7 @@
 		<div class="apply_confirm">
 			<p>Invite Group To Project</p>
 			<p class="error"></p>
-			<form method="post" action={% url 'project_management_page' project_id=project.id %}>
+			<form method="post" action="{% url 'project_management_page' project_id=project.id %}">
 				{{form_add_real_group.as_p}}
 				<input type="submit" name="PTR_submit" value="Search"/>
 			</form>	
@@ -80,7 +92,7 @@
 		<div class="apply_confirm">
 			<p>Invite User</p>
 			<p class="error"></p>
-			<form method="post" action={% url 'project_management_page' project_id=project.id %}>
+			<form method="post" action="{% url 'project_management_page' project_id=project.id %}">
 				{{form_add_user.as_p}}
 				<input type="submit" name="PTU_submit" value="Search"/>
 			</form>	

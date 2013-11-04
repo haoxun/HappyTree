@@ -30,11 +30,33 @@ $(function() {
 	$('#modify_project_name').hide();
 	$('#modify_project_description').hide();
 
-	set_trigger_link('div.project_basic_info a');
-	set_cancel_button('div.project_basic_info form :button');
+	set_trigger_link(
+		'div.project_basic_info a',
+		'div.project_basic_info',
+		'div[id^="display"]',
+		'div[id^="modify"]'
+    	);
+	set_cancel_button(
+		'div.project_basic_info :button',
+		'div.project_basic_info',
+		'div[id^="modify"]',
+		'div[id^="display"]'
+    	);
 });
 
 $(function() {
 	set_basic_info_form('div.project_basic_info form');
 	set_search_form('div.apply_confirm form');
+});
+
+$(function() {
+	$('div[id^="display_project"] a').hide();
+	$('div[id^="display_project"]').hover(
+		function() {
+			$(this).children('a').fadeIn('fast');
+		},
+		function() {
+			$(this).children('a').fadeOut('fast');
+		}
+	);
 });

@@ -1,30 +1,30 @@
 {% load guardian_tags %}
-<p>User List:</p>
+<p>成员列表</p>
 <div>
 {% for user in user_set %}
 	{% get_obj_perms user for project as "perms" %}
 	{% if "project_management" not in perms and "project_membership" in perms %}
-	<div>
+	<div class="member">
 		<p>{{user.username}}
-		<a href="{% url 'process_user_role_on_project' project_id=project.id user_info_id=user.userinfo.id decision="True" %}">Set Manager</a> 
-		<a href="{% url 'delete_user_from_project' project_id=project.id user_info_id=user.userinfo.id %}">Remove</a>
+		<a href="{% url 'process_user_role_on_project' project_id=project.id user_info_id=user.userinfo.id decision="True" %}">[设为管理员]</a>
+		<a href="{% url 'delete_user_from_project' project_id=project.id user_info_id=user.userinfo.id %}">[踢出]</a>
 		
 		{% if 'project_download' in perms %}
-		<a href="{% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="download" decision="False" %}">Can Download(Unset)</a>
+		<a href="{% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="download" decision="False" %}">[允许下载(禁止)]</a>
 		{% else %}
-		<a href="{% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="download" decision="True" %}">Cannot Download(Set)</a>
+		<a href="{% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="download" decision="True" %}">[禁止下载(允许)]</a>
 		{% endif %}
 
 		{% if 'project_upload' in perms %}
-		<a href="{% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="upload" decision="False" %}">Can Upload(Unset)</a>
+		<a href="{% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="upload" decision="False" %}">[允许上传(禁止)]</a>
 		{% else %}
-		<a href="{% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="upload" decision="True" %}">Cannot Upload(Set)</a>
+		<a href="{% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="upload" decision="True" %}">[禁止上传(允许)]</a>
 		{% endif %}
 
 		{% if 'project_delete' in perms %}
-		<a href="{% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="delete" decision="False" %}">Can Delete(Unset)</a>
+		<a href="{% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="delete" decision="False" %}">[允许删除(禁止)]</a>
 		{% else %}
-		<a href="{% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="delete" decision="True" %}">Cannot Delete(Set)</a>
+		<a href="{% url 'process_user_permission_on_project'  project_id=project.id user_info_id=user.userinfo.id kind="delete" decision="True" %}">[禁止删除(允许)]</a>
 		{% endif %}
 
 		</p>
