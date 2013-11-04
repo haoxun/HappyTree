@@ -33,8 +33,8 @@ $(function() {
 	set_trigger_link(
 		'div.project_basic_info a',
 		'div.project_basic_info',
-		'div[id^="display"]',
-		'div[id^="modify"]'
+		'div[id^="modify"]',
+		'div[id^="display"]'
     	);
 	set_cancel_button(
 		'div.project_basic_info :button',
@@ -42,6 +42,23 @@ $(function() {
 		'div[id^="modify"]',
 		'div[id^="display"]'
     	);
+});
+
+$(function() {
+	$('div.apply_confirm').hide();
+	set_trigger_link(
+		'div.trigger > a',
+		'div.apply_confirm_div',
+		'div.apply_confirm',
+		'div.trigger',
+		function() {}
+	);
+	set_cancel_button(
+		'div.apply_confirm :button',
+		'div.apply_confirm_div',
+		'div.apply_confirm',
+		'div.trigger'
+	);
 });
 
 $(function() {

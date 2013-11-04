@@ -77,29 +77,45 @@
 		<div id="project_default_perm">
 		</div>
 
-		<div class="apply_confirm">
-			<p>Invite Group To Project</p>
-			<p class="error"></p>
-			<form method="post" action="{% url 'project_management_page' project_id=project.id %}">
-				{{form_add_real_group.as_p}}
-				<input type="submit" name="PTR_submit" value="Search"/>
-			</form>	
-
-			<div class="search_result">
+		<div class="apply_confirm_div">
+			<div class="trigger">
+				<a href="#">邀请群组</a>
 			</div>
-		
+
+			<div class="apply_confirm">
+				<p class="error"></p>
+				<form method="post" action="{% url 'project_management_page' project_id=project.id %}">
+					{{form_add_real_group.as_p}}
+					<div class="final_operation form_div">
+						<input type="submit" name="PTR_submit" value="搜索"/>
+						<input type="button" value="取消"/>
+					</div>
+				</form>	
+
+				<div class="search_result">
+				</div>
+			</div>
 		</div>
-		<div class="apply_confirm">
-			<p>Invite User</p>
-			<p class="error"></p>
-			<form method="post" action="{% url 'project_management_page' project_id=project.id %}">
-				{{form_add_user.as_p}}
-				<input type="submit" name="PTU_submit" value="Search"/>
-			</form>	
 
-			<div class="search_result">
+		<div class="apply_confirm_div">
+			<div class="trigger">
+				<a href="#">邀请用户</a>
 			</div>
 
+			<div class="apply_confirm">
+				<p class="error"></p>
+				<form method="post" action="{% url 'project_management_page' project_id=project.id %}">
+					{{form_add_user.as_p}}
+					<div class="final_operation form_div">
+						<input type="submit" name="PTU_submit" value="搜索"/>
+						<input type="button" value="取消"/>
+					</div>
+				</form>	
+
+				<div class="search_result">
+				</div>
+
+			</div>
 		</div>
 	</div>
 </div>

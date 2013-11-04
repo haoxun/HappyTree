@@ -7,8 +7,8 @@ var set_trigger_link = function(link_dom_str, common_ancestor, show_dom_str, hid
 	callback = typeof a !== 'undefined' ? callback : copy_text; 
 	$(link_dom_str).click(function(event) {
 		event.preventDefault();
-		var display = $(this).parents(common_ancestor).children(show_dom_str);
-		var modify = $(this).parents(common_ancestor).children(hide_dom_str);
+		var modify = $(this).parents(common_ancestor).children(show_dom_str);
+		var display  = $(this).parents(common_ancestor).children(hide_dom_str);
 
 		callback(display, modify);
 
