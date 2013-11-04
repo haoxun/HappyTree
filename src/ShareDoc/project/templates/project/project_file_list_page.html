@@ -2,24 +2,30 @@
 
 {% load staticfiles %}
 {% block js %}
-<script src={% static 'project/project_file_list.js' %}></script>
+<script src="{% static 'project/project_file_list.js' %}"></script>
+{% endblock %}
+
+{% block css %}
+<LINK href="{% static 'project/project_file_list.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% load guardian_tags %}
 {% block content %}
-	<div id=project_navigation>
-		<a href={% url 'project_message_page' project_id=project.id %}>Message List</a>
-		<a href={% url 'project_file_list_page' project_id=project.id %}>Files Of Project</a>
-		{% get_obj_perms user for project as "perms" %}
-		{% if 'project_management' in perms %}
-		<a href={% url 'project_management_page' project_id=project.id %}>Managememt</a>
-		{% endif %}
-	</div>
-	<div id="project_file_list">
-		<p>Uploaded File</p>
-		<div id="file_list">
+<div id="project_file_list">
+	<div id="left_empty">
+		<div id=project_navigation>
+			<a href="{% url 'project_message_page' project_id=project.id %}">消息</a>
+			<a href="{% url 'project_file_list_page' project_id=project.id %}">文件</a>
 
+			{% get_obj_perms user for project as "perms" %}
+			{% if 'project_management' in perms %}
+			<a href="{% url 'project_management_page' project_id=project.id %}">设置</a>
+			{% endif %}
 		</div>
 	</div>
-
+	<div id="left_not_empty">
+		<div id="file_list">
+		</div>
+	</div>
+</div>
 {% endblock %}

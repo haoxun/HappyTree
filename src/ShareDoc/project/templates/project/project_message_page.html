@@ -2,7 +2,7 @@
 
 {% load staticfiles %}
 {% block js %}
-<script src={% static 'project/project_message_list.js' %}></script>
+<script src="{% static 'project/project_message_list.js' %}"></script>
 {% endblock %}
 
 {% block css %}
@@ -12,15 +12,15 @@
 
 {% load guardian_tags %}
 {% block content %}
-{% get_obj_perms user for project as "perms" %}
 <div id="project_message_list">
 	<div id="left_empty">
 		<div id=project_navigation>
-			<a href={% url 'project_message_page' project_id=project.id %}>Message List</a>
-			<a href={% url 'project_file_list_page' project_id=project.id %}>Files Of Project</a>
+			<a href="{% url 'project_message_page' project_id=project.id %}">消息</a>
+			<a href="{% url 'project_file_list_page' project_id=project.id %}">文件</a>
 
+			{% get_obj_perms user for project as "perms" %}
 			{% if 'project_management' in perms %}
-			<a href={% url 'project_management_page' project_id=project.id %}>Managememt</a>
+			<a href="{% url 'project_management_page' project_id=project.id %}">设置</a>
 			{% endif %}
 		</div>
 	</div>
@@ -29,5 +29,4 @@
 		</div>
 	</div>
 </div>
-
 {% endblock %}
