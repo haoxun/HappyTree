@@ -112,19 +112,16 @@ class ApplyConfirmPage(View):
                     RTU_ac.append(ac)
             return sort_ac(UTR_ac), sort_ac(RTU_ac)
 
-        def check_empty(display_list):
+        def check_empty(ac_template_mapping, html_ac):
             empty = True
-            for html in display_list:
-                text = re.sub(r'<div (\W|\w+)*?>', '', html)
-                text = re.sub(r'</div>', '', text)
-                text = text.strip()
-                if text:
+            for ac, template_name, tag_name in ac_template_mapping:
+                if len(ac) != 0:
                     empty = False
                     break
             if empty:
                 return render_to_string('user_info/non_ac.html')
             else:
-                return display_list
+                return html_ac
 
         # non-direction relation
         user_project_ac = get_objects_for_user(
@@ -154,28 +151,24 @@ class ApplyConfirmPage(View):
         UTR_ac, RTU_ac = separate_user_real_gorup_ac(user_real_group_ac)
 
         # rendering
-        html_UTP = render_to_string('user_info/UTP.html',
-                                    {'user_to_project_ac': UTP_ac})
-        html_PTU = render_to_string('user_info/PTU.html',
-                                    {'project_to_user_ac': PTU_ac})
-        html_RTP = render_to_string('user_info/RTP.html',
-                                    {'real_group_to_project_ac': RTP_ac})
-        html_PTR = render_to_string('user_info/PTR.html',
-                                    {'project_to_real_group_ac': PTR_ac})
-        html_UTR = render_to_string('user_info/UTR.html',
-                                    {'user_to_real_group_ac': UTR_ac})
-        html_RTU = render_to_string('user_info/RTU.html',
-                                    {'real_group_to_user_ac': RTU_ac})
-        display_list = [
-            html_UTP,
-            html_PTU,
-            html_RTP,
-            html_PTR,
-            html_UTR,
-            html_RTU,
+        ac_template_mapping = [
+            (UTP_ac, 'user_info/UTP.html', 'user_to_project_ac'),
+            (PTU_ac, 'user_info/PTU.html', 'project_to_user_ac'),
+            (RTP_ac, 'user_info/RTP.html', 'real_group_to_project_ac'),
+            (PTR_ac, 'user_info/PTR.html', 'project_to_real_group_ac'),
+            (UTR_ac, 'user_info/UTR.html', 'user_to_real_group_ac'),
+            (RTU_ac, 'user_info/RTU.html', 'real_group_to_user_ac'),
         ]
-        display_list = check_empty(display_list)
-        return HttpResponse("".join(display_list))
+
+        html_ac = []
+        for ac, template_name, tag_name in ac_template_mapping:
+            html_ac.append(
+                render_to_string(template_name,
+                                 {tag_name: ac}),
+            )
+        html_ac = check_empty(ac_template_mapping, html_ac)
+
+        return HttpResponse("".join(html_ac))
 
 
 @login_required
