@@ -1,44 +1,26 @@
-#left_empty
-{
-	padding:0;
-	margin:0;
-	display:inline-block;
-	width:28%;
-	vertical-align:top;
-}
-#left_not_empty
-{
-	padding:0;
-	margin:0;
-	display:inline-block;
-	width:70%;
-}
-
 #project_file_list
 {
 	display:inline-block;
 	width:57%;
 }
 
-#project_navigation
+#file_list
 {
-	padding:0;
 	margin-top:20px;
-	margin-left:50%;
-	margin-right:5%;
-	background-color:#F6F5FA;
+	padding:20px 0;
+	border-radius:20px;
+	background-color:#EBEBEB;
 }
 
-#project_navigation a
+p.download
 {
-	display:block;
-	text-decoration:none;
-	padding: 6px 2px;
-	margin:0;
 	text-align:center;
+	margin:0;
 }
-#project_navigation a:hover
+
+p.download a
 {
-	background-color:#EDEDF2;
+	color:#BF8747;
+	text-decoration:none;
 
 }
