@@ -235,19 +235,3 @@ def download_file(request, file_pointer_id):
     response['Content-Disposition'] = content_disposition.format(encode_file_name)
     response['Content-Length'] = unique_file.file.size
     return response
-
-
-@permission_required_or_403('project.project_membership',
-                            (Project, 'id', 'project_id'))
-def project_message_page(request, project_id):
-    project = get_object_or_404(Project, id=int(project_id))
-    message_set = project.messages.filter(post_flag=True).order_by('-post_time')
-
-    render_data_dict = {
-        'project': project,
-        'message_set': message_set,
-    }
-
-    return render(request,
-                  'file_storage/project_message_page.html',
-                  render_data_dict)

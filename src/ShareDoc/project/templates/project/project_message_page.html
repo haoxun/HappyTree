@@ -1,0 +1,33 @@
+{% extends 'base_with_navigation.html' %}
+
+{% load staticfiles %}
+{% block js %}
+<script src={% static 'project/project_message_list.js' %}></script>
+{% endblock %}
+
+{% block css %}
+<LINK href="{% static 'project/project_message_list.css' %}" rel="stylesheet" type="text/css">
+<LINK href="{% static 'file_storage/message_list.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% load guardian_tags %}
+{% block content %}
+{% get_obj_perms user for project as "perms" %}
+<div id="project_message_list">
+	<div id="left_empty">
+		<div id=project_navigation>
+			<a href={% url 'project_message_page' project_id=project.id %}>Message List</a>
+			<a href={% url 'project_file_list_page' project_id=project.id %}>Files Of Project</a>
+
+			{% if 'project_management' in perms %}
+			<a href={% url 'project_management_page' project_id=project.id %}>Managememt</a>
+			{% endif %}
+		</div>
+	</div>
+	<div id="left_not_empty">
+		<div id="message_container">
+		</div>
+	</div>
+</div>
+
+{% endblock %}

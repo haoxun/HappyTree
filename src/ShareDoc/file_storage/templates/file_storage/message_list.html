@@ -1,0 +1,29 @@
+{% load guardian_tags %}
+{% for message in message_set %}
+	<div class="message">
+		{% get_obj_perms user for message.project as "perms" %}
+		{% if message.title %}
+			<p class="title">{{message.title}}</p>
+		{% endif %}
+		<p class="post_by">
+			{{message.owner.user.username}} 发布于
+			<a href="{% url 'project_message_page' project_id=message.project.id %}">{{message.project.name}}</a>项目
+		</p>
+		{% if message.description %}
+		<p class="description">{{message.description}}</p>
+		{% endif %}
+		<div class="files">
+		{% for file_pointer in message.file_pointers.all %}
+			<p class="download">{{file_pointer.name}}
+			{% if 'project_download' in perms %}
+			[<a href="{% url 'download_file' file_pointer_id=file_pointer.id%}">download</a>]
+			{% endif %}
+			</p>
+		{% endfor %}
+		</div>
+	</div>
+{% empty %}
+	<div id="no_home_message">
+		<p>There's no message for you.</p>
+	</div>
+{% endfor %}

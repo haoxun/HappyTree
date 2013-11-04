@@ -4,6 +4,7 @@
 	margin:0;
 	display:inline-block;
 	width:28%;
+	vertical-align:top;
 }
 #left_not_empty
 {
@@ -13,8 +14,16 @@
 	width:70%;
 }
 
-#home_message_list
+#project_message_list
 {
 	display:inline-block;
 	width:57%;
+}
+
+#project_navigation
+{
+	padding:0;
+	margin-top:20px;
+	margin-left:50%;
+	margin-right:5%;
 }

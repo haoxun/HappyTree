@@ -34,18 +34,26 @@ import operator
 import re
 
 
-@login_required
-def home_page(request):
-    project_set = get_objects_for_user(request.user,
-                                       'project.project_membership')
-    message_set = []
-    for project in project_set:
-        message_set.extend(project.messages.filter(post_flag=True))
-    message_set = sorted(message_set, key=lambda x: x.post_time, reverse=True)
+class HomePage(View):
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(HomePage, self).dispatch(*args, **kwargs)
 
-    return render(request,
-                  'user_info/home.html',
-                  {'message_set': message_set})
+    def get(self, request):
+        return render(request,
+                      'user_info/home.html')
+                      
+    def post(self, request):
+        project_set = get_objects_for_user(request.user,
+                                           'project.project_membership')
+        message_set = []
+        for project in project_set:
+            message_set.extend(project.messages.filter(post_flag=True))
+        message_set = sorted(message_set, key=lambda x: x.post_time, reverse=True)
+
+        return render(request,
+                      'file_storage/message_list.html',
+                      {'message_set': message_set})
 
 
 @login_required

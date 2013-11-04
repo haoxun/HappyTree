@@ -6,56 +6,27 @@
 <script src={% static 'file_storage/md5.js' %}></script>
 <script src={% static 'file_storage/hashme.js' %}></script>
 <script src={% static 'file_storage/create_message.js' %}></script>
+<script src={% static 'user_info/home.js' %}></script>
 {% endblock %}
 
 {% load staticfiles %}
 {% block css %}
 <LINK href="{% static 'user_info/home.css' %}" rel="stylesheet" type="text/css">
 <LINK href="{% static 'file_storage/create_message.css' %}" rel="stylesheet" type="text/css">
+<LINK href="{% static 'file_storage/message_list.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
-
-{% load guardian_tags %}
 {% block content %}
 <div id="home_message_list">
-		<div id="left_empty">
-		</div>
-		<div id="left_not_empty">
-			<div id="create_message">
-				<a id="init" href="{% url 'create_message_page' %}">创建消息</a>
+	<div id="left_empty">
+	</div>
+	<div id="left_not_empty">
+		<div id="create_message">
+			<a id="init" href="{% url 'create_message_page' %}">创建消息</a>
 				<div id="init_target">
 				</div>
 			</div>
-			{% for message in message_set %}
-				<div class="message">
-					{% get_obj_perms user for message.project as "perms" %}
-					{% if message.title %}
-						<p class="title">{{message.title}}</p>
-					{% endif %}
-					<p class="post_by">
-						{{message.owner.user.username}} 发布于
-						<a href={% url 'project_message_page' project_id=message.project.id %}>{{message.project.name}}</a>项目
-					</p>
-					{% if message.description %}
-				   	<p class="description">{{message.description}}</p>
-					{% endif %}
-					<div class="files">
-					{% for file_pointer in message.file_pointers.all %}
-						<p class="download">{{file_pointer.name}}
-						{% if 'project_download' in perms %}
-						[<a href={% url 'download_file' file_pointer_id=file_pointer.id%}>download</a>]
-						{% endif %}
-						</p>
-					{% endfor %}
-					</div>
-				</div>
-			{% empty %}
-				<div id="no_home_message">
-						<p>There's no message for you.</p>
-				</div>
-			{% endfor %}
+		<div id="message_container">
 		</div>
-
+	</div>
 </div>
-
-
 {% endblock %}

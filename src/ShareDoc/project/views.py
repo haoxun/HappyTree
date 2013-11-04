@@ -50,6 +50,30 @@ for permission, description in Project._meta.permissions:
     project_permissions.append(permission)
 
 
+class ProjectMessagePage(View):
+    @method_decorator(
+        permission_required_or_403('project.project_membership',
+                                   (Project, 'id', 'project_id')),
+    )
+    def dispatch(self, *args, **kwargs):
+        return super(ProjectMessagePage, self).dispatch(*args, **kwargs)
+
+    def get(self, request, project_id):
+        project = get_object_or_404(Project, id=int(project_id))
+        
+        return render(request,
+                      'project/project_message_page.html',
+                      {'project': project})
+    
+    def post(self, request, project_id):
+        project = get_object_or_404(Project, id=int(project_id))
+        message_set = project.messages.filter(post_flag=True).order_by('-post_time')
+
+        return render(request,
+                      'file_storage/message_list.html',
+                      {'message_set': message_set})
+
+
 class ProjectListPage(View, ApplyConfirmHandler):
     """
     This class handle the process of project list page, including
