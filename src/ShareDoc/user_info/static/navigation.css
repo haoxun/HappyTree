@@ -4,7 +4,7 @@ body
 }
 #navigation
 {
-	background-color:#1659BC;
+	background-color:#3676D6;
 	border-radius:12px;
 }
 
@@ -12,22 +12,22 @@ body
 #navigation ul
 {
 	list-style-type:none;
-	text-align:center;
 	margin:0;
-	padding:0;
+	padding:0 16.5%;
 } 
 
 #navigation li
 {
 	display: inline-block;
 	margin:0;
+	width:11%;
+	max-width:80px;
 }
 #navigation a
 {
 	text-align:center;
 	display:block;
 	height: 45px;
-	width: 55px;
 	line-height: 45px;
 	margin:0;
 	text-decoration:none;
@@ -36,7 +36,7 @@ body
 }
 #navigation a:hover
 {
-	background-color:#154FA2;
+	background-color:#3D6EB8;
 }
 
 

@@ -8,8 +8,9 @@ var load_file_list = function() {
 			var file_item = $(this).parent();
 			var url = $(this).attr('href');
 			$.get(url, function() {
-				file_item.fadeOut('fast');
-				file_item.remove();
+				file_item.fadeOut('fast', function() {
+					file_item.remove();
+				});
 			});
 		});
 
@@ -40,11 +41,15 @@ var create_message_action = function() {
 			);
 		},
 		done: function(e, data) {
-			data.context.remove();
+			data.context.fadeOut('fast', function() {
+				data.context.remove();
+			});
 			load_file_list();
 		},
 		fail: function(e, data) {
-			data.context.remove();
+			data.context.fadeOut('fast', function() {
+				data.context.remove();
+			});
 		}
 	});
 }

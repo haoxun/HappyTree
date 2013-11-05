@@ -8,13 +8,16 @@
 {% block navigation %}
 <ul>
 	<li>
+		<a href="#">ShareDoc</a>
+	</li>
+	<li>
 		<a href={% url 'home_page' %}>主页</a>
 	</li>
 	<li>
-		<a href="{% url 'group_list_page' %}">群组</a> 
+		<a href="{% url 'project_list_page' %}">项目</a> 
 	</li>
 	<li>
-		<a href="{% url 'project_list_page' %}">项目</a> 
+		<a href="{% url 'group_list_page' %}">群组</a> 
 	</li>
 	<li>
 		<a href="{% url 'ac_page' %}">消息</a> 
