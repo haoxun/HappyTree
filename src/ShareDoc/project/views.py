@@ -294,7 +294,7 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
             return self._member_list_handler
         elif 'load_default_perm' in request.POST:
             return self._default_perm_handler
-
+    
     def _get_html_response(self, request, project, template_name):
         render_data_dict = {
             'request': request,
@@ -349,6 +349,27 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
         handler = self._handler_factory(request)
         return handler(request, project)
 
+@permission_required_or_403('project.project_management',
+                            (Project, 'id', 'project_id'))
+def apply_default_perm_to_all(request, project_id):
+    project = get_object_or_404(Project, id=int(project_id))
+    project_group = project.project_group
+    for user in project_group.group.user_set.all():
+        if user.has_perm('project_management', project):
+            continue
+        # remove
+        remove_perm('project_download', user, project)
+        remove_perm('project_upload', user, project)
+        remove_perm('project_delete', user, project)
+        # assign
+        if project_group.download:
+            assign_perm('project_download', user, project)
+        if project_group.upload:
+            assign_perm('project_upload', user, project)
+        if project_group.delete:
+            assign_perm('project_delete', user, project)
+
+    return HttpResponse('OK')
 
 @permission_required_or_403('project.project_management',
                             (Project, 'id', 'project_id'))

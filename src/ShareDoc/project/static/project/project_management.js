@@ -18,6 +18,13 @@ var load_user = function() {
 var load_perm = function() {
 	$('#project_default_perm').load('.', {'load_default_perm': null}, function() {
 		set_link_behavior.call(this, load_perm);
+		apply_default_perm();
+	});
+}
+
+var apply_default_perm = function() {
+	$('#apply_default_perm').click(function() {
+		load_user();
 	});
 }
 
@@ -63,7 +70,12 @@ $(function() {
 
 $(function() {
 	set_basic_info_form('div.project_basic_info form');
-	set_search_form('div.apply_confirm form');
+	set_search_form(
+		'div.apply_confirm form',
+		'div.apply_confirm',
+		'p.error',
+		'div.search_result'
+	);
 });
 
 $(function() {

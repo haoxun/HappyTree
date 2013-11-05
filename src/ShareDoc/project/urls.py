@@ -46,6 +46,10 @@ urlpatterns = patterns('',
     url(r'^process/default_permission/(?P<project_id>\d+)/(?P<kind>download|upload|delete)/(?P<decision>True|False)/$', 
         'project.views.process_default_permission_on_project',
         name='process_default_permission_on_project'),
+    # apply default permissions to all users in the project
+    url(r'^process/apply_default_permission/(?P<project_id>\d+)/$',
+        'project.views.apply_default_perm_to_all',
+        name='process_apply_default_perm_to_all'),
     # invite user to project
     url(r'^process/invite_user_to_project/(?P<project_id>\d+)/(?P<user_info_id>\d+)/$', 
         'project.views.invite_user_to_project',

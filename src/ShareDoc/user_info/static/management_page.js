@@ -56,7 +56,7 @@ var set_basic_info_form = function(form_dom_str) {
 	});
 }
 
-var set_search_form = function(form_dom_str) {
+var set_search_form = function(form_dom_str, common_ancestor, error_dom_str, result_dom_str) {
 	$(form_dom_str).submit(function(event) {
 		event.preventDefault();
 		post_str = get_post_str.call(this);
@@ -67,10 +67,10 @@ var set_search_form = function(form_dom_str) {
 				$.each(json_data.error, function(index, value) {
 					error_msg += index + ":" + value;
 				});
-				form.parent().children('p.error').text(error_msg);
+				form.parents(common_ancestor).children(error_dom_str).text(error_msg);
 			}
 			else {
-				var search_result = form.parent().children('div.search_result');
+				var search_result = form.parents(common_ancestor).children(result_dom_str);
 				var html = "";
 				if($.isEmptyObject(json_data.data)) {
 					html = "<p>Can't Find Anything</p>";

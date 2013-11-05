@@ -148,3 +148,32 @@
 {
 	text-align:center;
 }
+
+.apply_confirm_div
+{
+	display: block;
+	margin:20px 5px;
+	padding:1em;
+	background-color:#F6F5FA;
+	border-radius:7px;
+}
+
+.trigger > a
+{
+	display:block;
+	line-height:30px;
+	min-height:30px;
+	text-align:center;
+	text-decoration:none;
+}
+
+.apply_confirm input[type="text"]
+{
+	height: 25px;
+	padding-left: 10px;
+	border-radius: 5px; /*up to date browsers support this, but you can add prefixes if you want*/
+	border:0;
+	background-color:#C1DDE8;
+	font-size:1em;
+	width:92%;
+}

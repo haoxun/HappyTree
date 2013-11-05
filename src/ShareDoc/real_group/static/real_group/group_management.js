@@ -36,5 +36,10 @@ $(function() {
 
 $(function() {
 	set_basic_info_form('div.group_basic_info form');
-	set_search_form('div.apply_confirm form');
+	set_search_form(
+		'div.apply_confirm form',
+		'div.apply_confirm',
+		'p.error',
+		'div.search_result'
+	);
 });

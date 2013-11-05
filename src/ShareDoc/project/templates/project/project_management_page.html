@@ -85,7 +85,10 @@
 			<div class="apply_confirm">
 				<p class="error"></p>
 				<form method="post" action="{% url 'project_management_page' project_id=project.id %}">
-					{{form_add_real_group.as_p}}
+					<div class="form_div">
+						{{form_add_real_group.name.errors}}
+						{{form_add_real_group.name}}
+					</div>
 					<div class="final_operation form_div">
 						<input type="submit" name="PTR_submit" value="搜索"/>
 						<input type="button" value="取消"/>
@@ -105,7 +108,10 @@
 			<div class="apply_confirm">
 				<p class="error"></p>
 				<form method="post" action="{% url 'project_management_page' project_id=project.id %}">
-					{{form_add_user.as_p}}
+					<div class="form_div">
+						{{form_add_user.username.errors}}
+						{{form_add_user.username}}
+					</div>
 					<div class="final_operation form_div">
 						<input type="submit" name="PTU_submit" value="搜索"/>
 						<input type="button" value="取消"/>

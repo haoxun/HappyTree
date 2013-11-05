@@ -16,5 +16,4 @@
 {% else %}
 <a href="{% url 'process_default_permission_on_project'  project_id=project.id kind="delete" decision="True" %}">[禁止删除(允许)]</a>
 {% endif %}
-
-
+<a id="apply_default_perm" href="{% url 'process_apply_default_perm_to_all'  project_id=project.id %}">[应用于所有用户]</a>
