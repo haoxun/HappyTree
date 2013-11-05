@@ -2,9 +2,15 @@
 
 {% load staticfiles %}
 {% block js %}
+{% comment %}
 <script src={% static 'file_storage/jquery.form.min.js' %}></script>
 <script src={% static 'file_storage/md5.js' %}></script>
 <script src={% static 'file_storage/hashme.js' %}></script>
+{% endcomment %}
+<script src={% static 'file_storage/jquery.ui.widget.js' %}></script>
+<script src={% static 'file_storage/jquery.iframe-transport.js' %}></script>
+<script src={% static 'file_storage/jquery.fileupload.js' %}></script>
+
 <script src={% static 'file_storage/create_message.js' %}></script>
 <script src={% static 'user_info/home.js' %}></script>
 {% endblock %}

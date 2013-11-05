@@ -124,5 +124,48 @@ p.remove a
 {
 	color:#BF8747;
 	text-decoration:none;
-
 }
+
+.uploading
+{
+	padding:3px 5%;	
+	text-align:center;
+	margin:10px;
+	border-radius:20px;
+	background-color:#EBEBEB;
+}
+
+.progress
+{
+	display:inline-block;
+	background-color: #F5B2A4;
+	border-radius:3px;
+	height:13px;
+	width: 20%;
+	padding:0;
+	margin:0 1%;
+}
+
+.bar 
+{
+	background-color: #A4E7F5;
+	border-radius: 3px 3px 3px 3px;
+	height:13px;
+	width: 20%;
+	padding:0;
+	margin:0;
+}
+
+.uploading_file_name
+{
+	display:inline-block;
+	padding:0;
+	margin:3px 0;
+}
+
+.uploading a
+{
+	color:#BF8747;
+	text-decoration:none;
+}
+

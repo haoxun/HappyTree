@@ -17,33 +17,35 @@ var load_file_list = function() {
 }
 var create_message_action = function() {
 	load_file_list();
-	$('#id_uploaded_file').change(function() {
-		$('#file_upload form').submit();
-	});
-	$('#file_upload form').submit(function(event) {
-		event.preventDefault();
-		event.stopPropagation();
-		var form = $(this);
-		var url = form.attr('href');
-		var file = $(this).find('input[type="file"]').get(0).files[0];
-		//There's a serious BUG!!!!!!
-		//Since the hashMe will somhow change the file, which leads to an estra upload.
-		//hashMe(file, function(hex_md5) {
-		//	form.ajaxSubmit({
-		//		url: '.',
-		//		data: {'uploaded_file': null,
-		//		       'md5': hex_md5},
-		//		complete: function() {
-		//			load_file_list();					
-		//		},
-		//	});
-		//});
-		form.ajaxSubmit({
-			url: url,
-			data: {'uploaded_file': null},
-			complete: load_file_list,
-		});
-		return false; 
+	$('#file_upload input[type="file"]').fileupload({
+		formData: {'uploaded_file': null},
+		add: function(e, data) {
+			console.log(data);
+			upload_div = $('<div class="uploading"></div>')
+				.append('<div class="uploading_file_name">' + data.files[0].name + '</div>')
+				.append('<div class="progress"><div class="bar"></div></div>')
+				.append('<a href="#">[取消]</a>');
+			$('#uploading_list').append(upload_div);
+			upload_div.children('a').click(function() {
+				data.jqXHR.abort();
+			});
+			data.context = upload_div;
+			data.submit();
+		},
+		progress: function(e, data) {
+			var progress = parseInt(data.loaded / data.total * 100, 10);			
+			data.context.find(".bar").css(
+				'width',
+				progress + '%'
+			);
+		},
+		done: function(e, data) {
+			data.context.remove();
+			load_file_list();
+		},
+		fail: function(e, data) {
+			data.context.remove();
+		}
 	});
 }
 

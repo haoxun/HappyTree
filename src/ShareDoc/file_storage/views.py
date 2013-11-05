@@ -143,7 +143,7 @@ class CreateMessagePage(View):
                       render_data_dict)
 
     def _upload_file_handler(self, request, message):
-        uploaded_file = request.FILES['uploaded_file']
+        uploaded_file = request.FILES.get('uploaded_file', None)
         if uploaded_file:
             # get or calculate MD5
             # https://github.com/marcu87/hashme

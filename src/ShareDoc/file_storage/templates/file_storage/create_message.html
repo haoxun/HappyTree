@@ -1,6 +1,7 @@
 <div id="file_list" href="{% url 'create_message_page' %}">
 </div>
 <div id="file_upload">
+	<div id="uploading_list"></div>
 	<form enctype="multipart/form-data" method="post" action="{% url 'create_message_page' %}">
 		<input id="id_uploaded_file" type="file" name="uploaded_file" />
 	</form>	
