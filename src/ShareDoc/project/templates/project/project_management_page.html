@@ -16,17 +16,12 @@
 <div id="project_management">
 	<div id="left_empty">
 		<div id=project_navigation>
-			<a href="{% url 'project_message_page' project_id=project.id %}">消息</a>
+			<a href="{% url 'project_message_page' project_id=project.id %}">信息</a>
 			<a href="{% url 'project_file_list_page' project_id=project.id %}">文件</a>
 			<a href="{% url 'project_management_page' project_id=project.id %}">设置</a>
 		</div>
 	</div>
 	<div id="left_not_empty">
-		<div id="manager_list">
-		</div>
-
-		<div id="member_list">
-		</div>
 
 		<div class="project_basic_info">
 		    <p>项目名称</p>
@@ -74,6 +69,12 @@
 			</div>
 		</div>
 
+		<div id="manager_list">
+		</div>
+
+		<div id="member_list">
+		</div>
+
 		<div id="project_default_perm">
 		</div>
 
@@ -85,11 +86,9 @@
 			<div class="apply_confirm">
 				<p class="error"></p>
 				<form method="post" action="{% url 'project_management_page' project_id=project.id %}">
-					<div class="form_div">
+					<div class="search_div">
 						{{form_add_real_group.name.errors}}
 						{{form_add_real_group.name}}
-					</div>
-					<div class="final_operation form_div">
 						<input type="submit" name="PTR_submit" value="搜索"/>
 						<input type="button" value="取消"/>
 					</div>
@@ -108,11 +107,9 @@
 			<div class="apply_confirm">
 				<p class="error"></p>
 				<form method="post" action="{% url 'project_management_page' project_id=project.id %}">
-					<div class="form_div">
+					<div class="search_div">
 						{{form_add_user.username.errors}}
 						{{form_add_user.username}}
-					</div>
-					<div class="final_operation form_div">
 						<input type="submit" name="PTU_submit" value="搜索"/>
 						<input type="button" value="取消"/>
 					</div>

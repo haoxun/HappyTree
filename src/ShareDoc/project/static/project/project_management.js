@@ -33,6 +33,13 @@ $(function() {
 	load_perm();
 });
 
+var copy_text = function(hide_dom, show_dom) {
+	var display_content = hide_dom.children('span').text();
+	show_dom.find('p.error').text("");
+	show_dom.find('input[type="text"]').val(display_content);
+	show_dom.find('textarea').val(display_content);
+}
+
 $(function() {
 	$('#modify_project_name').hide();
 	$('#modify_project_description').hide();
@@ -41,7 +48,8 @@ $(function() {
 		'div.project_basic_info a',
 		'div.project_basic_info',
 		'div[id^="modify"]',
-		'div[id^="display"]'
+		'div[id^="display"]',
+		copy_text
     	);
 	set_cancel_button(
 		'div.project_basic_info :button',
@@ -51,6 +59,10 @@ $(function() {
     	);
 });
 
+var clear_search_result = function(hide_dom, show_dom) {
+	show_dom.find('div.search_result').html("");
+}
+
 $(function() {
 	$('div.apply_confirm').hide();
 	set_trigger_link(
@@ -58,7 +70,7 @@ $(function() {
 		'div.apply_confirm_div',
 		'div.apply_confirm',
 		'div.trigger',
-		function() {}
+		clear_search_result
 	);
 	set_cancel_button(
 		'div.apply_confirm :button',

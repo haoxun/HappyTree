@@ -167,6 +167,21 @@
 	text-decoration:none;
 }
 
+.search_div
+{
+	padding-left:5%;
+	padding-top:5px;
+	padding-bottom:5px;
+}
+
+.search_div input
+{
+	font-size:1em;
+	width:20%;
+	padding:0;
+	margin:0;
+}
+
 .apply_confirm input[type="text"]
 {
 	height: 25px;
@@ -175,5 +190,27 @@
 	border:0;
 	background-color:#C1DDE8;
 	font-size:1em;
-	width:92%;
+	width:50%;
 }
+
+.result_item
+{
+	background-color:#CEE0D6;
+	padding-top:4px;
+	padding-bottom:4px;
+	padding-left:3%;
+	margin:10px 5%;
+	border-radius:5px;
+}
+
+.result_item span
+{
+	display:inline-block;
+	width:85%;
+}
+
+.result_item a
+{
+	text-decoration:none;
+}
+

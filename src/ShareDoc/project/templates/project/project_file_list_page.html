@@ -15,7 +15,7 @@
 <div id="project_file_list">
 	<div id="left_empty">
 		<div id=project_navigation>
-			<a href="{% url 'project_message_page' project_id=project.id %}">消息</a>
+			<a href="{% url 'project_message_page' project_id=project.id %}">信息</a>
 			<a href="{% url 'project_file_list_page' project_id=project.id %}">文件</a>
 
 			{% get_obj_perms user for project as "perms" %}

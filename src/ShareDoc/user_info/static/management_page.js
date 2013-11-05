@@ -1,19 +1,14 @@
-var copy_text = function(display, modify) {
-	var display_content = display.children('span').text();
-	modify.find('p.error').text("");
-	modify.find('input[type="text"]').val(display_content);
-}
 var set_trigger_link = function(link_dom_str, common_ancestor, show_dom_str, hide_dom_str, callback) {
-	callback = typeof a !== 'undefined' ? callback : copy_text; 
+	callback = typeof callback !== 'undefined' ? callback : function() {}; 
 	$(link_dom_str).click(function(event) {
 		event.preventDefault();
-		var modify = $(this).parents(common_ancestor).children(show_dom_str);
-		var display  = $(this).parents(common_ancestor).children(hide_dom_str);
+		var show_dom = $(this).parents(common_ancestor).children(show_dom_str);
+		var hide_dom = $(this).parents(common_ancestor).children(hide_dom_str);
 
-		callback(display, modify);
+		callback(hide_dom, show_dom);
 
-		display.fadeOut('fast');
-		modify.slideDown('fast');
+		hide_dom.fadeOut('fast');
+		show_dom.slideDown('fast');
 	});
 }
 
@@ -77,12 +72,12 @@ var set_search_form = function(form_dom_str, common_ancestor, error_dom_str, res
 				}
 				else {
 					$.each(json_data.data, function(index, value) {
-						entry_html = "<p>";
-					       	entry_html += index;
+						entry_html = '<div class="result_item">';
+					       	entry_html += '<span>' + index + '</span>';
 					       	entry_html += '<a href="' + value + '">';
-						entry_html += "Add";
-						entry_html += "</a>";
-						entry_html += "</p>";
+						entry_html += '[添加]';
+						entry_html += '</a>';
+						entry_html += '</div>';
 						html += entry_html;
 					});
 				}
