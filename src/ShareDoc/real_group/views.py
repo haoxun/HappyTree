@@ -41,24 +41,59 @@ from datetime import datetime
 import json
 
 
-@permission_required_or_403('real_group_membership',
-                            (RealGroup, 'id', 'real_group_id',))
-def group_page(request, real_group_id):
+class GroupPage(View):
     """
-    recive RealGroup id as the paremeter.
+    This class manage the present logic of group page.
     """
-    real_group_id = int(real_group_id)
-    real_group = get_object_or_404(RealGroup, id=real_group_id)
-    user_set = get_users_with_perms(real_group)
+    @method_decorator(
+        permission_required_or_403('real_group_membership',
+                                   (RealGroup, 'id', 'real_group_id',)),
+    )
+    def dispatch(self, *args, **kwargs):
+        return super(GroupPage, self).dispatch(*args, **kwargs)
 
-    render_data_dict = {
-        'request': request,
-        'real_group': real_group,
-        'user_set': user_set,
-    }
-    return render(request,
-                  'real_group/group_page.html',
-                  render_data_dict)
+    def get(self, request, real_group_id):
+        real_group = get_object_or_404(RealGroup, id=int(real_group_id))
+
+        render_data_dict = {
+            'request': request,
+            'real_group': real_group,
+        }
+        return render(request,
+                      'real_group/group_page.html',
+                      render_data_dict)
+
+    def _get_html_response(self, request, real_group, template_name):
+        render_data_dict = {
+            'request': request,
+            'real_group': real_group,
+            'user_set': get_users_with_perms(real_group),
+            'display_control': True,
+        }
+        html = render_to_string(template_name,
+                                render_data_dict)
+        return HttpResponse(html)
+
+    def _handler_factory(self, request):
+        if 'load_manager_list' in request.POST:
+            return self._group_manager_list_handler
+        elif 'load_member_list' in request.POST:
+            return self._group_member_list_handler
+
+    def _group_manager_list_handler(self, request, real_group):
+        return self._get_html_response(request,
+                                       real_group,
+                                       'real_group/manager_list.html')
+
+    def _group_member_list_handler(self, request, real_group):
+        return self._get_html_response(request,
+                                       real_group,
+                                       'real_group/member_list.html')
+
+    def post(self, request, real_group_id):
+        real_group = get_object_or_404(RealGroup, id=int(real_group_id))
+        handler = self._handler_factory(request)
+        return handler(request, real_group)
 
 
 class GroupListPage(View, ApplyConfirmHandler):
@@ -234,20 +269,32 @@ class GroupManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
             return self._real_group_apply_to_user_handler
         elif "RTP_submit" in request.POST:
             return self._real_group_apply_to_project_handler
-        elif "load_manager_and_member_list" in request.POST:
-            return self._group_manager_and_member_list_handler
+        elif "load_manager_list" in request.POST:
+            return self._group_manager_list_handler
+        elif "load_member_list" in request.POST:
+            return self._group_member_list_handler
         else:
             raise PermissionDenied
 
-    def _group_manager_and_member_list_handler(self, request, real_group):
+    def _get_html_response(self, request, real_group, template_name):
         render_data_dict = {
             'request': request,
             'real_group': real_group,
             'user_set': get_users_with_perms(real_group),
         }
-        html = render_to_string('real_group/member_list.html',
+        html = render_to_string(template_name,
                                 render_data_dict)
         return HttpResponse(html)
+
+    def _group_manager_list_handler(self, request, real_group):
+        return self._get_html_response(request,
+                                       real_group,
+                                       'real_group/manager_list.html')
+
+    def _group_member_list_handler(self, request, real_group):
+        return self._get_html_response(request,
+                                       real_group,
+                                       'real_group/member_list.html')
 
     def _group_name_handler(self, request, real_group):
         return self._basic_info_handler(request,

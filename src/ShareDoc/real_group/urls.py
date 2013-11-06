@@ -1,11 +1,13 @@
 from __future__ import unicode_literals
 from django.conf.urls import include, patterns, url
 
-from real_group.views import GroupManagementPage, GroupListPage
+from real_group.views import GroupManagementPage
+from real_group.views import GroupListPage
+from real_group.views import GroupPage
 
 urlpatterns = patterns('',
         url(r'^(?P<real_group_id>\d+)/$', 
-            'real_group.views.group_page', 
+            GroupPage.as_view(),
             name='group_page'),
         url(r'^list/$', 
             GroupListPage.as_view(),

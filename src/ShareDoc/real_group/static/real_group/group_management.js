@@ -1,19 +1,24 @@
-var set_link_behavior = function() {
-	$('div.member_list a').click(function(event) {
+var set_link_behavior = function(callback) {
+	$(this).find('a').click(function(event) {
 		event.preventDefault();
 		url = $(this).attr('href');
-		$.get(url);
-		load_member_list();
+		$.get(url, callback);
 	});
 }
 
-var load_member_list = function() {
-	$('#group_manager_and_member').load(
-		'.', 
-		{'load_manager_and_member_list': null},
-		set_link_behavior
-	);
+var load_user = function() {
+	$('#manager_list').load('.', {'load_manager_list': null}, function() {
+		set_link_behavior.call(this, load_user);
+	});
+	$('#member_list').load('.', {'load_member_list': null}, function() {
+		set_link_behavior.call(this, load_user);
+	});
 }
+
+$(function() {
+	load_user();
+});
+
 
 var copy_text = function(hide_dom, show_dom) {
 	var display_content = hide_dom.children('span').text();
@@ -22,7 +27,6 @@ var copy_text = function(hide_dom, show_dom) {
 }
 
 $(function() {
-	load_member_list();
 	$('#modify_group_name').hide();
 	$('#modify_group_description').hide();
 
@@ -39,6 +43,27 @@ $(function() {
 		'div[id^="modify"]',
 		'div[id^="display"]'
     	);
+});
+
+var clear_search_result = function(hide_dom, show_dom) {
+	show_dom.find('div.search_result').html("");
+}
+
+$(function() {
+	$('div.apply_confirm').hide();
+	set_trigger_link(
+		'div.trigger > a',
+		'div.apply_confirm_div',
+		'div.apply_confirm',
+		'div.trigger',
+		clear_search_result
+	);
+	set_cancel_button(
+		'div.apply_confirm :button',
+		'div.apply_confirm_div',
+		'div.apply_confirm',
+		'div.trigger'
+	);
 });
 
 $(function() {

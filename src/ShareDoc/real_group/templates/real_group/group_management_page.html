@@ -6,71 +6,111 @@
 <script src={% static 'real_group/group_management.js' %}></script>
 {% endblock %}
 
+{% block css %}
+<LINK href="{% static 'real_group/group_navigation.css' %}" rel="stylesheet" type="text/css">
+<LINK href="{% static 'real_group/group_management.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
 {% load guardian_tags %}
 {% block content %}
-	<div id="link_to_group_page">
-		<a href={% url 'group_page' real_group_id=real_group.id %}>To Group Page</a>
-	</div>
-	<div id="group_manager_and_member">
-	</div>
-
-	<div>
-		<div class="group_basic_info">
-			<div id="display_group_name">
-				Group Name: <span>{{real_group.name}}</span>
-				<a href="#">[Change]</a>
-			</div>
-			<div id="modify_group_name">
-				<p>Modify Group Name</p>
-				<p class="error"></p>
-				<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
-					{{form_group_name.as_p}}
-					<input type="submit" name="group_name_submit" value="Submit"/>
-					<input type="button" value="Cancel"/>
-				</form>	
-			</div>
-		</div>
-		<div class="group_basic_info">
-			<div id="display_group_description">
-				Group Description: <span>{{real_group.description}}</span>
-				<a href="#">[Change]</a>
-			</div>
-			<div id="modify_group_description">
-				<p>Modify Group Description</p>
-				<p class="error"></p>
-				<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
-					{{form_group_description.as_p}}
-					<input type="submit" name="group_description_submit" value="Submit"/>
-					<input type="button" value="Cancel"/>
-				</form>	
-			</div>
+<div id="group_management">
+	<div id="left_empty">
+		<div id=group_navigation>
+			<a href="{% url 'group_page' real_group_id=real_group.id %}">成员</a>
+			<a href={% url 'group_management_page' real_group_id=real_group.id %}>管理</a>
 		</div>
 	</div>
-
-	<div class="apply_confirm">
-		<p>Add Group To Project</p>
-		<p class="error"></p>
-		<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
-			{{form_apply_to_project.as_p}}
-			<input type="submit" name="RTP_submit" value="Search"/>
-		</form>	
-
-		<div class="search_result">
-		</div>
 	
-	</div>
-
-
-	<div class="apply_confirm">
-		<p>Add User</p>
-		<p class="error"></p>
-		<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
-			{{form_add_user.as_p}}
-			<input type="submit" name="RTU_submit" value="Search"/>
-		</form>	
-
-		<div class="search_result">
+	<div id="left_not_empty">
+		<div>
+			<div class="group_basic_info">
+				<p>群组名称</p>
+				<div id="display_group_name">
+					<span>{{real_group.name}}</span>
+					<a href="#">[修改]</a>
+				</div>
+				<div id="modify_group_name">
+					<p class="error"></p>
+					<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
+						<div class="form_div">
+							{{form_group_name.name.errors}}
+							{{form_group_name.name}}
+						</div>
+						<div class="final_operation form_div">
+							<input type="submit" name="group_name_submit" value="修改"/>
+							<input type="button" value="取消"/>
+						</div>
+					</form>	
+				</div>
+			</div>
+			<div class="group_basic_info">
+				<p>群组描述</p>
+				<div id="display_group_description">
+					<span>{{real_group.description}}</span>
+					<a href="#">[修改]</a>
+				</div>
+				<div id="modify_group_description">
+					<p class="error"></p>
+					<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
+						<div class="form_div">
+							{{form_group_description.description.errors}}
+							{{form_group_description.description}}
+						</div>
+						<div class="final_operation form_div">
+							<input type="submit" name="group_description_submit" value="修改"/>
+							<input type="button" value="取消"/>
+						</div>
+					</form>	
+				</div>
+			</div>
 		</div>
 
+		<div id="manager_list">
+		</div>
+		<div id="member_list">
+		</div>
+
+		<div class="apply_confirm_div">
+			<div class="trigger">
+				<a href="#">加入项目</a>
+			</div>
+
+			<div class="apply_confirm">
+				<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
+					<p class="error"></p>
+					<div class="search_div">
+						{{form_apply_to_project.name.errors}}
+						{{form_apply_to_project.name}}
+						<input type="submit" name="RTP_submit" value="搜索"/>
+						<input type="button" value="取消"/>
+					</div>
+				</form>	
+
+				<div class="search_result">
+				</div>
+			</div>
+		</div>
+
+
+		<div class="apply_confirm_div">
+			<div class="trigger">
+				<a href="#">邀请用户</a>
+			</div>
+			<div class="apply_confirm">
+				<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
+					<p class="error"></p>
+					<div class="search_div">
+						{{form_add_user.username.errors}}
+						{{form_add_user.username}}
+						<input type="submit" name="RTU_submit" value="搜索"/>
+						<input type="button" value="取消"/>
+					</div>
+				</form>	
+
+				<div class="search_result">
+				</div>
+			</div>
+		</div>
 	</div>
+</div>
 {% endblock %}

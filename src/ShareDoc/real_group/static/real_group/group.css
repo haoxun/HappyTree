@@ -1,0 +1,71 @@
+#group_page
+{
+	display:inline-block;
+	width:57%;
+}
+
+.group_basic_info
+{
+	min-height:20px;
+	display: block;
+	margin:20px 5px;
+	padding:1em;
+	background-color:#F6F5FA;
+	border-radius:7px;
+}
+
+.group_basic_info > p
+{
+	text-align:center;
+}
+
+#display_group_name
+{
+	padding-left:5%;
+	padding-bottom:20px;
+}
+
+#display_group_description
+{
+	padding-left:5%;
+	padding-bottom:20px;
+}
+
+#member_list
+{
+	min-height:50px;
+	display: block;
+	margin:20px 5px;
+	padding:1em;
+	background-color:#F6F5FA;
+	border-radius:7px;
+}
+
+#member_list > p
+{
+	text-align:center;		
+}
+
+.member > p
+{
+	text-align:center;
+}
+
+#manager_list > p
+{
+	text-align:center;		
+}
+#manager_list
+{
+	min-height:50px;
+	display: block;
+	margin:20px 5px;
+	padding:1em;
+	background-color:#F6F5FA;
+	border-radius:7px;
+}
+
+.manager > p
+{
+	text-align:center;
+}

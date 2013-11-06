@@ -21,7 +21,8 @@ class GroupNameHandlerForm(forms.Form):
 
 class GroupDescriptionHandlerForm(forms.Form):
     description = forms.CharField(required=False,
-                                  max_length=5000)
+                                  max_length=5000,
+                                  widget=forms.Textarea)
 
     def clean(self):
         if 'group_description_submit' not in self.data \

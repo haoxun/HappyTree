@@ -1,41 +1,75 @@
-
 {% extends 'base_with_navigation.html' %}
+
+{% load staticfiles %}
+
+{% block js %}
+<script src={% static 'real_group/group.js' %}></script>
+{% endblock %}
+
+{% block css %}
+<LINK href="{% static 'real_group/group_navigation.css' %}" rel="stylesheet" type="text/css">
+<LINK href="{% static 'real_group/group.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
 {% block content %}
 {% load guardian_tags %}
-	<div id="group_navigation">
-		<div id="management">
+<div id="group_page">
+	<div id="left_empty">
+		<div id=group_navigation>
+			<a href="{% url 'group_page' real_group_id=real_group.id %}">成员</a>
 			{% get_obj_perms request.user for real_group as "perms" %}
 			{% if "real_group_management" in perms %}
-				<a href={% url 'group_management_page' real_group_id=real_group.id %}>Management</a>
+				<a href={% url 'group_management_page' real_group_id=real_group.id %}>管理</a>
 			{% endif %}
 		</div>
 	</div>
-	<div id="real_group">
-		<p id="group_name">Group Name: {{real_group.name}}</p>
-		<p id="group_description">Description: {{real_group.description}}</p>
+	<div id="left_not_empty">
+		<div>
+			<div class="group_basic_info">
+				<p>群组名称</p>
+				<div id="display_group_name">
+					<span>{{real_group.name}}</span>
+				</div>
+			</div>
+			<div class="group_basic_info">
+				<p>群组描述</p>
+				<div id="display_group_description">
+					<span>{{real_group.description}}</span>
+				</div>
+			</div>
+		</div>
+
+		<div id="manager_list">
+		</div>
+		<div id="member_list">
+		</div>
+
+		{% comment %}
+		<div id="group_manager">
+			<p>Manager List:</p>
+			<ul>
+			{% for user in user_set %}
+				{% get_obj_perms user for real_group as "perms" %}
+				{% if "real_group_management" in perms %}
+					<li>{{user.username}}</li>	
+				{% endif %}
+			{% endfor %}
+			</ul>
+		</div>
+		<div id="group_menber">
+			<p>Member List:</p>
+			<ul>
+			{% for user in user_set%}
+				{% get_obj_perms user for real_group as "perms" %}
+				{% if "real_group_membership" in perms %}
+				{% if "real_group_management" not in perms %}
+					<li>{{user.username}}</li>	
+				{% endif %}
+				{% endif %}
+			{% endfor %}
+			</ul>
+		</div>
+		{% endcomment %}
 	</div>
-	<div id="group_manager">
-		<p>Manager List:</p>
-		<ul>
-		{% for user in user_set %}
-			{% get_obj_perms user for real_group as "perms" %}
-			{% if "real_group_management" in perms %}
-				<li>{{user.username}}</li>	
-			{% endif %}
-		{% endfor %}
-		</ul>
-	</div>
-	<div id="group_menber">
-		<p>Member List:</p>
-		<ul>
-		{% for user in user_set%}
-			{% get_obj_perms user for real_group as "perms" %}
-			{% if "real_group_membership" in perms %}
-			{% if "real_group_management" not in perms %}
-				<li>{{user.username}}</li>	
-			{% endif %}
-			{% endif %}
-		{% endfor %}
-		</ul>
-	</div>
+</div>
 {% endblock %}

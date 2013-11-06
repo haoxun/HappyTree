@@ -1,0 +1,40 @@
+#left_empty
+{
+	padding:0;
+	margin:0;
+	display:inline-block;
+	width:28%;
+	vertical-align:top;
+}
+#left_not_empty
+{
+	padding:0;
+	margin:0;
+	display:inline-block;
+	width:70%;
+	padding-bottom:500px;
+}
+
+#group_navigation
+{
+	padding:0;
+	margin-top:20px;
+	margin-left:50%;
+	margin-right:5%;
+	background-color:#F6F5FA;
+	border-radius:5px;
+}
+
+#group_navigation a
+{
+	display:block;
+	text-decoration:none;
+	padding: 6px 2px;
+	margin:0;
+	text-align:center;
+}
+#group_navigation a:hover
+{
+	background-color:#EDEDF2;
+
+}
