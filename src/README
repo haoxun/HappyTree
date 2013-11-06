@@ -1,12 +1,20 @@
 prototype is the project for detecting design errors and recognizing potential requirements.
 ShareDoc is the project currently being developed.
 
+Currently Working On:
+1. Add style to all page.[80%]
+3. Create user page, replace the plain user name with the link to its user page.
 
 To Do List:
-1. Add style to all page.
-2. Replace the transportation machanism from JSON to plain html.
-3. Create user page, replace the plain user name with the link to its user page.
-4. Create registration page.
 5. Fix bug on md5 extraction on client side.
-6. Add progress bar to file upload process.
-7. Find out how to terminate the file upload process.
+9. Give notification after someone process a message.
+
+Shelved:
+2. Replace the transportation machanism from JSON to plain html.[shelved]
+4. Create registration page.[shelved]
+
+
+Finished:
+6. Add progress bar to file upload process.[finished]
+7. Find out how to terminate the file upload process.[finished]
+8. Add condition on posting message, for preventing empty message.[finished]
