@@ -2,54 +2,77 @@
 
 {% load staticfiles %}
 {% block js %}
-<script src={% static 'list_page.js' %}></script>
-<script src={% static 'real_group/group_list.js' %}></script>
+<script src="{% static 'list_page.js' %}"></script>
+<script src="{% static 'real_group/group_list.js' %}"></script>
+{% endblock %}
+
+{% block css %}
+<LINK href="{% static 'real_group/group_list.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% load guardian_tags %}
 {% block content %}
-	{# links to group page #}
-	<div id="group_list">
-		<p>Group List:</p>
-	<ul>
-	{% for real_group in real_group_set %}
-		<li><a href={% url 'group_page' real_group_id=real_group.id %}>{{real_group.name}}</a></li>
-	{% empty %}
-		<p>There's No Group For You.</p>
-	{% endfor %}
-	</ul>
+<div id="group_list_page">
+	<div id="left_empty">
 	</div>
 
-	<div id="apply_to_group">
-		<a href="#">Attend Group</a>
-		<div>
-			<p>Search Group</p>
-			<p class="error"></p>
-			<form method="post" action={% url 'group_list_page' %}>
-				{{form_apply_to_group.as_p}}
-				<input type="submit" name="UTR_submit" value="Search"/>
-				<input type="button" value="Cancel" />
-			</form>	
+	<div id="left_not_empty">
+		<div id="group_list">
+			<ul>
+			{% for real_group in real_group_set %}
+				<li><a href="{% url 'group_page' real_group_id=real_group.id %}">{{real_group.name}}</a></li>
+			{% empty %}
+				<p>There's No Group For You.</p>
+			{% endfor %}
+			</ul>
+		</div>
 
-			<div class="search_result">
+		<div id="apply_to_group">
+			<div class="trigger">
+				<a href="#">加入群组</a>
+			</div>
+			<div class="apply_confirm">
+				<p class="error"></p>
+				<form method="post" action="{% url 'group_list_page' %}">
+					<div class="search_div">
+						{{form_apply_to_group.name.errors}}
+						{{form_apply_to_group.name}}
+						<input type="submit" name="UTR_submit" value="搜索"/>
+						<input type="button" value="取消" />
+					</div>
+				</form>	
+
+				<div class="search_result">
+				</div>
 			</div>
 		</div>
-	</div>
-	<div id="creat_group">
-		<a href="#">Create Group</a>
-		<div>
-			<p>Create Group</p>
-			<p class="error"></p>
-			<form method="post" action={% url 'group_list_page' %}>
-				{{form_group_name.as_p}}
-				{{form_group_description.as_p}}
-				<input type="submit" name="create_group_submit" value="Submit" />
-				<input type="button" value="Cancel" />
-			</form>	
+
+		<div id="create_group_div">
+			<div class="trigger">
+				<a href="#">创建群组</a>
+			</div>
+			<div class="create_group">
+				<p class="error"></p>
+				<form method="post" action="{% url 'group_list_page' %}">
+					<div class="form_div">
+						{{form_group_name.name.errors}}
+						<label>名称</label>
+						{{form_group_name.name}}
+					</div>
+					<div class="form_div">
+						{{form_group_description.description.errors}}
+						<label id="label_description">描述</label>
+						{{form_group_description.description}}
+					</div>
+					<div id="final_operation" class="form_div">
+						<input type="submit" name="create_group_submit" value="创建" />
+						<input type="button" value="取消" />
+					</div>
+				</form>	
+			</div>
 		</div>
 
 	</div>
-
-
+</div>
 {% endblock %}
 
