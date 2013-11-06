@@ -1,10 +1,10 @@
 $(function() {
-	hide_dom('#apply_to_group > div, #creat_group > div');
-	set_trigger_link("#apply_to_group a, #creat_group a");
-	set_cancel_button("#apply_to_group :button, #creat_group :button");
+	hide_dom('#apply_to_project > div, #creat_project > div');
+	set_trigger_link("#apply_to_project a, #creat_project a");
+	set_cancel_button("#apply_to_project :button, #creat_project :button");
 });
 
 $(function() {
-	set_search_form('#apply_to_group form');
-	set_create_form('#creat_group form');
+	set_search_form('#apply_to_project form');
+	set_create_form('#creat_project form');
 });

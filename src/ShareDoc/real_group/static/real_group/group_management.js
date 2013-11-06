@@ -24,6 +24,7 @@ var copy_text = function(hide_dom, show_dom) {
 	var display_content = hide_dom.children('span').text();
 	show_dom.find('p.error').text("");
 	show_dom.find('input[type="text"]').val(display_content);
+	show_dom.find('textarea').val(display_content);
 }
 
 $(function() {
@@ -73,5 +74,17 @@ $(function() {
 		'div.apply_confirm',
 		'p.error',
 		'div.search_result'
+	);
+});
+
+$(function() {
+	$('div[id^="display_group"] a').hide();
+	$('div[id^="display_group"]').hover(
+		function() {
+			$(this).children('a').fadeIn('fast');
+		},
+		function() {
+			$(this).children('a').fadeOut('fast');
+		}
 	);
 });

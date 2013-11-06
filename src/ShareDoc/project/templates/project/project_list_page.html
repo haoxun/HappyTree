@@ -2,8 +2,12 @@
 
 {% load staticfiles %}
 {% block js %}
-<script src={% static 'list_page.js' %}></script>
-<script src={% static 'project/project_list.js' %}></script>
+<script src="{% static 'list_page.js' %}"></script>
+<script src="{% static 'project/project_list.js' %}"></script>
+{% endblock %}
+
+{% block css %}
+<LINK href="{% static 'project/project_list.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% load guardian_tags %}
@@ -12,45 +16,59 @@
 	<div id="left_empty">
 	</div>
 	<div id="left_not_empty">
-	</div>
+		<div id="project_list">
+			<ul>
+				{% for project in project_set %}
+					<li><a href={% url 'project_message_page' project_id=project.id %}>{{project.name}}</a></li>
+				{% empty %}
+					<p>There's No Project For You.</p>
+				{% endfor %}
+			</ul>
+		</div>
+		
+		<div id="apply_to_project">
+			<div class="trigger">
+				<a href="#">加入项目</a>
+			</div>
+			<div class="apply_confirm">
+				<p class="error"></p>
+				<form method="post" action="{% url 'project_list_page' %}">
+					<div class="search_div">
+						{{form_apply_to_project.name.errors}}
+						{{form_apply_to_project.name}}
+						<input type="submit" name="UTP_submit" value="Search"/>
+						<input type="button" value="Cancel" />
+					</div>
+				</form>	
 
-	<div id="project_list">
-		<p>Project List:</p>
-		<ul>
-			{% for project in project_set %}
-				<li><a href={% url 'project_message_page' project_id=project.id %}>{{project.name}}</a></li>
-			{% empty %}
-				<p>There's No Project For You.</p>
-			{% endfor %}
-		</ul>
-	</div>
-	
-	<div id="apply_to_project">
-		<a href="#">Attend Project</a>
-		<div>
-			<p>Search Project</p>
-			<p class="error"></p>
-			<form method="post" action={% url 'project_list_page' %}>
-				{{form_apply_to_project.as_p}}
-				<input type="submit" name="UTP_submit" value="Search"/>
-				<input type="button" value="Cancel" />
-			</form>	
-
-			<div class="search_result">
+				<div class="search_result">
+				</div>
 			</div>
 		</div>
-	</div>
-	<div id="creat_project">
-		<a href="#">Create Project</a>
-		<div>
-			<p>Create Project</p>
-			<p class="error"></p>
-			<form method="post" action={% url 'project_list_page' %}>
-				{{form_project_name.as_p}}
-				{{form_project_description.as_p}}
-				<input type="submit" name="create_project_submit" value="Submit" />
-				<input type="button" value="Cancel" />
-			</form>	
+
+		<div id="create_project_div">
+			<div class="trigger">
+				<a href="#">创建项目</a>
+			</div>
+			<div class="create_project">
+				<p class="error"></p>
+				<form method="post" action="{% url 'project_list_page' %}">
+					<div class="form_div">
+						{{form_project_name.name.errors}}
+						<label>名称</label>
+						{{form_project_name.name}}
+					</div>
+					<div class="form_div">
+						{{form_project_description.description.errors}}
+						<label id="label_description">描述</label>
+						{{form_project_description.description}}
+					</div>
+					<div id="final_operation" class="form_div">
+						<input type="submit" name="create_project_submit" value="Submit" />
+						<input type="button" value="Cancel" />
+					</div>
+				</form>	
+			</div>
 		</div>
 	</div>
 </div>

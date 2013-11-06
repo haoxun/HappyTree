@@ -1,0 +1,180 @@
+#project_list_page
+{
+	display:inline-block;
+	width:57%;
+}
+
+#left_empty
+{
+	padding:0;
+	margin:0;
+	display:inline-block;
+	width:28%;
+	vertical-align:top;
+}
+
+#left_not_empty
+{
+	padding:0;
+	margin:0;
+	display:inline-block;
+	width:70%;
+	padding-bottom:500px;
+}
+
+#create_project_div
+{
+	display: block;
+	margin:20px 5px;
+	padding:1em;
+	background-color:#F6F5FA;
+	border-radius:7px;
+}
+
+#apply_to_project
+{
+	display: block;
+	margin:20px 5px;
+	padding:1em;
+	background-color:#F6F5FA;
+	border-radius:7px;
+}
+
+.trigger > a
+{
+	display:block;
+	line-height:30px;
+	min-height:30px;
+	text-align:center;
+	text-decoration:none;
+}
+
+.apply_confirm input[type="text"]
+{
+	height: 25px;
+	padding-left: 10px;
+	border-radius: 5px; /*up to date browsers support this, but you can add prefixes if you want*/
+	border:0;
+	background-color:#C1DDE8;
+	font-size:1em;
+	width:50%;
+}
+
+.search_div
+{
+	padding:5px 5%;
+}
+
+.search_div input
+{
+	font-size:1em;
+	width:23%;
+	padding:0;
+	margin:0;
+}
+
+.result_item
+{
+	background-color:#D8F0E2;
+	padding-top:4px;
+	padding-bottom:4px;
+	padding-left:3%;
+	margin:10px 5%;
+	border-radius:5px;
+}
+
+.result_item span
+{
+	display:inline-block;
+	width:85%;
+}
+
+.result_item a
+{
+	text-decoration:none;
+}
+
+.form_div
+{
+	padding-left:5%;
+	padding-top:5px;
+	padding-bottom:5px;
+}
+
+.create_project input[type="text"]
+{
+	height: 25px;
+	padding-left: 10px;
+	border-radius: 5px; /*up to date browsers support this, but you can add prefixes if you want*/
+	border:0;
+	background-color:#C1DDE8;
+	font-size:1em;
+	width:80%;
+}
+
+.create_project textarea
+{
+	width: 600px;
+	height: 120px;
+	border: 3px solid #cccccc;
+	padding: 5px;
+	font-family: Tahoma, sans-serif;
+	background-position: bottom right;
+	background-repeat: no-repeat;
+	width:79%;
+}
+
+#label_description
+{
+	padding:0;
+	margin:0;
+	display:inline-block;
+	vertical-align:top;
+}
+
+#final_operation
+{
+	text-align:right;
+	padding-right:10%;
+}
+
+#final_operation input
+{
+	font-size:1em;
+	width:20%;
+	padding:0;
+	margin:0;
+}
+
+#project_list ul
+{
+	list-style-type:none;
+	margin:30px 1%;
+	padding:35px 10%;
+	background-color:#F6F5FA;
+	border-radius:7px;
+}
+
+#project_list li
+{
+	padding:0;
+	margin:10px 5px;
+	background-color:#F3F2F7;
+	border-radius:7px;
+	border: 3px solid #F3F2F7;
+}
+
+#project_list li:hover
+{
+	border: 3px solid #E7E6EB;
+}
+
+#project_list a
+{
+	text-align:center;
+	display:block;
+	height: 45px;
+	line-height: 45px;
+	margin:0;
+	text-decoration:none;
+}

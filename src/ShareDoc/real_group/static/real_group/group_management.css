@@ -56,6 +56,12 @@
 	color:#6BA3ED;
 }
 
+.inline_trigger > a
+{
+	font-size:0.8em;
+	text-decoration:none;
+}
+
 .group_basic_info
 {
 	min-height:20px;
