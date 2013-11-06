@@ -27,7 +27,7 @@
 			{{form_select_project.project_id}}
 		</div>
 		<div id="final_operation" class="form_div">
-			<input type="submit" name="post_message_submit" value="发布" />
+			<input type="submit" name="post_message_submit" value="发布" disabled="" />
 			<input type="button" value="取消" href="{% url 'delete_message' message_id=message.id %}">
 		</div>
 	</form>	

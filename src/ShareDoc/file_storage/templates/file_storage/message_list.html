@@ -12,15 +12,18 @@
 		{% if message.description %}
 		<p class="description">{{message.description}}</p>
 		{% endif %}
-		<div class="files">
-		{% for file_pointer in message.file_pointers.all %}
-			<p class="download">{{file_pointer.name}}
-			{% if 'project_download' in perms %}
-			<a href="{% url 'download_file' file_pointer_id=file_pointer.id%}">[download]</a>
-			{% endif %}
-			</p>
-		{% endfor %}
-		</div>
+
+		{% if message.file_pointers.all %}
+			<div class="files">
+			{% for file_pointer in message.file_pointers.all %}
+				<p class="download">{{file_pointer.name}}
+				{% if 'project_download' in perms %}
+				<a href="{% url 'download_file' file_pointer_id=file_pointer.id%}">[download]</a>
+				{% endif %}
+				</p>
+			{% endfor %}
+			</div>
+		{% endif %}
 	</div>
 {% empty %}
 	<div id="no_home_message">

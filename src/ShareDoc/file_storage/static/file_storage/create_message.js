@@ -10,16 +10,41 @@ var load_file_list = function() {
 			$.get(url, function() {
 				file_item.fadeOut('fast', function() {
 					file_item.remove();
+					control_submit();
 				});
 			});
 		});
 
+		control_submit();
 	});
 }
+
+var test_textarea_and_files = function() {
+	return $('div.form_div textarea').val() != "" || $('#file_list').children().size() != 0;
+}
+
+var control_submit = function() {
+	if(test_textarea_and_files()) {
+		$('#final_operation input[type="submit"]').prop('disabled', false);
+	}
+	else {
+		$('#final_operation input[type="submit"]').prop('disabled', true);
+	}
+}
+
+var test_post = function() {
+	$('div.form_div textarea').keyup(function() {
+		control_submit();
+	});
+}
+
 var create_message_action = function() {
 	load_file_list();
+	// file upload
 	$('#file_upload input[type="file"]').fileupload({
-		formData: {'uploaded_file': null},
+		formData: {
+			'uploaded_file': null
+		},
 		add: function(e, data) {
 			console.log(data);
 			upload_div = $('<div class="uploading"></div>')
@@ -52,10 +77,13 @@ var create_message_action = function() {
 			});
 		}
 	});
+
+	test_post();
 }
 
 $(function() {
 	$('#init_target').hide();
+	//post
 	$('#init').click(function(event) {
 		event.preventDefault();
 		var url = $(this).attr('href');
@@ -64,6 +92,7 @@ $(function() {
 			$('#init_target').html(data);
 			create_message_action();
 			$('#init_target').slideDown('fast');
+			//cancel
 			$('#final_operation input[type="button"]').click(function(event) {
 				event.preventDefault();
 				event.stopPropagation();
