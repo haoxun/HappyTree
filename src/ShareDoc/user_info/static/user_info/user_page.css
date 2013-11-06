@@ -1,0 +1,71 @@
+#left_empty
+{
+	padding:0;
+	margin:0;
+	display:inline-block;
+	width:28%;
+}
+#left_not_empty
+{
+	padding:0;
+	margin:0;
+	display:inline-block;
+	width:70%;
+}
+
+#user_page
+{
+	display:inline-block;
+	width:57%;
+}
+
+#user_info
+{
+	margin:20px 5px;
+	padding:1em;
+	background-color:#E8EFFA;
+	border-radius:7px;
+	position:static;
+	min-height:160px;
+}
+
+#img_container
+{
+	padding:0;
+	margin:0;
+	position:relative;
+	float:left;
+	width:30%;
+}
+
+#info_container
+{
+	padding:0;
+	margin:0;
+	margin-left:33%;
+}
+
+#user_info img
+{
+	border-radius:7px;
+	width:100%;
+	height:100%;
+}
+
+
+
+.info
+{
+	padding:10px;
+	margin:7px 0;
+	background-color:#F6F5FA;
+	border-radius:7px;
+}
+
+.info p
+{
+	text-align:center;
+	padding:0;
+	padding-bottom:3px;
+	margin:0;
+}

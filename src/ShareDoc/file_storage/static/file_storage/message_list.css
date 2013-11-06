@@ -53,3 +53,8 @@ p.download a
 	text-decoration:none;
 
 }
+
+div
+{
+	word-break:break-all;
+}

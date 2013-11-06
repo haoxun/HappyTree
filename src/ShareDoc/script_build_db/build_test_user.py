@@ -6,16 +6,17 @@ u1 = User.objects.create_user('peter', password='123456')
 u2 = User.objects.create_user('john', password='123456')
 u3 = User.objects.create_user('kate', password='123456')
 
-uinfo1 = UserInfo() 
-uinfo2 = UserInfo() 
-uinfo3 = UserInfo() 
-
-uinfo1.user = u1
-uinfo2.user = u2
-uinfo3.user = u3
-
-uinfo1.save()
-uinfo2.save()
-uinfo3.save()
+UserInfo.objects.create(
+    user=u1,
+    email="programmer.zhx@gmail.com"
+) 
+UserInfo.objects.create(
+    user=u2,
+    email="social.zhx@gmail.com"
+) 
+UserInfo.objects.create(
+    user=u3,
+    email="academic.zhx@gmail.com"
+) 
 
 print 'finish building'

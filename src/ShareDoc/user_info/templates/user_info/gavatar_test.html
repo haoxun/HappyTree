@@ -2,5 +2,11 @@
 
 {% load gravatar %}
 {% block content %}
+{% gravatar_img_for_email email 40%}
+{% gravatar_img_for_email email 60%}
 {% gravatar_img_for_email email %}
+{% gravatar_img_for_email email 100 %}
+{% gravatar_img_for_email email 200 %}
+{% gravatar_img_for_email email 400 %}
+{% gravatar_img_for_email email 800 %}
 {% endblock %}

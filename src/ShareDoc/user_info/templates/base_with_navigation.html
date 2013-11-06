@@ -23,7 +23,7 @@
 		<a href="{% url 'ac_page' %}">消息</a> 
 	</li>
 	<li>
-		<a href="#">{{user.username}}!</a>
+	<a href="{% url 'user_page' user_info_id=user.userinfo.id %}">Me!</a>
 	</li>
 	<li>
 		<a href="{% url 'logout_user' %}">退出</a> 

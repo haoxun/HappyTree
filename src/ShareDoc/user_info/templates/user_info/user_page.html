@@ -1,0 +1,44 @@
+{% extends 'base_with_navigation.html' %}
+
+{% load staticfiles %}
+{% block js %}
+<script src="{% static 'user_info/user_page.js' %}"></script>
+{% endblock %}
+
+{% block css %}
+<LINK href="{% static 'user_info/user_page.css' %}" rel="stylesheet" type="text/css">
+<LINK href="{% static 'file_storage/message_list.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% load gravatar %}
+{% block content %}
+<div id="user_page">
+	<div id="left_empty">
+	</div>
+	<div id="left_not_empty">
+			<div id="user_info">
+				<div id="img_container">
+					{% gravatar_img_for_email user_info.email 160 %}
+				</div>
+				<div id="info_container">
+					<div id="user_name" class="info">
+		    			<p>用户名</p>
+						<div>
+							{{user_info.user.username}}
+						</div>
+					</div>
+					<div id="user_email" class="info">
+		    			<p>邮箱</p>
+						<div>
+							{{user_info.email}}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="message_container">
+			</div>
+	</div>
+</div>
+
+{% endblock %}
