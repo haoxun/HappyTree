@@ -7,7 +7,7 @@
 	
 }
 */
-#init
+a.message_widget_trigger
 {
 	display:block;
 	line-height:30px;
@@ -22,14 +22,14 @@
 	background-color:#E8EFFA;
 	border-radius:7px;
 }
-#file_list
+div.file_list
 {
 	padding:20px 0;
 	margin:10px;
 	border-radius:20px;
 	background-color:#EBEBEB;
 }
-#id_uploaded_file
+input.id_uploaded_file
 {
 	content: 'Select some files';
 	display: inline-block;
@@ -45,7 +45,7 @@
 	font-weight: 700;
 	font-size: 10pt;
 }
-#file_upload form
+div.file_upload form
 {
 	text-align:center;
 }
@@ -55,7 +55,7 @@
 	padding-top:5px;
 	padding-bottom:5px;
 }
-#post_message input[type="text"]
+div.post_message input[type="text"]
 {
 	height: 25px;
 	padding-left: 10px;
@@ -65,7 +65,7 @@
 	font-size:1em;
 	width:80%;
 }
-#post_message textarea
+div.post_message textarea
 {
 	width: 600px;
 	height: 120px;
@@ -76,30 +76,30 @@
 	background-repeat: no-repeat;
 	width:79%;
 }
-#label_description
+p.label_description
 {
 	padding:0;
 	margin:0;
 	display:inline-block;
 	vertical-align:top;
 }
-#post_message select
+div.post_message select
 {
 	font-size:1em;
 }
-#final_operation
+div.final_operation
 {
 	text-align:right;
 	padding-right:10%;
 }
-#final_operation input
+div.final_operation input
 {
 	font-size:1em;
 	width:20%;
 	padding:0;
 	margin:0;
 }
-#final_operation a
+div.final_operation a
 {
 	font-size:1em;
 	width:20%;

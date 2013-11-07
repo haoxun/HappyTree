@@ -1,23 +1,18 @@
 from __future__ import unicode_literals
 from django.conf.urls import patterns, include, url
 
-from file_storage.views import CreateMessagePage
+from file_storage.views import CreateMessage
+from file_storage.views import ModifyMessage
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'ShareDoc.views.home', name='home'),
-    # url(r'^ShareDoc/', include('ShareDoc.foo.urls')),
-
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    # Uncomment the next line to enable the admin:
-    # url(r'^admin/', include(admin.site.urls)),
-
-    # class view create message
+    # modify message
+    url(r'^modify/(?P<message_id>\d+)/$', 
+        ModifyMessage.as_view(),
+        name='modify_message'),
+    # create message
     url(r'^create/$', 
-        CreateMessagePage.as_view(),
-        name='create_message_page'),
+        CreateMessage.as_view(),
+        name='create_message'),
     # delete message
     url(r'^(?P<message_id>\d+)/delete/$', 
         'file_storage.views.delete_message', 
@@ -31,6 +26,4 @@ urlpatterns = patterns('',
         'file_storage.views.download_file', 
         name='download_file'),
 
-    
-    
 )

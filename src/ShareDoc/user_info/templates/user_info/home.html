@@ -3,16 +3,18 @@
 {% load staticfiles %}
 {% block js %}
 {% comment %}
-<script src={% static 'file_storage/jquery.form.min.js' %}></script>
-<script src={% static 'file_storage/md5.js' %}></script>
-<script src={% static 'file_storage/hashme.js' %}></script>
+<script src="{% static 'file_storage/jquery.form.min.js' %}"></script>
+<script src="{% static 'file_storage/md5.js' %}"></script>
+<script src="{% static 'file_storage/hashme.js' %}"></script>
 {% endcomment %}
-<script src={% static 'file_storage/jquery.ui.widget.js' %}></script>
-<script src={% static 'file_storage/jquery.iframe-transport.js' %}></script>
-<script src={% static 'file_storage/jquery.fileupload.js' %}></script>
+<script src="{% static 'file_storage/jquery.ui.widget.js' %}"></script>
+<script src="{% static 'file_storage/jquery.iframe-transport.js' %}"></script>
+<script src="{% static 'file_storage/jquery.fileupload.js' %}"></script>
 
-<script src={% static 'file_storage/create_message.js' %}></script>
-<script src={% static 'user_info/home.js' %}></script>
+<script src="{% static 'file_storage/create_message.js' %}"></script>
+<script src="{% static 'file_storage/message_list.js' %}"></script>
+<script src="{% static 'file_storage/message_widget.js' %}"></script>
+<script src="{% static 'user_info/home.js' %}"></script>
 {% endblock %}
 
 {% load staticfiles %}
@@ -27,8 +29,8 @@
 	</div>
 	<div id="left_not_empty">
 		<div id="create_message">
-			<a id="init" href="{% url 'create_message_page' %}">创建信息</a>
-			<div id="init_target">
+			<a class="message_widget_trigger" href="{% url 'create_message' %}">创建信息</a>
+			<div class="widget_loadder">
 			</div>
 		</div>
 		<div id="message_container">

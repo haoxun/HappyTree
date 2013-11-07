@@ -1,13 +1,13 @@
-<div id="file_list" href="{% url 'create_message_page' %}">
+<div class="file_list" href="{{request.path}}">
 </div>
-<div id="file_upload">
-	<div id="uploading_list"></div>
-	<form enctype="multipart/form-data" method="post" action="{% url 'create_message_page' %}">
-		<input id="id_uploaded_file" type="file" name="uploaded_file" />
+<div class="file_upload">
+	<div class="uploading_list"></div>
+	<form enctype="multipart/form-data" method="post" action="{{request.path}}">
+		<input class="id_uploaded_file" type="file" name="uploaded_file" />
 	</form>	
 </div>
-<div id="post_message">
-	<form method="post" action="{% url 'create_message_page' %}">
+<div class="post_message">
+	<form method="post" action="{{request.path}}">
 		{% csrf_token %}
 		<div class="form_div">
 			{{form_post_message.title.errors}}
@@ -16,7 +16,7 @@
 		</div>
 		<div class="form_div">
 			{{form_post_message.description.errors}}
-			<p id="label_description">
+			<p class="label_description">
 			<label for="id_description">描述</label>
 			</p>
 			{{form_post_message.description}}
@@ -26,9 +26,10 @@
 			<label for="id_project_id">项目</label>
 			{{form_select_project.project_id}}
 		</div>
-		<div id="final_operation" class="form_div">
+		<div class="final_operation" class="form_div">
 			<input type="submit" name="post_message_submit" value="发布" disabled="" />
-			<input type="button" value="取消" href="{% url 'delete_message' message_id=message.id %}">
+			<input class="delete_button" type="button" value="删除" href="{% url 'delete_message' message_id=message.id %}" />
+			<input class="cancel_button" type="button" value="取消" />
 		</div>
 	</form>	
 </div>

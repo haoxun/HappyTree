@@ -48,11 +48,19 @@ class MessageBasic(View):
         raise PermissionDenied
 
     def _load_message_handler(self, request, *args, **kwargs):
-        message = self._get_message(request)
+        message = self._get_message(request, *args, **kwargs)
         project_set = get_objects_for_user(request.user,
                                            'project.project_upload')
-        form_select_project = ProjectChoiceForm(project_set)
-        form_post_message = MessageInfoForm()
+        # set content for posted message, which is safe to newly
+        # created message.
+        form_select_project = ProjectChoiceForm(
+            project_set, 
+            initial={'project_id': message.project.id},
+        )
+        form_post_message = MessageInfoForm(initial={
+            'title': message.title,
+            'description': message.description,
+        })
 
         render_data_dict = {
             'request': request,
@@ -64,7 +72,7 @@ class MessageBasic(View):
                       'file_storage/message_widget.html',
                       render_data_dict)
 
-    def _handler_factory(self, request, *args, **kwargs):
+    def _handler_factory(self, request):
         # should always be implemented by subclass
         raise PermissionDenied
 
@@ -140,11 +148,11 @@ class MessageBasic(View):
 
     def post(self, request, *args, **kwargs):
         message = self._get_message(request, *args, **kwargs)
-        handler = self._handler_factory(request, *args, **kwargs)
+        handler = self._handler_factory(request)
         return handler(request, message, *args, **kwargs)
 
 
-class CreateMessagePage(MessageBasic):
+class CreateMessage(MessageBasic):
     """
     This class handle the process of creating message, including
     1. init a message.
@@ -152,8 +160,8 @@ class CreateMessagePage(MessageBasic):
     3. handle the uploading file.
     """
     @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(CreateMessagePage, self).dispatch(*args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        return super(CreateMessage, self).dispatch(request, *args, **kwargs)
 
     def _get_message(self, request):
          # extract current processing message
@@ -191,6 +199,31 @@ class CreateMessagePage(MessageBasic):
             return self._post_message_handler
 
 
+class ModifyMessage(MessageBasic):
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        message_id = kwargs.get('message_id', None)
+        if message_id is None:
+            raise PermissionDenied
+        # manually check permission
+        message = get_object_or_404(Message, id=int(message_id))
+        if request.user.userinfo.id != message.owner.id:
+            raise PermissionDenied
+        return super(ModifyMessage, self).dispatch(request, *args, **kwargs)
+
+    def _get_message(self, request, message_id):
+        message = get_object_or_404(Message, id=int(message_id))
+        return message
+
+    def _handler_factory(self, request):
+        if 'uploaded_file' in request.POST:
+            return self._upload_file_handler
+        elif 'load_file_list' in request.POST:
+            return self._uploaded_file_list_handler
+        elif 'post_message_submit' in request.POST:
+            return self._post_message_handler
+
+
 @login_required
 def delete_message(request, message_id):
     message = get_object_or_404(Message, id=int(message_id))
@@ -203,7 +236,7 @@ def delete_message(request, message_id):
             unique_file.delete()
     remove_perm('message_processing', request.user, message)
     message.delete()
-    return redirect('home_page')
+    return HttpResponse('OK')
 
 
 @require_GET

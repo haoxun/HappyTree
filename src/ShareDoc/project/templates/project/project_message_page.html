@@ -2,12 +2,19 @@
 
 {% load staticfiles %}
 {% block js %}
+<script src="{% static 'file_storage/jquery.ui.widget.js' %}"></script>
+<script src="{% static 'file_storage/jquery.iframe-transport.js' %}"></script>
+<script src="{% static 'file_storage/jquery.fileupload.js' %}"></script>
+
+<script src="{% static 'file_storage/message_list.js' %}"></script>
+<script src="{% static 'file_storage/message_widget.js' %}"></script>
 <script src="{% static 'project/project_message_list.js' %}"></script>
 {% endblock %}
 
 {% block css %}
 <LINK href="{% static 'project/project_navigation.css' %}" rel="stylesheet" type="text/css">
 <LINK href="{% static 'project/project_message_list.css' %}" rel="stylesheet" type="text/css">
+<LINK href="{% static 'file_storage/create_message.css' %}" rel="stylesheet" type="text/css">
 <LINK href="{% static 'file_storage/message_list.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 

@@ -15,7 +15,9 @@ class ProjectChoiceForm(forms.Form):
             project_candidates.append(
                 (project.id, project.name),
             )
-        self.fields['project_id'] = forms.ChoiceField(choices=project_candidates)
+        self.fields['project_id'] = forms.ChoiceField(
+            choices=project_candidates,
+        )
 
     def clean(self):
         if 'post_message_submit' not in self.data:
