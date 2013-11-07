@@ -39,40 +39,15 @@ import os
 import mimetypes
 mimetypes.init()
 
-
-class CreateMessagePage(View):
+class MessageBasic(View):
     """
-    This class handle the process of creating message, including
-    1. init a message.
-    2. handle the basic info of the message.
-    3. handle the uploading file.
+    This class handle the message creation/modification widget
     """
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(CreateMessagePage, self).dispatch(*args, **kwargs)
+    def _get_message(self, request, *args, **kwargs):
+        # should always be implemented by subclass
+        raise PermissionDenied
 
-    def _get_message(self, request, forbid_init=False):
-         # extract current processing message
-        message = get_objects_for_user(request.user,
-                                       'project.message_processing')
-        if message:
-            message = message[0]
-        else:
-            if forbid_init:
-                raise PermissionDenied
-            # if no current processing message, init one.
-            project_set = get_objects_for_user(request.user,
-                                               'project.project_upload')
-            if len(project_set) == 0:
-                # after finish dev, should give some error message about that,
-                # instead of raising PermissionDenied
-                raise PermissionDenied
-            message = Message.objects.create(project=project_set[0],
-                                             owner=request.user.userinfo)
-            assign_perm('message_processing', request.user, message)
-        return message
-
-    def _load_message_handler(self, request):
+    def _load_message_handler(self, request, *args, **kwargs):
         message = self._get_message(request)
         project_set = get_objects_for_user(request.user,
                                            'project.project_upload')
@@ -86,26 +61,20 @@ class CreateMessagePage(View):
             'form_post_message': form_post_message,
         }
         return render(request,
-                      'file_storage/create_message.html',
+                      'file_storage/message_widget.html',
                       render_data_dict)
 
-    def get(self, request):
-        if 'load_message' in request.GET:
-            return self._load_message_handler(request)
-        else:
-            # forbid direct access
-            raise PermissionDenied
+    def _handler_factory(self, request, *args, **kwargs):
+        # should always be implemented by subclass
+        raise PermissionDenied
 
-    def _handler_factory(self, request):
-        if 'uploaded_file' in request.POST:
-            return self._upload_file_handler
-        elif 'load_file_list' in request.POST:
-            return self._uploaded_file_list_handler
-        elif 'post_message_submit' in request.POST:
-            return self._post_message_handler
-
-
-    def _post_message_handler(self, request, message):
+    def _post_message_handler(self, request, message, *args, **kwargs):
+        """
+        Handle two kinds of message:
+        1. newly created message.
+        2. posted message.
+        It's safe to have the same operation with both kinds.
+        """
         project_set = get_objects_for_user(request.user,
                                            'project.project_upload')
         form_select_project = ProjectChoiceForm(project_set, request.POST)
@@ -123,17 +92,10 @@ class CreateMessagePage(View):
             remove_perm('message_processing', request.user, message)
             return redirect('home_page')
         else:
-            render_data_dict = {
-                'request': request,
-                'message': message,
-                'form_select_project': form_select_project,
-                'form_post_message': form_post_message,
-            }
-            return render(request,
-                          'file_storage/create_message_page.html',
-                          render_data_dict)
+            # should return ERROR msg. Will be implemented later.
+            raise PermissionDenied
 
-    def _uploaded_file_list_handler(self, request, message):
+    def _uploaded_file_list_handler(self, request, message, *args, **kwargs):
         render_data_dict = {
             'request': request,
             'message': message
@@ -142,7 +104,7 @@ class CreateMessagePage(View):
                       'file_storage/uploaded_file_list.html',
                       render_data_dict)
 
-    def _upload_file_handler(self, request, message):
+    def _upload_file_handler(self, request, message, *args, **kwargs):
         uploaded_file = request.FILES.get('uploaded_file', None)
         if uploaded_file:
             # get or calculate MD5
@@ -169,10 +131,64 @@ class CreateMessagePage(View):
         else:
             return HttpResponse("NOT OK")
 
-    def post(self, request):
-        message = self._get_message(request, forbid_init=True)
-        handler = self._handler_factory(request)
-        return handler(request, message)
+    def get(self, request, *args, **kwargs):
+        if 'load_message' in request.GET:
+            return self._load_message_handler(request, *args, **kwargs)
+        else:
+            # forbid direct access
+            raise PermissionDenied
+
+    def post(self, request, *args, **kwargs):
+        message = self._get_message(request, *args, **kwargs)
+        handler = self._handler_factory(request, *args, **kwargs)
+        return handler(request, message, *args, **kwargs)
+
+
+class CreateMessagePage(MessageBasic):
+    """
+    This class handle the process of creating message, including
+    1. init a message.
+    2. handle the basic info of the message.
+    3. handle the uploading file.
+    """
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(CreateMessagePage, self).dispatch(*args, **kwargs)
+
+    def _get_message(self, request):
+         # extract current processing message
+        message = get_objects_for_user(
+            request.user,
+            'project.message_processing',
+        )
+        if message:
+            message = message[0]
+        else:
+            # if no current processing message, init one.
+            project_set = get_objects_for_user(
+                request.user,
+                'project.project_upload',
+            )
+
+            if len(project_set) == 0:
+                # after finish dev, should give some error message about that,
+                # instead of raising PermissionDenied
+                raise PermissionDenied
+
+            message = Message.objects.create(
+                project=project_set[0],
+                owner=request.user.userinfo
+            )
+            assign_perm('message_processing', request.user, message)
+        return message
+
+    def _handler_factory(self, request):
+        if 'uploaded_file' in request.POST:
+            return self._upload_file_handler
+        elif 'load_file_list' in request.POST:
+            return self._uploaded_file_list_handler
+        elif 'post_message_submit' in request.POST:
+            return self._post_message_handler
 
 
 @login_required
