@@ -5,9 +5,6 @@ from user_info.views import ApplyConfirmPage
 from user_info.views import UserPage 
 
 urlpatterns = patterns('',
-    # gravatar test
-    url(r'gravatar/(?P<email>(\w|\W)+)/$',
-        'user_info.views.user_image_test'),
     # user info
     url(r'(?P<user_info_id>\d+)/$',
         UserPage.as_view(),

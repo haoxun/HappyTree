@@ -14,6 +14,7 @@ a.message_widget_trigger
 	min-height:30px;
 	text-align:center;
 	text-decoration:none;
+	font-family: 'Helvetica Neue',Helvetica,Arial,Sans-serif;
 }
 #create_message
 {

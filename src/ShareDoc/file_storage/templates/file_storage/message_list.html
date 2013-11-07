@@ -1,9 +1,21 @@
 {% load guardian_tags %}
+{% load gravatar %}
+
 {% for message in message_set %}
+<div class="user_post_message">
+	<div class="post_by">
+		<div class="user_img_in_message">
+			{% gravatar_img_for_email message.owner.email 55 %}
+		</div>
+		<div class="brief_statement">
+			{{message.owner.user.username}}在
+			<a href="{% url 'project_message_page' project_id=message.project.id %}">{{message.project.name}}</a>中发布了信息
+		</div>
+	</div>
 	<div class="message">
 		{% if user.userinfo.id == message.owner.id %}
 		<div class="modify_message">
-			<a class="message_widget_trigger" href="{% url 'modify_message' message_id=message.id %}">修改信息</a>
+			<a class="posted_message_widget_trigger" href="{% url 'modify_message' message_id=message.id %}">[修改]</a>
 			<div class="widget_loadder">
 			</div>
 		</div>
@@ -13,29 +25,28 @@
 			{% if message.title %}
 				<p class="title">{{message.title}}</p>
 			{% endif %}
-			{% comment %}
-			<p class="post_by">
-				{{message.owner.user.username}} 发布于
-				<a href="{% url 'project_message_page' project_id=message.project.id %}">{{message.project.name}}</a>项目
-			</p>
-			{% endcomment %}
+
 			{% if message.description %}
 			<p class="description">{{message.description}}</p>
 			{% endif %}
 
 			{% if message.file_pointers.all %}
 				<div class="files">
+				<span class="centering_file">
 				{% for file_pointer in message.file_pointers.all %}
-					<p class="download">{{file_pointer.name}}
+					<p class="download">
+					<span class="file_name">{{file_pointer.name}}</span>
 					{% if 'project_download' in perms %}
 					<a href="{% url 'download_file' file_pointer_id=file_pointer.id%}">[download]</a>
 					{% endif %}
 					</p>
 				{% endfor %}
+				</span>
 				</div>
 			{% endif %}
 		</div>
 	</div>
+</div>
 {% empty %}
 	<div class="no_home_message">
 		<p>There's no message for you.</p>
