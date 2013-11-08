@@ -25,7 +25,7 @@ from project.models import UserInfo_Project_AC
 from project.models import RealGroup_Project_AC
 from project.models import Project
 from project.models import ProjectGroup
-from project.models import Message
+from message.models import Message
 # form
 from project.forms import ProjectNameHandlerForm
 from project.forms import ProjectDescriptionHandlerForm

@@ -145,7 +145,8 @@ def models_page(request):
     from guardian.models import User, Group
     from user_info.models import UserInfo
     from real_group.models import RealGroup, UserInfo_RealGroup_AC
-    from project.models import Project, Message, ProjectGroup
+    from project.models import Project, ProjectGroup
+    from message.models import Message
     from message.models import FilePointer, UniqueFile
     from project.models import UserInfo_Project_AC, RealGroup_Project_AC
     model_set = [

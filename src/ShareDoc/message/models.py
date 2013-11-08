@@ -1,7 +1,31 @@
 from __future__ import unicode_literals
 from django.db import models
-from project.models import Message
-# Create your models here.
+from project.models import Project
+from user_info.models import UserInfo
+
+
+class Message(models.Model):
+    # fields
+    title = models.CharField(max_length=50)
+    description = models.CharField(max_length=500)
+    post_time = models.DateTimeField(auto_now=True)
+    post_flag = models.BooleanField(default=False)
+    # relation
+    project = models.ForeignKey(Project,
+                                related_name='messages')
+    owner = models.ForeignKey(UserInfo,
+                              related_name="messages")
+    # ForeignKey
+    # file_pointers: pointers to files be in the message
+
+    class Meta:
+        # can be held by poster
+        permissions = (
+            ('message_processing', 'owner of the message has not being post'),
+        )
+
+    def __unicode__(self):
+        return '{}'.format(self.id)
 
 
 class UniqueFile(models.Model):

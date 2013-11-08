@@ -20,7 +20,7 @@ from guardian.shortcuts import get_objects_for_user
 # model
 from guardian.models import User
 from guardian.models import Group
-from project.models import Message
+from message.models import Message
 from project.models import Project
 from message.models import UniqueFile
 from message.models import FilePointer
@@ -175,7 +175,7 @@ class CreateMessage(MessageBasic):
          # extract current processing message
         message = get_objects_for_user(
             request.user,
-            'project.message_processing',
+            'message.message_processing',
         )
         if message:
             message = message[0]
