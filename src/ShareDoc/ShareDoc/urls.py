@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     url(r'^user/', include('user_info.urls')),
     url(r'^project/', include('project.urls')),
     url(r'^message/', include('message.urls')),
+    url(r'^notification/', include('notification.urls')),
     
 )
 

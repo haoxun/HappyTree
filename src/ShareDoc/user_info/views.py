@@ -28,10 +28,6 @@ from project.models import RealGroup_Project_AC
 from django.utils.decorators import method_decorator
 # util
 from user_info.utils import gen_models_debug_info
-from user_info.utils import NotificationCenter
-from user_info.utils import ProcessUserProjectAC
-from user_info.utils import ProcessUserRealGroupAC
-from user_info.utils import ProcessRealGroupProjectAC
 # python library
 import operator
 import re
@@ -100,45 +96,6 @@ class UserPage(View):
 def logout_user(request):
     logout(request)
     return redirect('login_page')
-
-
-class NotificationPage(View):
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(NotificationPage, self).dispatch(*args, **kwargs)
-
-    def get(self, request):
-        return render(request,
-                      'user_info/ac_list.html')
-
-    def post(self, request):
-        notification_center = NotificationCenter(request.user)
-        return HttpResponse(notification_center.notification_html)
-
-
-@login_required
-def process_user_project_ac(request, ac_id, decision):
-    ac_processor = ProcessUserProjectAC(request, ac_id, decision)
-    ac_processor.handle()
-
-    return HttpResponse('OK')
-
-
-@login_required
-def process_user_real_group_ac(request, ac_id, decision):
-    ac_processor = ProcessUserRealGroupAC(request, ac_id, decision)
-    ac_processor.handle()
-
-    return HttpResponse('OK')
-
-
-@login_required
-def process_real_group_project_ac(request, ac_id, decision):
-    ac_processor = ProcessRealGroupProjectAC(request, ac_id, decision)
-    ac_processor.handle()
-
-    return HttpResponse('OK')
-
 
 # for test, showing all models
 def models_page(request):

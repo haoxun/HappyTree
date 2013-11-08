@@ -141,6 +141,7 @@ INSTALLED_APPS = (
     'real_group',
     'project',
     'message',
+    'notification',
 
 )
 
