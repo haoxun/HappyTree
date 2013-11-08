@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
+from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from django.core.servers.basehttp import FileWrapper
 from django.utils.http import urlencode
@@ -34,6 +35,7 @@ from django.views.decorators.http import require_GET
 from django.template.loader import render_to_string
 from file_storage.utils import gen_MD5_of_UploadedFile
 # python library
+import json
 from datetime import datetime
 import os
 import mimetypes
@@ -135,7 +137,13 @@ class MessageBasic(View):
                 unique_file=unique_file,
                 message=message,
             )
-            return HttpResponse("OK")
+
+            keywords = {'file_pointer_id': file_pointer.id}
+            json_data = json.dumps({
+                'url': reverse('delete_file_pointer_from_message',
+                               kwargs=keywords)
+            })
+            return HttpResponse(json_data, content_type='application/json')
         else:
             return HttpResponse("NOT OK")
 

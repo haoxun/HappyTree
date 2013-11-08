@@ -45,7 +45,6 @@ var widget_action = function(common_ancestor, hide) {
 			'uploaded_file': null
 		},
 		add: function(e, data) {
-			console.log(data);
 			upload_div = $('<div class="uploading"></div>')
 				.append('<div class="uploading_file_name">' + data.files[0].name + '</div>')
 				.append('<div class="progress"><div class="bar"></div></div>')
@@ -68,7 +67,13 @@ var widget_action = function(common_ancestor, hide) {
 			data.context.fadeOut('fast', function() {
 				data.context.remove();
 			});
-			load_file_list(common_ancestor);
+			// add file_dom to file list
+			var uploaded_file_dom = $('<p class="remove">' + data.files[0].name + '</p>')
+				.append('[<a href="' + data.result.url + '?next=' + data.url + '">remove</a>]');
+			set_remove(common_ancestor, uploaded_file_dom);
+			uploaded_file_dom.hide();
+			common_ancestor.find('div.file_list').append(uploaded_file_dom);
+			uploaded_file_dom.fadeIn('fast');
 		},
 		fail: function(e, data) {
 			data.context.fadeOut('fast', function() {
