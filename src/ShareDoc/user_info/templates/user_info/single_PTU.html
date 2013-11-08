@@ -1,5 +1,12 @@
+{% if ac.action_status == "WAIT" %}
 <p>
 project {{ac.project.name}}'s manager invite you to attend attend the project
 <a href="{% url 'process_user_project_ac' ac_id=ac.id decision="ACCEPT" %}">Accept</a>
 <a href="{% url 'process_user_project_ac' ac_id=ac.id decision="DENY" %}">Deny</a>
 </p>
+{% else %}
+<p>
+Process of adding {{ac.user_info.user.username}} to {{ac.project.name}} is {{ac.action_status}}.
+<a href="{% url 'process_user_project_ac' ac_id=ac.id decision="FINISH" %}">OK</a>
+</p>
+{% endif %}

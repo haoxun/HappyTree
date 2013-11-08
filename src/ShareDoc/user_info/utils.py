@@ -1,10 +1,115 @@
 from __future__ import unicode_literals
-# model
+from guardian.models import User
+from guardian.models import Group
+from user_info.models import UserInfo
+from real_group.models import RealGroup 
+from real_group.models import UserInfo_RealGroup_AC
+from real_group.models import BasicAC
+from project.models import UserInfo_Project_AC 
+from project.models import RealGroup_Project_AC
 from guardian.shortcuts import get_objects_for_user
+from guardian.shortcuts import assign_perm
+from guardian.shortcuts import remove_perm
 from django.template.loader import render_to_string
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
+from guardian.shortcuts import get_users_with_perms
 
-class NotificationCenter(object):
-    
+class BasicACProcessor(object):
+    def _judge_perm(self):
+        if self.ac.action_status == BasicAC.STATUS_FINISH:
+            raise PermissionDenied
+        elif self.ac.action_status != BasicAC.STATUS_WAIT\
+                and self.decision != 'FINISH':
+            raise PermissionDenied
+
+    def _finish_handler(self):
+        # if it's the last user
+        if len(get_users_with_perms(self.ac)) == 1:
+            self.ac.action_status = BasicAC.STATUS_FINISH
+            self.ac.save()
+        self._remove_perm(self.request.user)
+
+    def _handler_factory(self):
+        if self.decision == 'ACCEPT':
+            return self._accept_handler
+        elif self.decision == 'DENY':
+            return self._deny_handler
+        elif self.decision == 'FINISH':
+            return self._finish_handler
+
+    def handle(self):
+        handler = self._handler_factory()
+        handler()
+
+
+class ProcessUserProjectAC(BasicACProcessor):
+    def __init__(self, request, ac_id, decision):
+        self.user_project_ac = get_object_or_404(
+            UserInfo_Project_AC,
+            id=int(ac_id)
+        )
+        self.decision = decision
+        self.request = request
+        self._judge_perm()
+
+    def _assign_perm(self, user):
+        assign_perm(
+            'project.process_user_project_ac',
+            user,
+            self.ac,
+        )
+
+    def _remove_perm(self, user):
+        remove_perm(
+            'project.process_user_project_ac',
+            user,
+            self.ac,
+        )
+
+    def _set_ac_process_perm(self):
+        project = self.ac.project
+        # assign perm to project's manager
+        for user in get_users_with_perms(project):
+            if user.has_perm('project_management', project):
+                self._assign_perm(user)
+        # assign perm to related user
+        self._assign_perm(self.ac.user_info.user)
+
+    def _accept_handler(self):
+        user_info = self.ac.user_info
+        project = self.ac.project
+        project_group = project.project_group
+
+        # add user
+        project_group.group.user_set.add(user_info.user)
+        assign_perm('project_membership', user_info.user, project)
+        # add default permission
+        if project_group.download:
+            assign_perm('project_download', user_info.user, project)
+        if project_group.upload:
+            assign_perm('project_upload', user_info.user, project)
+        if project_group.delete:
+            assign_perm('project_delete', user_info.user, project)
+        self.ac.action_status = BasicAC.STATUS_ACCEPT
+        self.ac.save()
+        # notify all related user
+        self._set_ac_process_perm()
+
+    def _deny_handler(self):
+        self.ac.action_status = BasicAC.STATUS_DENY
+        self.ac.save()
+        # notify all related user
+        self._set_ac_process_perm()
+
+    def _get_user_project_ac(self):
+        return self.user_project_ac
+
+    ac = property(_get_user_project_ac)
+
+
+class ApplyConfirmHandler(object):
+
     def __init__(self, user):
         self.user = user
 
@@ -99,6 +204,18 @@ class NotificationCenter(object):
 
         return notification_tuple
 
+    notification_tuple = property(_get_alive_AC)
+
+
+class NotificationCenter(object):
+    
+    def __init__(self, user):
+        self.user = user
+
+    def _get_notification_tuple(self):
+        ac_tuple = ApplyConfirmHandler(self.user).notification_tuple
+        return ac_tuple
+
     def _get_notification_html(self):
         
         def sort_tuple(notification_tuple):
@@ -112,13 +229,12 @@ class NotificationCenter(object):
         def get_html(notification_tuple):
             return notification_tuple[1]
 
-        notification_tuple = self._get_alive_AC()
+        notification_tuple = self._get_notification_tuple()
         sorted_notification_tuple = sort_tuple(notification_tuple)
 
         return "".join(map(get_html, sorted_notification_tuple))
 
     notification_html = property(_get_notification_html)
-
 
 
 

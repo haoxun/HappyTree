@@ -3,14 +3,13 @@ ShareDoc is the project currently being developed.
 
 
 ShareDoc:
-	.py 2756
-	.js 765
-	.css 1343
-	.html 988
+.py 2899
+.js 801
+.css 1426
+.html 992
 
 
 Currently Working On:
-17. Redesign the notifacation center.
 9. Give notification after someone process a message.
 1. Add style to all page.[50%]
 15. Replace user gravater/name from plain text to link, with changing the preseting style.[50%]
@@ -37,3 +36,4 @@ Finished:
 8. Add condition on posting message, for preventing empty message.[finished]
 3. Create user page, replace the plain user name with the link to its user page.[finished]
 11. Enable modify on posted message.[finished]
+17. Redesign the notifacation center.[finished]

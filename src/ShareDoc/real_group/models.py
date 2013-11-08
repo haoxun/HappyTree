@@ -30,12 +30,17 @@ class RealGroup(models.Model):
         return '[{0}][{1}]'.format(unicode(self.id), self.name)
 
 
-class UserInfo_RealGroup_AC(models.Model):
-    ACTION_UTR = 'UTR'
-    ACTION_RTU = 'RTU'
+class BasicAC(object):
     STATUS_WAIT = 'WAIT'
     STATUS_ACCEPT = 'ACCEPT'
     STATUS_DENY = 'DENY'
+    STATUS_FINISH = 'FINISH'
+
+
+class UserInfo_RealGroup_AC(models.Model, BasicAC):
+    ACTION_UTR = 'UTR'
+    ACTION_RTU = 'RTU'
+
     # relations
     user_info = models.ForeignKey(UserInfo,
                                   related_name="real_groups_ac")

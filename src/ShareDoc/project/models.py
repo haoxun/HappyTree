@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 from django.db import models
 from user_info.models import UserInfo
 from real_group.models import RealGroup
+from real_group.models import BasicAC
 from guardian.models import Group
 
 
@@ -58,12 +59,9 @@ class Project(models.Model):
 # apply/confirm relaions related to UserInfo and RealGroup, both
 # "connected" to Project, are defined in this file.
 # ATB == A apply To B
-class UserInfo_Project_AC(models.Model):
+class UserInfo_Project_AC(models.Model, BasicAC):
     ACTION_UTP = 'UTP'
     ACTION_PTU = 'PTU'
-    STATUS_WAIT = 'WAIT'
-    STATUS_ACCEPT = 'ACCEPT'
-    STATUS_DENY = 'DENY'
     # relations
     user_info = models.ForeignKey(UserInfo,
                                   related_name="projects_ac")
@@ -87,12 +85,9 @@ class UserInfo_Project_AC(models.Model):
         return '{}'.format(self.id)
 
 
-class RealGroup_Project_AC(models.Model):
+class RealGroup_Project_AC(models.Model, BasicAC):
     ACTION_RTP = 'RTP'
     ACTION_PTR = 'PTR'
-    STATUS_WAIT = 'WAIT'
-    STATUS_ACCEPT = 'ACCEPT'
-    STATUS_DENY = 'DENY'
     # relations
     real_group = models.ForeignKey(RealGroup,
                                    related_name="projects_ac")

@@ -29,6 +29,7 @@ from django.utils.decorators import method_decorator
 # util
 from user_info.utils import gen_models_debug_info
 from user_info.utils import NotificationCenter
+from user_info.utils import ProcessUserProjectAC
 from django.template.loader import render_to_string
 # python library
 import operator
@@ -116,34 +117,10 @@ class NotificationPage(View):
 
 @login_required
 def process_user_project_ac(request, ac_id, decision):
-    user_project_ac = get_object_or_404(UserInfo_Project_AC, id=int(ac_id))
-    if user_project_ac.action_status != UserInfo_Project_AC.STATUS_WAIT:
-        raise PermissionDenied
-    user_info = user_project_ac.user_info
-    project = user_project_ac.project
-    project_group = project.project_group
-    if decision == "ACCEPT":
-        # add user
-        project_group.group.user_set.add(user_info.user)
-        assign_perm('project_membership', user_info.user, project)
-        # add default permission
-        if project_group.download:
-            assign_perm('project_download', user_info.user, project)
-        if project_group.upload:
-            assign_perm('project_upload', user_info.user, project)
-        if project_group.delete:
-            assign_perm('project_delete', user_info.user, project)
-        user_project_ac.action_status = UserInfo_Project_AC.STATUS_ACCEPT
-    elif decision == "DENY":
-        user_project_ac.action_status = UserInfo_Project_AC.STATUS_DENY
-    else:
-        raise PermissionDenied
-    user_project_ac.save()
-    for user in get_users_with_perms(project):
-        remove_perm('project.process_user_project_ac',
-                    user,
-                    user_project_ac)
-    return redirect('notification_page')
+    ac_processor = ProcessUserProjectAC(request, ac_id, decision)
+    ac_processor.handle()
+
+    return HttpResponse('OK')
 
 
 @login_required
@@ -171,7 +148,8 @@ def process_user_real_group_ac(request, ac_id, decision):
         remove_perm('real_group.process_user_real_group_ac',
                     user,
                     user_real_group_ac)
-    return redirect('notification_page')
+
+    return HttpResponse('OK')
 
 
 @login_required
@@ -209,7 +187,8 @@ def process_real_group_project_ac(request, ac_id, decision):
         remove_perm('project.process_real_group_project_ac',
                     user,
                     real_group_project_ac)
-    return redirect('notification_page')
+
+    return HttpResponse('OK')
 
 
 # for test, showing all models
