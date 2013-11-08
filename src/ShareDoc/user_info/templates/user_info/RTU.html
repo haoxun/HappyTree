@@ -1,9 +1,0 @@
-<div id="real_group_to_user_ac">
-	{% for ac in real_group_to_user_ac %}
-		<p>
-		group {{ac.real_group.name}}'s manager invite you to attend the group
-		<a href="{% url 'process_user_real_group_ac' ac_id=ac.id decision="ACCEPT" %}">Accept</a>
-		<a href="{% url 'process_user_real_group_ac' ac_id=ac.id decision="DENY" %}">Deny</a>
-		</p>
-	{% endfor %}
-</div>

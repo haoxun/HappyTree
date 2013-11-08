@@ -1,16 +1,14 @@
 from __future__ import unicode_literals
 # model
-from guardian.models import User
-from guardian.models import Group
-from user_info.models import UserInfo
-from real_group.models import RealGroup 
-from real_group.models import UserInfo_RealGroup_AC
-from project.models import UserInfo_Project_AC 
-from project.models import RealGroup_Project_AC
 from guardian.shortcuts import get_objects_for_user
+from django.template.loader import render_to_string
 
-class ApplyConfirmDisplayFactory(object):
-    def _get_alive_AC(self, user):
+class NotificationCenter(object):
+    
+    def __init__(self, user):
+        self.user = user
+
+    def _get_alive_AC(self):
 
         def separate_user_project_ac(ac_list):
             UTP_ac = []
@@ -55,24 +53,24 @@ class ApplyConfirmDisplayFactory(object):
 
         # classify ACs
         user_project_ac = get_objects_for_user(
-            user,
+            self.user,
             'project.process_user_project_ac',
         )
         real_group_project_ac = get_objects_for_user(
-            user,
+            self.user,
             'project.process_real_group_project_ac',
         )
         user_real_group_ac = get_objects_for_user(
-            user,
+            self.user,
             'real_group.process_user_real_group_ac',
         )
         # Sth in which user can make decision
         real_group_set = get_objects_for_user(
-            user,
+            self.user,
             'real_group.real_group_management',
         )
         project_set = get_objects_for_user(
-            user,
+            self.user,
             'project.project_management',
         )
 
@@ -81,6 +79,46 @@ class ApplyConfirmDisplayFactory(object):
         UTR_ac, RTU_ac = separate_user_real_gorup_ac(user_real_group_ac)
 
         # decorate ACs according to its type, state
+        ac_template_mapping = [
+            (UTP_ac, 'user_info/single_UTP.html', 'ac'),
+            (PTU_ac, 'user_info/single_PTU.html', 'ac'),
+            (RTP_ac, 'user_info/single_RTP.html', 'ac'),
+            (PTR_ac, 'user_info/single_PTR.html', 'ac'),
+            (UTR_ac, 'user_info/single_UTR.html', 'ac'),
+            (RTU_ac, 'user_info/single_RTU.html', 'ac'),
+        ]
+        notification_tuple = []
+        for ac_set, template_name, tag_name in ac_template_mapping:
+            for ac in ac_set:            
+                html = render_to_string(template_name,
+                                        {tag_name: ac})        
+                created_time = ac.created_time
+                notification_tuple.append(
+                    (created_time, html),
+                )
+
+        return notification_tuple
+
+    def _get_notification_html(self):
+        
+        def sort_tuple(notification_tuple):
+            sorted_tuple =  sorted(
+                notification_tuple,
+                key=lambda x: x[0],
+                reverse=True
+            )
+            return sorted_tuple
+
+        def get_html(notification_tuple):
+            return notification_tuple[1]
+
+        notification_tuple = self._get_alive_AC()
+        sorted_notification_tuple = sort_tuple(notification_tuple)
+
+        return "".join(map(get_html, sorted_notification_tuple))
+
+    notification_html = property(_get_notification_html)
+
 
 
 

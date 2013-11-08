@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from django.conf.urls import patterns, include, url
 
-from user_info.views import ApplyConfirmPage
+from user_info.views import NotificationPage
 from user_info.views import UserPage 
 
 urlpatterns = patterns('',
@@ -11,8 +11,8 @@ urlpatterns = patterns('',
         name="user_page"),
     # ACs
     url(r'apply_confirm/$', 
-        ApplyConfirmPage.as_view(),
-        name='ac_page'),
+        NotificationPage.as_view(),
+        name='notification_page'),
     url(r'apply_confirm/process/user_project/(?P<ac_id>\d+)/(?P<decision>ACCEPT|DENY)/$',
         'user_info.views.process_user_project_ac', 
         name='process_user_project_ac'),

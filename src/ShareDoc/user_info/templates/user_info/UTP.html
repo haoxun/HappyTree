@@ -1,9 +1,0 @@
-<div id="user_to_project">
-	{% for ac in user_to_project_ac %}
-		<p>
-		{{ac.user_info.user.username}} want to attend your project {{ac.project.name}}
-		<a href="{% url 'process_user_project_ac' ac_id=ac.id decision="ACCEPT" %}">Accept</a>
-		<a href="{% url 'process_user_project_ac' ac_id=ac.id decision="DENY" %}">Deny</a>
-		</p>
-	{% endfor %}
-</div>

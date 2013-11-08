@@ -28,6 +28,7 @@ from project.models import RealGroup_Project_AC
 from django.utils.decorators import method_decorator
 # util
 from user_info.utils import gen_models_debug_info
+from user_info.utils import NotificationCenter
 from django.template.loader import render_to_string
 # python library
 import operator
@@ -99,107 +100,18 @@ def logout_user(request):
     return redirect('login_page')
 
 
-class ApplyConfirmPage(View):
+class NotificationPage(View):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(ApplyConfirmPage, self).dispatch(*args, **kwargs)
+        return super(NotificationPage, self).dispatch(*args, **kwargs)
 
     def get(self, request):
         return render(request,
                       'user_info/ac_list.html')
 
-    # response ac list
     def post(self, request):
-        def sort_ac(ac):
-            return sorted(ac, key=lambda x: x.created_time, reverse=True)
-
-        def separate_user_project_ac(ac_list):
-            UTP_ac = []
-            PTU_ac = []
-            for ac in ac_list:
-                if ac.project in project_set:
-                    UTP_ac.append(ac)
-                else:
-                    PTU_ac.append(ac)
-            return sort_ac(UTP_ac), sort_ac(PTU_ac)
-
-        def separate_real_group_project_ac(ac_list):
-            RTP_ac = []
-            PTR_ac = []
-            for ac in ac_list:
-                if ac.project in project_set:
-                    RTP_ac.append(ac)
-                elif ac.real_group in real_group_set:
-                    PTR_ac.append(ac)
-            return sort_ac(RTP_ac), sort_ac(PTR_ac)
-
-        def separate_user_real_gorup_ac(ac_list):
-            UTR_ac = []
-            RTU_ac = []
-            for ac in ac_list:
-                if ac.real_group in real_group_set:
-                    UTR_ac.append(ac)
-                else:
-                    RTU_ac.append(ac)
-            return sort_ac(UTR_ac), sort_ac(RTU_ac)
-
-        def check_empty(ac_template_mapping, html_ac):
-            empty = True
-            for ac, template_name, tag_name in ac_template_mapping:
-                if len(ac) != 0:
-                    empty = False
-                    break
-            if empty:
-                return render_to_string('user_info/non_ac.html')
-            else:
-                return html_ac
-
-        # non-direction relation
-        user_project_ac = get_objects_for_user(
-            request.user,
-            'project.process_user_project_ac',
-        )
-        real_group_project_ac = get_objects_for_user(
-            request.user,
-            'project.process_real_group_project_ac',
-        )
-        user_real_group_ac = get_objects_for_user(
-            request.user,
-            'real_group.process_user_real_group_ac',
-        )
-        # Sth in which user can make decision
-        real_group_set = get_objects_for_user(
-            request.user,
-            'real_group.real_group_management',
-        )
-        project_set = get_objects_for_user(
-            request.user,
-            'project.project_management',
-        )
-
-        UTP_ac, PTU_ac = separate_user_project_ac(user_project_ac)
-        RTP_ac, PTR_ac = separate_real_group_project_ac(real_group_project_ac)
-        UTR_ac, RTU_ac = separate_user_real_gorup_ac(user_real_group_ac)
-
-        # rendering
-        ac_template_mapping = [
-            (UTP_ac, 'user_info/UTP.html', 'user_to_project_ac'),
-            (PTU_ac, 'user_info/PTU.html', 'project_to_user_ac'),
-            (RTP_ac, 'user_info/RTP.html', 'real_group_to_project_ac'),
-            (PTR_ac, 'user_info/PTR.html', 'project_to_real_group_ac'),
-            (UTR_ac, 'user_info/UTR.html', 'user_to_real_group_ac'),
-            (RTU_ac, 'user_info/RTU.html', 'real_group_to_user_ac'),
-        ]
-
-        html_ac = []
-        for ac, template_name, tag_name in ac_template_mapping:
-            html_ac.append(
-                render_to_string(template_name,
-                                 {tag_name: ac}),
-            )
-        html_ac = check_empty(ac_template_mapping, html_ac)
-
-        return HttpResponse("".join(html_ac))
+        notification_center = NotificationCenter(request.user)
+        return HttpResponse(notification_center.notification_html)
 
 
 @login_required
@@ -231,7 +143,7 @@ def process_user_project_ac(request, ac_id, decision):
         remove_perm('project.process_user_project_ac',
                     user,
                     user_project_ac)
-    return redirect('ac_page')
+    return redirect('notification_page')
 
 
 @login_required
@@ -259,7 +171,7 @@ def process_user_real_group_ac(request, ac_id, decision):
         remove_perm('real_group.process_user_real_group_ac',
                     user,
                     user_real_group_ac)
-    return redirect('ac_page')
+    return redirect('notification_page')
 
 
 @login_required
@@ -297,7 +209,7 @@ def process_real_group_project_ac(request, ac_id, decision):
         remove_perm('project.process_real_group_project_ac',
                     user,
                     real_group_project_ac)
-    return redirect('ac_page')
+    return redirect('notification_page')
 
 
 # for test, showing all models
