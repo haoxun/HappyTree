@@ -1,21 +1,45 @@
 from __future__ import unicode_literals
+# django dependency
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
+# model
 from guardian.models import User
 from guardian.models import Group
 from user_info.models import UserInfo
 from real_group.models import RealGroup 
 from real_group.models import UserInfo_RealGroup_AC
-from real_group.models import BasicAC
 from project.models import UserInfo_Project_AC 
 from project.models import RealGroup_Project_AC
-from guardian.shortcuts import get_objects_for_user
+from real_group.models import BasicAC
+# auth dependency
 from guardian.shortcuts import assign_perm
 from guardian.shortcuts import remove_perm
-from django.template.loader import render_to_string
-from django.core.exceptions import PermissionDenied
-from django.shortcuts import get_object_or_404
 from guardian.shortcuts import get_users_with_perms
+from guardian.shortcuts import get_objects_for_user
+# python library
+from django.template.loader import render_to_string
 
 class BasicACProcessor(object):
+    
+    def __init__(self, request, ac_id, decision):
+        self.decision = decision
+        self.request = request
+        self._judge_perm()
+
+    def _assign_perm(self, user):
+        assign_perm(
+            self.perm,
+            user,
+            self.ac,
+        )
+
+    def _remove_perm(self, user):
+        remove_perm(
+            self.perm,
+            user,
+            self.ac,
+        )
+
     def _judge_perm(self):
         if self.ac.action_status == BasicAC.STATUS_FINISH:
             raise PermissionDenied
@@ -29,6 +53,18 @@ class BasicACProcessor(object):
             self.ac.action_status = BasicAC.STATUS_FINISH
             self.ac.save()
         self._remove_perm(self.request.user)
+
+    def _accept_handler(self):
+        self.ac.action_status = BasicAC.STATUS_ACCEPT
+        self.ac.save()
+        # notify all related user
+        self._set_ac_process_perm()
+
+    def _deny_handler(self):
+        self.ac.action_status = BasicAC.STATUS_DENY
+        self.ac.save()
+        # notify all related user
+        self._set_ac_process_perm()
 
     def _handler_factory(self):
         if self.decision == 'ACCEPT':
@@ -44,28 +80,15 @@ class BasicACProcessor(object):
 
 
 class ProcessUserProjectAC(BasicACProcessor):
+
     def __init__(self, request, ac_id, decision):
         self.user_project_ac = get_object_or_404(
             UserInfo_Project_AC,
             id=int(ac_id)
         )
-        self.decision = decision
-        self.request = request
-        self._judge_perm()
+        self.perm = 'project.process_user_project_ac'
 
-    def _assign_perm(self, user):
-        assign_perm(
-            'project.process_user_project_ac',
-            user,
-            self.ac,
-        )
-
-    def _remove_perm(self, user):
-        remove_perm(
-            'project.process_user_project_ac',
-            user,
-            self.ac,
-        )
+        super(ProcessUserProjectAC, self).__init__(request, ac_id, decision)
 
     def _set_ac_process_perm(self):
         project = self.ac.project
@@ -91,21 +114,110 @@ class ProcessUserProjectAC(BasicACProcessor):
             assign_perm('project_upload', user_info.user, project)
         if project_group.delete:
             assign_perm('project_delete', user_info.user, project)
-        self.ac.action_status = BasicAC.STATUS_ACCEPT
-        self.ac.save()
-        # notify all related user
-        self._set_ac_process_perm()
 
-    def _deny_handler(self):
-        self.ac.action_status = BasicAC.STATUS_DENY
-        self.ac.save()
-        # notify all related user
-        self._set_ac_process_perm()
+        super(ProcessUserProjectAC, self)._accept_handler()
+
 
     def _get_user_project_ac(self):
         return self.user_project_ac
 
     ac = property(_get_user_project_ac)
+
+
+class ProcessUserRealGroupAC(BasicACProcessor):
+
+    def __init__(self, request, ac_id, decision):
+        self.user_real_group_ac = get_object_or_404(
+            UserInfo_RealGroup_AC,
+            id=int(ac_id)
+        )
+        self.perm = 'real_group.process_user_real_group_ac'
+
+        super(ProcessUserRealGroupAC, self).__init__(request, ac_id, decision)
+
+    def _set_ac_process_perm(self):
+        real_group = self.ac.real_group
+        # assign perm to real group's manager
+        for user in get_users_with_perms(real_group):
+            if user.has_perm('group_management', real_group):
+                self._assign_perm(user)
+        # assign perm to related user
+        self._assign_perm(self.ac.user_info.user)
+
+    def _accept_handler(self):
+        real_group = self.ac.real_group
+        user_info = self.ac.user_info
+
+        real_group.group.user_set.add(user_info.user)
+        assign_perm(
+            'real_group_membership',
+            user_info.user,
+            real_group,
+        )
+
+        super(ProcessUserRealGroupAC, self)._accept_handler()
+
+    def _get_user_real_group_ac(self):
+        return self.user_real_group_ac
+
+    ac = property(_get_user_real_group_ac)
+
+
+class ProcessRealGroupProjectAC(BasicACProcessor):
+
+    def __init__(self, request, ac_id, decision):
+        self.real_group_project_ac = get_object_or_404(
+            RealGroup_Project_AC,
+            id=int(ac_id),
+        )
+        self.perm = 'project.process_real_group_project_ac'
+
+        super(ProcessRealGroupProjectAC, self).__init__(
+            request,
+            ac_id,
+            decision
+        )
+
+    def _set_ac_process_perm(self):
+        real_group = self.ac.real_group
+        project = self.ac.project
+        # assign perm to real group's manager
+        for user in get_users_with_perms(real_group):
+            if user.has_perm('group_management', real_group):
+                self._assign_perm(user)
+        # assign perm to project's manager
+        for user in get_users_with_perms(project):
+            if user.has_perm('project_management', project):
+                self._assign_perm(user)
+
+    def _accept_handler(self):
+        real_group = self.ac.real_group
+        project = self.ac.project
+        project_group = project.project_group
+
+        for user in real_group.group.user_set.all():
+            # add user to project
+            project_group.group.user_set.add(user)
+            assign_perm(
+                'project_membership',
+                user,
+                project,
+            )
+            # set default permission
+            if project_group.download:
+                assign_perm('project_download', user, project)
+            if project_group.upload:
+                assign_perm('project_upload', user, project)
+            if project_group.delete:
+                assign_perm('project_delete', user, project)
+        project.real_groups.add(real_group)
+
+        super(ProcessRealGroupProjectAC, self)._accept_handler()
+
+    def _get_real_group_projce_ac(self):
+        return self.real_group_project_ac
+
+    ac = property(_get_real_group_projce_ac)
 
 
 class ApplyConfirmHandler(object):

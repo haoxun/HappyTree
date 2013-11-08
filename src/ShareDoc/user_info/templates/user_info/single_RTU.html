@@ -1,5 +1,12 @@
+{% if ac.action_status == "WAIT" %}
 <p>
 group {{ac.real_group.name}}'s manager invite you to attend the group
 <a href="{% url 'process_user_real_group_ac' ac_id=ac.id decision="ACCEPT" %}">Accept</a>
 <a href="{% url 'process_user_real_group_ac' ac_id=ac.id decision="DENY" %}">Deny</a>
 </p>
+{% else %}
+<p>
+Process of adding {{ac.user_info.user.username}} to {{ac.real_group.name}} is {{ac.action_status}}.
+<a href="{% url 'process_user_real_group_ac' ac_id=ac.id decision="FINISH" %}">OK</a>
+</p>
+{% endif %}

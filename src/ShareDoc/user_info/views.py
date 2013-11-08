@@ -30,7 +30,8 @@ from django.utils.decorators import method_decorator
 from user_info.utils import gen_models_debug_info
 from user_info.utils import NotificationCenter
 from user_info.utils import ProcessUserProjectAC
-from django.template.loader import render_to_string
+from user_info.utils import ProcessUserRealGroupAC
+from user_info.utils import ProcessRealGroupProjectAC
 # python library
 import operator
 import re
@@ -125,68 +126,16 @@ def process_user_project_ac(request, ac_id, decision):
 
 @login_required
 def process_user_real_group_ac(request, ac_id, decision):
-    user_real_group_ac = get_object_or_404(UserInfo_RealGroup_AC,
-                                           id=int(ac_id))
-    if user_real_group_ac.action_status != UserInfo_RealGroup_AC.STATUS_WAIT:
-        raise PermissionDenied
-    user_info = user_real_group_ac.user_info
-    real_group = user_real_group_ac.real_group
-    # add user to real_group
-    if decision == "ACCEPT":
-        real_group.group.user_set.add(user_info.user)
-        assign_perm('real_group_membership',
-                    user_info.user,
-                    real_group)
-        user_real_group_ac.action_status = UserInfo_RealGroup_AC.STATUS_ACCEPT
-    elif decision == "DENY":
-        user_real_group_ac.action_status = UserInfo_RealGroup_AC.STATUS_DENY
-    else:
-        raise PermissionDenied
-    user_real_group_ac.save()
-    # remove permissions
-    for user in get_users_with_perms(real_group):
-        remove_perm('real_group.process_user_real_group_ac',
-                    user,
-                    user_real_group_ac)
+    ac_processor = ProcessUserRealGroupAC(request, ac_id, decision)
+    ac_processor.handle()
 
     return HttpResponse('OK')
 
 
 @login_required
 def process_real_group_project_ac(request, ac_id, decision):
-    real_group_project_ac = get_object_or_404(RealGroup_Project_AC,
-                                              id=int(ac_id))
-    if real_group_project_ac.action_status != RealGroup_Project_AC.STATUS_WAIT:
-        raise PermissionDenied
-    real_group = real_group_project_ac.real_group
-    project = real_group_project_ac.project
-    project_group = project.project_group
-    if decision == "ACCEPT":
-        for user in real_group.group.user_set.all():
-            # add user to project
-            project_group.group.user_set.add(user)
-            assign_perm('project_membership',
-                        user,
-                        project)
-            # set default permission
-            if project_group.download:
-                assign_perm('project_download', user, project)
-            if project_group.upload:
-                assign_perm('project_upload', user, project)
-            if project_group.delete:
-                assign_perm('project_delete', user, project)
-        project.real_groups.add(real_group)
-        real_group_project_ac.action_status = RealGroup_Project_AC.STATUS_ACCEPT
-    elif decision == "DENY":
-        real_group_project_ac.action_status = RealGroup_Project_AC.STATUS_DENY
-    else:
-        raise PermissionDenied
-    real_group_project_ac.save()
-    # remove permissions
-    for user in get_users_with_perms(project):
-        remove_perm('project.process_real_group_project_ac',
-                    user,
-                    real_group_project_ac)
+    ac_processor = ProcessRealGroupProjectAC(request, ac_id, decision)
+    ac_processor.handle()
 
     return HttpResponse('OK')
 

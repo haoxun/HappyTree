@@ -10,7 +10,8 @@ ShareDoc:
 
 
 Currently Working On:
-9. Give notification after someone process a message.
+19. Add notification for project/group removing a user or changing sth.
+20. Allow a projcet manager to remove a group of user from the project.
 1. Add style to all page.[50%]
 15. Replace user gravater/name from plain text to link, with changing the preseting style.[50%]
 
@@ -37,3 +38,4 @@ Finished:
 3. Create user page, replace the plain user name with the link to its user page.[finished]
 11. Enable modify on posted message.[finished]
 17. Redesign the notifacation center.[finished]
+9. Give notification after someone process a message.[finished]
