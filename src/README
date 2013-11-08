@@ -10,8 +10,9 @@ ShareDoc:
 
 
 Currently Working On:
-1. Add style to all page.[50%]
+17. Redesign the notifacation center.
 9. Give notification after someone process a message.
+1. Add style to all page.[50%]
 15. Replace user gravater/name from plain text to link, with changing the preseting style.[50%]
 
 
@@ -22,6 +23,8 @@ To Do List:
 13. Paging on ac search results.
 14. Runtime retriving the messages.
 16. Set link to gravater.com with user gravater in user page.
+17. Adjust message creation widget, prevent reloading file list after successfully uploaded a file.
+18. Add commentation function on posted message.
 
 Shelved:
 2. Replace the transportation machanism from JSON to plain html.[shelved]

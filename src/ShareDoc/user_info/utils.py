@@ -1,4 +1,87 @@
 from __future__ import unicode_literals
+# model
+from guardian.models import User
+from guardian.models import Group
+from user_info.models import UserInfo
+from real_group.models import RealGroup 
+from real_group.models import UserInfo_RealGroup_AC
+from project.models import UserInfo_Project_AC 
+from project.models import RealGroup_Project_AC
+from guardian.shortcuts import get_objects_for_user
+
+class ApplyConfirmDisplayFactory(object):
+    def _get_alive_AC(self, user):
+
+        def separate_user_project_ac(ac_list):
+            UTP_ac = []
+            PTU_ac = []
+            for ac in ac_list:
+                if ac.project in project_set:
+                    UTP_ac.append(ac)
+                else:
+                    PTU_ac.append(ac)
+            return UTP_ac, PTU_ac
+
+        def separate_real_group_project_ac(ac_list):
+            RTP_ac = []
+            PTR_ac = []
+            for ac in ac_list:
+                if ac.project in project_set:
+                    RTP_ac.append(ac)
+                elif ac.real_group in real_group_set:
+                    PTR_ac.append(ac)
+            return RTP_ac, PTR_ac
+
+        def separate_user_real_gorup_ac(ac_list):
+            UTR_ac = []
+            RTU_ac = []
+            for ac in ac_list:
+                if ac.real_group in real_group_set:
+                    UTR_ac.append(ac)
+                else:
+                    RTU_ac.append(ac)
+            return UTR_ac, RTU_ac
+
+        def check_empty(ac_template_mapping, html_ac):
+            empty = True
+            for ac, template_name, tag_name in ac_template_mapping:
+                if len(ac) != 0:
+                    empty = False
+                    break
+            if empty:
+                return render_to_string('user_info/non_ac.html')
+            else:
+                return html_ac
+
+        # classify ACs
+        user_project_ac = get_objects_for_user(
+            user,
+            'project.process_user_project_ac',
+        )
+        real_group_project_ac = get_objects_for_user(
+            user,
+            'project.process_real_group_project_ac',
+        )
+        user_real_group_ac = get_objects_for_user(
+            user,
+            'real_group.process_user_real_group_ac',
+        )
+        # Sth in which user can make decision
+        real_group_set = get_objects_for_user(
+            user,
+            'real_group.real_group_management',
+        )
+        project_set = get_objects_for_user(
+            user,
+            'project.project_management',
+        )
+
+        UTP_ac, PTU_ac = separate_user_project_ac(user_project_ac)
+        RTP_ac, PTR_ac = separate_real_group_project_ac(real_group_project_ac)
+        UTR_ac, RTU_ac = separate_user_real_gorup_ac(user_real_group_ac)
+
+        # decorate ACs according to its type, state
+
 
 
 def gen_models_debug_info(model_set):
