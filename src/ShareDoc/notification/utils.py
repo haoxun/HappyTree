@@ -7,10 +7,10 @@ from guardian.models import User
 from guardian.models import Group
 from user_info.models import UserInfo
 from real_group.models import RealGroup 
-from real_group.models import UserInfo_RealGroup_AC
-from project.models import UserInfo_Project_AC 
-from project.models import RealGroup_Project_AC
-from real_group.models import BasicAC
+from notification.models import BasicAC
+from notification.models import UserInfo_RealGroup_AC
+from notification.models import UserInfo_Project_AC 
+from notification.models import RealGroup_Project_AC
 # auth dependency
 from guardian.shortcuts import assign_perm
 from guardian.shortcuts import remove_perm
@@ -86,7 +86,7 @@ class ProcessUserProjectAC(BasicACProcessor):
             UserInfo_Project_AC,
             id=int(ac_id)
         )
-        self.perm = 'project.process_user_project_ac'
+        self.perm = 'notification.process_user_project_ac'
 
         super(ProcessUserProjectAC, self).__init__(request, ac_id, decision)
 
@@ -131,7 +131,7 @@ class ProcessUserRealGroupAC(BasicACProcessor):
             UserInfo_RealGroup_AC,
             id=int(ac_id)
         )
-        self.perm = 'real_group.process_user_real_group_ac'
+        self.perm = 'notification.process_user_real_group_ac'
 
         super(ProcessUserRealGroupAC, self).__init__(request, ac_id, decision)
 
@@ -170,7 +170,7 @@ class ProcessRealGroupProjectAC(BasicACProcessor):
             RealGroup_Project_AC,
             id=int(ac_id),
         )
-        self.perm = 'project.process_real_group_project_ac'
+        self.perm = 'notification.process_real_group_project_ac'
 
         super(ProcessRealGroupProjectAC, self).__init__(
             request,
@@ -260,15 +260,15 @@ class ApplyConfirmHandler(object):
         # classify ACs
         user_project_ac = get_objects_for_user(
             self.user,
-            'project.process_user_project_ac',
+            'notification.process_user_project_ac',
         )
         real_group_project_ac = get_objects_for_user(
             self.user,
-            'project.process_real_group_project_ac',
+            'notification.process_real_group_project_ac',
         )
         user_real_group_ac = get_objects_for_user(
             self.user,
-            'real_group.process_user_real_group_ac',
+            'notification.process_user_real_group_ac',
         )
         # Sth in which user can make decision
         real_group_set = get_objects_for_user(

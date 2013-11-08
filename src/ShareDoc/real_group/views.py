@@ -19,7 +19,6 @@ from guardian.models import User
 from guardian.models import Group
 from user_info.models import UserInfo
 from real_group.models import RealGroup
-from real_group.models import UserInfo_RealGroup_AC
 # form
 from real_group.forms import GroupNameHandlerForm
 from real_group.forms import GroupDescriptionHandlerForm

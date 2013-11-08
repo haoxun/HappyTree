@@ -9,7 +9,7 @@ from guardian.shortcuts import get_users_with_perms
 # model
 from user_info.models import UserInfo
 from real_group.models import RealGroup
-from real_group.models import UserInfo_RealGroup_AC
+from notification.models import UserInfo_RealGroup_AC
 # form
 # decorator
 # util
@@ -36,7 +36,7 @@ def construct_user_real_group_ac(user_info_id, real_group_id, direction):
         )
         if direction == 'ACTION_RTU':
             assign_perm(
-                'real_group.process_user_real_group_ac',
+                'notification.process_user_real_group_ac',
                 user_info.user,
                 real_group_user_ac,
             )
@@ -44,9 +44,11 @@ def construct_user_real_group_ac(user_info_id, real_group_id, direction):
             real_group_user_set = get_users_with_perms(real_group)
             for user in real_group_user_set:
                 if user.has_perm('real_group_management', real_group):
-                    assign_perm('real_group.process_user_real_group_ac',
-                                user,
-                                real_group_user_ac)
+                    assign_perm(
+                        'notification.process_user_real_group_ac',
+                        user,
+                        real_group_user_ac
+                    )
 
 
 class ApplyConfirmHandler(object):

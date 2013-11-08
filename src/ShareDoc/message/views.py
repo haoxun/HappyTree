@@ -254,7 +254,10 @@ def delete_file_pointer_from_message(request, file_pointer_id):
     unique_file = file_pointer.unique_file
     message = file_pointer.message
     project = message.project
-    if not request.user.has_perm('project_delete', project):
+
+    if message.owner.user.id == request.user.id:
+        pass
+    elif not request.user.has_perm('project_delete', project):
         raise PermissionDenied
 
     reverse_url = request.GET.get('next', None)

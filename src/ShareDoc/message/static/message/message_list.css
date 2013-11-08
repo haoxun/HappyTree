@@ -98,6 +98,9 @@ span.centering_file
 {
 	display:inline-block;
 	text-align:left;
+	padding:0;
+	margin:0;
+	white-space:nowrap;
 }
 
 p.download

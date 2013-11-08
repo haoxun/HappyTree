@@ -20,9 +20,6 @@ from guardian.models import User
 from guardian.models import Group
 from user_info.models import UserInfo
 from real_group.models import RealGroup
-from real_group.models import UserInfo_RealGroup_AC
-from project.models import UserInfo_Project_AC
-from project.models import RealGroup_Project_AC
 from project.models import Project
 from project.models import ProjectGroup
 from message.models import Message
