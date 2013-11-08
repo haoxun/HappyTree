@@ -22,18 +22,18 @@ from guardian.models import User
 from guardian.models import Group
 from project.models import Message
 from project.models import Project
-from file_storage.models import UniqueFile
-from file_storage.models import FilePointer
+from message.models import UniqueFile
+from message.models import FilePointer
 # form
-from file_storage.forms import ProjectChoiceForm
-from file_storage.forms import FileUploadForm
-from file_storage.forms import MessageInfoForm
+from message.forms import ProjectChoiceForm
+from message.forms import FileUploadForm
+from message.forms import MessageInfoForm
 # decorator
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_GET
 # util
 from django.template.loader import render_to_string
-from file_storage.utils import gen_MD5_of_UploadedFile
+from message.utils import gen_MD5_of_UploadedFile
 # python library
 import json
 from datetime import datetime
@@ -71,7 +71,7 @@ class MessageBasic(View):
             'form_post_message': form_post_message,
         }
         return render(request,
-                      'file_storage/message_widget.html',
+                      'message/message_widget.html',
                       render_data_dict)
 
     def _handler_factory(self, request):
@@ -111,7 +111,7 @@ class MessageBasic(View):
             'message': message
         }
         return render(request,
-                      'file_storage/uploaded_file_list.html',
+                      'message/uploaded_file_list.html',
                       render_data_dict)
 
     def _upload_file_handler(self, request, message, *args, **kwargs):

@@ -59,7 +59,7 @@ class HomePage(View):
         )
 
         return render(request,
-                      'file_storage/message_list.html',
+                      'message/message_list.html',
                       {'message_set': message_set})
 
 
@@ -87,7 +87,7 @@ class UserPage(View):
         )
 
         return render(request,
-                      'file_storage/message_list.html',
+                      'message/message_list.html',
                       {'message_set': message_set})
 
     def post(self, request, user_info_id):
@@ -146,7 +146,7 @@ def models_page(request):
     from user_info.models import UserInfo
     from real_group.models import RealGroup, UserInfo_RealGroup_AC
     from project.models import Project, Message, ProjectGroup
-    from file_storage.models import FilePointer, UniqueFile
+    from message.models import FilePointer, UniqueFile
     from project.models import UserInfo_Project_AC, RealGroup_Project_AC
     model_set = [
         User,

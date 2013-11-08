@@ -2,19 +2,19 @@
 
 {% load staticfiles %}
 {% block js %}
-<script src="{% static 'file_storage/jquery.ui.widget.js' %}"></script>
-<script src="{% static 'file_storage/jquery.iframe-transport.js' %}"></script>
-<script src="{% static 'file_storage/jquery.fileupload.js' %}"></script>
+<script src="{% static 'message/jquery.ui.widget.js' %}"></script>
+<script src="{% static 'message/jquery.iframe-transport.js' %}"></script>
+<script src="{% static 'message/jquery.fileupload.js' %}"></script>
 
-<script src="{% static 'file_storage/message_list.js' %}"></script>
-<script src="{% static 'file_storage/message_widget.js' %}"></script>
+<script src="{% static 'message/message_list.js' %}"></script>
+<script src="{% static 'message/message_widget.js' %}"></script>
 <script src="{% static 'user_info/user_page.js' %}"></script>
 {% endblock %}
 
 {% block css %}
 <LINK href="{% static 'user_info/user_page.css' %}" rel="stylesheet" type="text/css">
-<LINK href="{% static 'file_storage/message_widget.css' %}" rel="stylesheet" type="text/css">
-<LINK href="{% static 'file_storage/message_list.css' %}" rel="stylesheet" type="text/css">
+<LINK href="{% static 'message/message_widget.css' %}" rel="stylesheet" type="text/css">
+<LINK href="{% static 'message/message_list.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% load gravatar %}

@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from django import forms
-from file_storage.models import FilePointer
+from message.models import FilePointer
 
 
 class FileUploadForm(forms.Form):

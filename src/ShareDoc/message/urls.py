@@ -1,8 +1,8 @@
 from __future__ import unicode_literals
 from django.conf.urls import patterns, include, url
 
-from file_storage.views import CreateMessage
-from file_storage.views import ModifyMessage
+from message.views import CreateMessage
+from message.views import ModifyMessage
 
 urlpatterns = patterns('',
     # modify message
@@ -15,15 +15,15 @@ urlpatterns = patterns('',
         name='create_message'),
     # delete message
     url(r'^(?P<message_id>\d+)/delete/$', 
-        'file_storage.views.delete_message', 
+        'message.views.delete_message', 
         name='delete_message'),
     # delete file of message
     url(r'^delete_file/(?P<file_pointer_id>\d+)/$', 
-        'file_storage.views.delete_file_pointer_from_message', 
+        'message.views.delete_file_pointer_from_message', 
         name='delete_file_pointer_from_message'),
     # download file
     url(r'^download_file/(?P<file_pointer_id>\d+)/$', 
-        'file_storage.views.download_file', 
+        'message.views.download_file', 
         name='download_file'),
 
 )

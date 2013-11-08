@@ -140,7 +140,7 @@ INSTALLED_APPS = (
     'user_info',
     'real_group',
     'project',
-    'file_storage',
+    'message',
 
 )
 
@@ -187,6 +187,3 @@ ANONYMOUS_USER_ID = -1
 LOGIN_URL = '/login/'
 
 LOGIN_REDIRECT_URL = '/'
-
-
-

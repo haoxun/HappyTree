@@ -74,6 +74,8 @@ var widget_action = function(common_ancestor, hide) {
 			uploaded_file_dom.hide();
 			common_ancestor.find('div.file_list').append(uploaded_file_dom);
 			uploaded_file_dom.fadeIn('fast');
+			
+			control_submit(common_ancestor);
 		},
 		fail: function(e, data) {
 			data.context.fadeOut('fast', function() {

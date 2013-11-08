@@ -12,7 +12,7 @@ urlpatterns = patterns('',
     url(r'^group/', include('real_group.urls')),
     url(r'^user/', include('user_info.urls')),
     url(r'^project/', include('project.urls')),
-    url(r'^message/', include('file_storage.urls')),
+    url(r'^message/', include('message.urls')),
     
 )
 

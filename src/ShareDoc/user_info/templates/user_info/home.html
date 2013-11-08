@@ -3,25 +3,25 @@
 {% load staticfiles %}
 {% block js %}
 {% comment %}
-<script src="{% static 'file_storage/jquery.form.min.js' %}"></script>
-<script src="{% static 'file_storage/md5.js' %}"></script>
-<script src="{% static 'file_storage/hashme.js' %}"></script>
+<script src="{% static 'message/jquery.form.min.js' %}"></script>
+<script src="{% static 'message/md5.js' %}"></script>
+<script src="{% static 'message/hashme.js' %}"></script>
 {% endcomment %}
-<script src="{% static 'file_storage/jquery.ui.widget.js' %}"></script>
-<script src="{% static 'file_storage/jquery.iframe-transport.js' %}"></script>
-<script src="{% static 'file_storage/jquery.fileupload.js' %}"></script>
+<script src="{% static 'message/jquery.ui.widget.js' %}"></script>
+<script src="{% static 'message/jquery.iframe-transport.js' %}"></script>
+<script src="{% static 'message/jquery.fileupload.js' %}"></script>
 
-<script src="{% static 'file_storage/create_message.js' %}"></script>
-<script src="{% static 'file_storage/message_list.js' %}"></script>
-<script src="{% static 'file_storage/message_widget.js' %}"></script>
+<script src="{% static 'message/create_message.js' %}"></script>
+<script src="{% static 'message/message_list.js' %}"></script>
+<script src="{% static 'message/message_widget.js' %}"></script>
 <script src="{% static 'user_info/home.js' %}"></script>
 {% endblock %}
 
 {% load staticfiles %}
 {% block css %}
 <LINK href="{% static 'user_info/home.css' %}" rel="stylesheet" type="text/css">
-<LINK href="{% static 'file_storage/message_widget.css' %}" rel="stylesheet" type="text/css">
-<LINK href="{% static 'file_storage/message_list.css' %}" rel="stylesheet" type="text/css">
+<LINK href="{% static 'message/message_widget.css' %}" rel="stylesheet" type="text/css">
+<LINK href="{% static 'message/message_list.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block content %}

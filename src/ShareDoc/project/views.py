@@ -70,7 +70,7 @@ class ProjectMessagePage(View):
         message_set = project.messages.filter(post_flag=True).order_by('-post_time')
 
         return render(request,
-                      'file_storage/message_list.html',
+                      'message/message_list.html',
                       {'message_set': message_set})
 
 
