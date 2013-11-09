@@ -89,11 +89,6 @@ class UserPage(View):
         return handler(request, user_info)
 
 
-@login_required
-def logout_user(request):
-    logout(request)
-    return redirect('login_page')
-
 # for test, showing all models
 def models_page(request):
     from guardian.models import User, Group

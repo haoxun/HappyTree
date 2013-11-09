@@ -1,22 +1,27 @@
 from __future__ import unicode_literals
 from django.contrib.auth.models import User
 from user_info.models import UserInfo
+import hashlib
+
+user_dict = {
+    ('programmer.zhx@gmail.com', 'peter', '111111'),
+    ('social.zhx@gmail.com', 'john', '111111'),
+    ('academic.zhx@gmail.com', 'kate', '111111'),
+}
+
 # user
-u1 = User.objects.create_user('peter', password='123456')
-u2 = User.objects.create_user('john', password='123456')
-u3 = User.objects.create_user('kate', password='123456')
 
-UserInfo.objects.create(
-    user=u1,
-    email="programmer.zhx@gmail.com"
-) 
-UserInfo.objects.create(
-    user=u2,
-    email="social.zhx@gmail.com"
-) 
-UserInfo.objects.create(
-    user=u3,
-    email="academic.zhx@gmail.com"
-) 
+def hex_md5(s):
+    m = hashlib.md5()
+    m.update(s)
+    return m.hexdigest()
 
-print 'finish building'
+
+for email, name, password in user_dict:
+    username = hex_md5(email)
+    password = hex_md5(password)
+    user = User.objects.create_user(username=username, password=password)
+
+    UserInfo.objects.create(user=user, email=email)
+
+print "finish building"

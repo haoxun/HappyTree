@@ -1,0 +1,28 @@
+{% extends "entrance/base.html" %}
+
+{% load staticfiles %}
+{% block js %}
+<script src="{% static 'message/jquery.form.min.js' %}"></script>
+<script src="{% static 'message/md5.js' %}"></script>
+<script src="{% static 'entrance/login.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div id="login">
+	<form method="post" action="{% url 'login_page' %}">
+		<div id="email">
+			<label>email</label>		
+			{{form.email}}
+		</div>
+		<div id="password">
+			<label>password</label>		
+			{{form.password}}
+		</div>
+		
+		<div>
+			<input type="submit" value="login" />
+			<input type="hidden" name="next" value="{{ next }}" />
+		</div>
+	</form>
+</div>
+{% endblock %}

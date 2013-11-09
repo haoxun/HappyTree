@@ -142,6 +142,7 @@ INSTALLED_APPS = (
     'project',
     'message',
     'notification',
+    'entrance',
 
 )
 
