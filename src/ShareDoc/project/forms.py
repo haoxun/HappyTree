@@ -1,11 +1,13 @@
 from __future__ import unicode_literals
 from django import forms
-from real_group.forms import GroupNameHandlerForm
-from real_group.forms import AddUserInfoForm
+
 from project.models import Project
 from real_group.models import RealGroup
-from guardian.models import User
 from user_info.models import UserInfo
+
+from common.forms import SearchRealGroup
+from common.forms import SearchProject
+from common.forms import SearchUserInfo
 
 
 class ProjectNameHandlerForm(forms.Form):
@@ -33,64 +35,28 @@ class ProjectDescriptionHandlerForm(forms.Form):
         return self.cleaned_data
 
 
-class AddRealGroupForm(GroupNameHandlerForm):
-    def _get_add_real_group_set(self):
-        if hasattr(self, '_add_real_group_set'):
-            return self._add_real_group_set
-        else:
-            return "None"
-
-    add_real_group_set = property(_get_add_real_group_set)
+class PTRForm(SearchRealGroup):
 
     def clean(self):
         if 'PTR_submit' not in self.data:
             raise forms.ValidationError('Not Being Submitted')
-        name = self.cleaned_data.get('name', None)
-        if name is None:
-            return self.cleaned_data
-        self._add_real_group_set = RealGroup.objects.filter(name__icontains=name)
-        return self.cleaned_data
+        
+        return super(PTRForm, self).clean()
 
 
-class AddUserInfoForm(AddUserInfoForm):
+class PTUForm(SearchUserInfo):
+
     def clean(self):
         if 'PTU_submit' not in self.data:
             raise forms.ValidationError('Not Being Submitted')
-        if 'username' not in self.cleaned_data:
-            return self.cleaned_data
-        username = self.cleaned_data['username']
-        self._add_user_info_set = UserInfo.objects.filter(
-            name__icontains=username,
-            user__id__gte=0,
-        )
-        return self.cleaned_data
+
+        return super(PTUForm, self).clean()
 
 
-class ApplyToProjectForm(ProjectNameHandlerForm):
-    def _get_add_project_set(self):
-        if hasattr(self, '_add_project_set'):
-            return self._add_project_set
-        else:
-            return "None"
-
-    add_project_set = property(_get_add_project_set)
+class UTPForm(SearchProject):
 
     def clean(self):
         if 'UTP_submit' not in self.data:
             raise forms.ValidationError('Not Being Submitted')
-        if 'name' not in self.cleaned_data:
-            return self.cleaned_data
-        name = self.cleaned_data['name']
-        self._add_project_set = Project.objects.filter(name__icontains=name)
-        return self.cleaned_data
 
-
-class RealGroupApplyToProjectForm(ApplyToProjectForm):
-    def clean(self):
-        if 'RTP_submit' not in self.data:
-            raise forms.ValidationError('Not Being Submitted')
-        if 'name' not in self.cleaned_data:
-            return self.cleaned_data
-        name = self.cleaned_data['name']
-        self._add_project_set = Project.objects.filter(name__icontains=name)
-        return self.cleaned_data
+        return super(UTPForm, self).clean()

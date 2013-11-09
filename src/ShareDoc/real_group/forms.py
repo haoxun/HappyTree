@@ -1,9 +1,13 @@
 from __future__ import unicode_literals
 from django import forms
-from guardian.models import User
+
 from user_info.models import UserInfo
 from guardian.models import Group
 from real_group.models import RealGroup
+
+from common.forms import SearchRealGroup
+from common.forms import SearchProject
+from common.forms import SearchUserInfo
 
 
 class GroupNameHandlerForm(forms.Form):
@@ -32,49 +36,28 @@ class GroupDescriptionHandlerForm(forms.Form):
         return self.cleaned_data
 
 
-class AddUserInfoForm(forms.Form):
-    username = forms.CharField(required=True)
+class RTPForm(SearchProject):
 
-    def _get_add_user_info_set(self):
-        if hasattr(self, '_add_user_info_set'):
-            return self._add_user_info_set
-        else:
-            return "None"
+    def clean(self):
+        if 'RTP_submit' not in self.data:
+            raise forms.ValidationError('Not Being Submitted')
+        
+        return super(RTPForm, self).clean()
 
-    add_user_info_set = property(_get_add_user_info_set)
+
+class RTUForm(SearchUserInfo):
 
     def clean(self):
         if 'RTU_submit' not in self.data:
             raise forms.ValidationError('Not Being Submitted')
-        if 'username' not in self.cleaned_data:
-            return self.cleaned_data
-        username = self.cleaned_data['username']
-        self._add_user_info_set = UserInfo.objects.filter(
-            name__icontains=username,
-            user__id__gte=0,
-        )
-        return self.cleaned_data
+
+        return super(RTUForm, self).clean()
 
 
-class ApplyToGroupForm(GroupNameHandlerForm):
-    def _get_add_group_set(self):
-        if hasattr(self, '_add_group_set'):
-            return self._add_group_set
-        else:
-            return "None"
-    add_group_set = property(_get_add_group_set)
+class UTRForm(SearchRealGroup):
 
     def clean(self):
         if 'UTR_submit' not in self.data:
             raise forms.ValidationError('Not Being Submitted')
-        # https://github.com/django/django/blob/master/django/forms/forms.py
-        # see _clean_fields
-        # https://github.com/django/django/blob/master/django/forms/fields.py
-        # see clean
-        # if a field valiate some rules,
-        # that value would not be in the cleaned_data
-        if 'name' not in self.cleaned_data:
-            return self.cleaned_data
-        name = self.cleaned_data['name']
-        self._add_group_set = RealGroup.objects.filter(name__icontains=name)
-        return self.cleaned_data
+
+        return super(UTRForm, self).clean()

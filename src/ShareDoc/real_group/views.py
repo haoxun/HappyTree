@@ -22,9 +22,9 @@ from real_group.models import RealGroup
 # form
 from real_group.forms import GroupNameHandlerForm
 from real_group.forms import GroupDescriptionHandlerForm
-from real_group.forms import AddUserInfoForm
-from real_group.forms import ApplyToGroupForm
-from project.forms import RealGroupApplyToProjectForm
+from real_group.forms import RTUForm
+from real_group.forms import UTRForm
+from real_group.forms import RTPForm
 # decorator
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
@@ -107,7 +107,7 @@ class GroupListPage(View, ApplyConfirmHandler):
         return super(GroupListPage, self).dispatch(*args, **kwargs)
 
     def get(self, request):
-        form_apply_to_group = ApplyToGroupForm()
+        form_apply_to_group = UTRForm()
         form_group_name = GroupNameHandlerForm()
         form_group_description = GroupDescriptionHandlerForm()
         real_group_set = get_objects_for_user(
@@ -133,7 +133,7 @@ class GroupListPage(View, ApplyConfirmHandler):
 
     def _add_group_generator(self, form, user_info):
         add_group_set = {}
-        for real_group in form.add_group_set:
+        for real_group in form.real_group_set:
             if user_info.user.has_perm('real_group_membership', real_group):
                 # user already in group
                 continue
@@ -148,7 +148,7 @@ class GroupListPage(View, ApplyConfirmHandler):
     def _user_apply_to_real_group(self, request):
         return self._apply_confirm_handler(request,
                                            request.user.userinfo,
-                                           ApplyToGroupForm,
+                                           UTRForm,
                                            self._add_group_generator)
 
     def _create_group(self, request):
@@ -218,8 +218,8 @@ class GroupManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
         # form
         form_group_name = GroupNameHandlerForm()
         form_group_description = GroupDescriptionHandlerForm()
-        form_add_user = AddUserInfoForm()
-        form_apply_to_project = RealGroupApplyToProjectForm()
+        form_add_user = RTUForm()
+        form_apply_to_project = RTPForm()
         render_data_dict = {
             'form_group_name': form_group_name,
             'form_group_description': form_group_description,
@@ -233,7 +233,7 @@ class GroupManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
 
     def _add_user_generator(self, form_add_user, real_group):
         add_user_info_set = {}
-        for user_info in form_add_user.add_user_info_set:
+        for user_info in form_add_user.user_info_set:
             if user_info.user.has_perm('real_group_membership', real_group):
                 # already in group, not display
                 continue
@@ -247,7 +247,7 @@ class GroupManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
 
     def _add_project_set(self, form_apply_to_project, real_group):
         add_project_set = {}
-        for project in form_apply_to_project.add_project_set:
+        for project in form_apply_to_project.project_set:
             if project.real_groups.filter(id=real_group.id):
                 # real group already in project
                 continue
@@ -310,13 +310,13 @@ class GroupManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
     def _real_group_apply_to_user_handler(self, request, real_group):
         return self._apply_confirm_handler(request,
                                            real_group,
-                                           AddUserInfoForm,
+                                           RTUForm,
                                            self._add_user_generator)
 
     def _real_group_apply_to_project_handler(self, request, real_group):
         return self._apply_confirm_handler(request,
                                            real_group,
-                                           RealGroupApplyToProjectForm,
+                                           RTPForm,
                                            self._add_project_set)
 
     def post(self, request, real_group_id):

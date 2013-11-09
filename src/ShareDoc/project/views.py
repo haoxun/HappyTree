@@ -26,9 +26,9 @@ from message.models import Message
 # form
 from project.forms import ProjectNameHandlerForm
 from project.forms import ProjectDescriptionHandlerForm
-from project.forms import AddUserInfoForm
-from project.forms import AddRealGroupForm
-from project.forms import ApplyToProjectForm
+from project.forms import PTUForm
+from project.forms import PTRForm
+from project.forms import UTPForm
 # decorator
 from django.utils.decorators import method_decorator
 # util
@@ -85,7 +85,7 @@ class ProjectListPage(View, ApplyConfirmHandler):
     def get(self, request):
         project_set = get_objects_for_user(request.user,
                                            'project.project_membership')
-        form_apply_to_project = ApplyToProjectForm()
+        form_apply_to_project = UTPForm()
         form_project_name = ProjectNameHandlerForm()
         form_project_description = ProjectDescriptionHandlerForm()
 
@@ -101,7 +101,7 @@ class ProjectListPage(View, ApplyConfirmHandler):
 
     def _add_project_generator(self, form_add_project, user_info):
         add_project_set = {}
-        for project in form_add_project.add_project_set:
+        for project in form_add_project.project_set:
             if user_info.user.has_perm('project_membership', project):
                 # already in proejct, not display
                 continue
@@ -122,7 +122,7 @@ class ProjectListPage(View, ApplyConfirmHandler):
     def _user_apply_to_project_handler(self, request):
         return self._apply_confirm_handler(request,
                                            request.user.userinfo,
-                                           ApplyToProjectForm,
+                                           UTPForm,
                                            self._add_project_generator)
 
     def _create_project(self, request):
@@ -232,8 +232,8 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
         project = get_object_or_404(Project, id=int(project_id))
         form_project_name = ProjectNameHandlerForm()
         form_project_description = ProjectDescriptionHandlerForm()
-        form_add_user = AddUserInfoForm()
-        form_add_real_group = AddRealGroupForm()
+        form_add_user = PTUForm()
+        form_add_real_group = PTRForm()
 
         render_data_dict = {
             'request': request,
@@ -250,7 +250,7 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
 
     def _add_user_generator(self, form_add_user, project):
         add_user_info_set = {}
-        for user_info in form_add_user.add_user_info_set:
+        for user_info in form_add_user.user_info_set:
             if user_info.user.has_perm('project_management', project):
                 # already in group, not display
                 continue
@@ -264,7 +264,7 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
 
     def _add_real_group_generator(self, form_add_real_group, project):
         add_real_group_set = {}
-        for real_group in form_add_real_group.add_real_group_set:
+        for real_group in form_add_real_group.real_group_set:
             if project.real_groups.filter(id=real_group.id):
                 # real group already in real_group
                 continue
@@ -332,13 +332,13 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
     def _project_apply_to_user_handler(self, request, project):
         return self._apply_confirm_handler(request,
                                            project,
-                                           AddUserInfoForm,
+                                           PTUForm,
                                            self._add_user_generator)
 
     def _project_apply_to_real_group_handler(self, request, project):
         return self._apply_confirm_handler(request,
                                            project,
-                                           AddRealGroupForm,
+                                           PTRForm,
                                            self._add_real_group_generator)
 
     def post(self, request, project_id):
