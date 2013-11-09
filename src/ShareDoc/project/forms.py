@@ -1,10 +1,11 @@
 from __future__ import unicode_literals
 from django import forms
 from real_group.forms import GroupNameHandlerForm
-from real_group.forms import AddUserForm
+from real_group.forms import AddUserInfoForm
 from project.models import Project
 from real_group.models import RealGroup
 from guardian.models import User
+from user_info.models import UserInfo
 
 
 class ProjectNameHandlerForm(forms.Form):
@@ -51,14 +52,17 @@ class AddRealGroupForm(GroupNameHandlerForm):
         return self.cleaned_data
 
 
-class AddUserForm(AddUserForm):
+class AddUserInfoForm(AddUserInfoForm):
     def clean(self):
         if 'PTU_submit' not in self.data:
             raise forms.ValidationError('Not Being Submitted')
         if 'username' not in self.cleaned_data:
             return self.cleaned_data
         username = self.cleaned_data['username']
-        self._add_user_set = User.objects.filter(username__icontains=username)
+        self._add_user_info_set = UserInfo.objects.filter(
+            name__icontains=username,
+            user__id__gte=0,
+        )
         return self.cleaned_data
 
 

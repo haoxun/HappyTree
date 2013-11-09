@@ -22,6 +22,6 @@ for email, name, password in user_dict:
     password = hex_md5(password)
     user = User.objects.create_user(username=username, password=password)
 
-    UserInfo.objects.create(user=user, email=email)
+    UserInfo.objects.create(user=user, name=name, email=email)
 
 print "finish building"

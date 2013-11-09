@@ -22,7 +22,7 @@ from real_group.models import RealGroup
 # form
 from real_group.forms import GroupNameHandlerForm
 from real_group.forms import GroupDescriptionHandlerForm
-from real_group.forms import AddUserForm
+from real_group.forms import AddUserInfoForm
 from real_group.forms import ApplyToGroupForm
 from project.forms import RealGroupApplyToProjectForm
 # decorator
@@ -218,7 +218,7 @@ class GroupManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
         # form
         form_group_name = GroupNameHandlerForm()
         form_group_description = GroupDescriptionHandlerForm()
-        form_add_user = AddUserForm()
+        form_add_user = AddUserInfoForm()
         form_apply_to_project = RealGroupApplyToProjectForm()
         render_data_dict = {
             'form_group_name': form_group_name,
@@ -232,18 +232,18 @@ class GroupManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
                       render_data_dict)
 
     def _add_user_generator(self, form_add_user, real_group):
-        add_user_set = {}
-        for user in form_add_user.add_user_set:
-            if user.has_perm('real_group_membership', real_group):
+        add_user_info_set = {}
+        for user_info in form_add_user.add_user_info_set:
+            if user_info.user.has_perm('real_group_membership', real_group):
                 # already in group, not display
                 continue
             keywords = {'real_group_id': real_group.id,
-                        'user_info_id': user.userinfo.id}
-            add_user_set[user.username] = reverse(
+                        'user_info_id': user_info.id}
+            add_user_info_set[user_info.name] = reverse(
                 'invite_user_to_real_group',
                 kwargs=keywords
             )
-        return add_user_set
+        return add_user_info_set
 
     def _add_project_set(self, form_apply_to_project, real_group):
         add_project_set = {}
@@ -310,7 +310,7 @@ class GroupManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
     def _real_group_apply_to_user_handler(self, request, real_group):
         return self._apply_confirm_handler(request,
                                            real_group,
-                                           AddUserForm,
+                                           AddUserInfoForm,
                                            self._add_user_generator)
 
     def _real_group_apply_to_project_handler(self, request, real_group):

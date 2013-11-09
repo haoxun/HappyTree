@@ -5,7 +5,7 @@
 	{% get_obj_perms user for project as "perms" %}
 	{% if "project_management" not in perms and "project_membership" in perms %}
 	<div class="member">
-		<p>{{user.username}}
+		<p>{{user.userinfo.name}}
 		<a href="{% url 'process_user_role_on_project' project_id=project.id user_info_id=user.userinfo.id decision="True" %}">[设为管理员]</a>
 		<a href="{% url 'delete_user_from_project' project_id=project.id user_info_id=user.userinfo.id %}">[踢出]</a>
 		

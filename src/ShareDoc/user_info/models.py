@@ -5,7 +5,9 @@ from guardian.models import User
 
 class UserInfo(models.Model):
     # field
-    email = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
+    email = models.CharField(unique=True,
+                             max_length=50)
 
     # relationship
     user = models.OneToOneField(User)

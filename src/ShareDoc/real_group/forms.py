@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 from django import forms
 from guardian.models import User
+from user_info.models import UserInfo
 from guardian.models import Group
 from real_group.models import RealGroup
 
@@ -31,16 +32,16 @@ class GroupDescriptionHandlerForm(forms.Form):
         return self.cleaned_data
 
 
-class AddUserForm(forms.Form):
+class AddUserInfoForm(forms.Form):
     username = forms.CharField(required=True)
 
-    def _get_add_user_set(self):
-        if hasattr(self, '_add_user_set'):
-            return self._add_user_set
+    def _get_add_user_info_set(self):
+        if hasattr(self, '_add_user_info_set'):
+            return self._add_user_info_set
         else:
             return "None"
 
-    add_user_set = property(_get_add_user_set)
+    add_user_info_set = property(_get_add_user_info_set)
 
     def clean(self):
         if 'RTU_submit' not in self.data:
@@ -48,8 +49,10 @@ class AddUserForm(forms.Form):
         if 'username' not in self.cleaned_data:
             return self.cleaned_data
         username = self.cleaned_data['username']
-        self._add_user_set = User.objects.filter(username__icontains=username,
-                                                 id__gte=0)
+        self._add_user_info_set = UserInfo.objects.filter(
+            name__icontains=username,
+            user__id__gte=0,
+        )
         return self.cleaned_data
 
 

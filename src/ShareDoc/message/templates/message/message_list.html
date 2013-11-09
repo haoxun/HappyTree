@@ -8,7 +8,7 @@
 			{% gravatar_img_for_email message.owner.email 55 %}
 		</div>
 		<div class="brief_statement">
-			{{message.owner.user.username}}在
+			{{message.owner.name}}在
 			<a href="{% url 'project_message_page' project_id=message.project.id %}">{{message.project.name}}</a>中发布了信息
 		</div>
 	</div>

@@ -43,33 +43,6 @@
 		</div>
 		<div id="member_list">
 		</div>
-
-		{% comment %}
-		<div id="group_manager">
-			<p>Manager List:</p>
-			<ul>
-			{% for user in user_set %}
-				{% get_obj_perms user for real_group as "perms" %}
-				{% if "real_group_management" in perms %}
-					<li>{{user.username}}</li>	
-				{% endif %}
-			{% endfor %}
-			</ul>
-		</div>
-		<div id="group_menber">
-			<p>Member List:</p>
-			<ul>
-			{% for user in user_set%}
-				{% get_obj_perms user for real_group as "perms" %}
-				{% if "real_group_membership" in perms %}
-				{% if "real_group_management" not in perms %}
-					<li>{{user.username}}</li>	
-				{% endif %}
-				{% endif %}
-			{% endfor %}
-			</ul>
-		</div>
-		{% endcomment %}
 	</div>
 </div>
 {% endblock %}
