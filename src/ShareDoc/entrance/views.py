@@ -38,7 +38,6 @@ class Login(View):
             'form': form,
             'next': redirect_to,
         }
-        render_data_dict.update(csrf(request))
         return render(request,
                       'entrance/login.html',
                       render_data_dict)
@@ -53,7 +52,6 @@ class Login(View):
         username = get_object_or_404(UserInfo, email=email).user.username
         user = authenticate(username=username, password=password)
         if user is not None:
-            print "good"
             login(request, user)
             return HttpResponse(redirect_to)
         else:
