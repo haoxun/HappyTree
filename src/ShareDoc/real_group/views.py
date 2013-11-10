@@ -29,21 +29,24 @@ from real_group.forms import RTPForm
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 # util
-from django.template.loader import render_to_string
 from ShareDoc.utils import url_with_querystring
 from ShareDoc.utils import extract_from_GET
 from real_group.utils import construct_user_real_group_ac
 from real_group.utils import ApplyConfirmHandler
 from real_group.utils import BasicInfoHandler
+from real_group.utils import GroupUserHandler
 # python library
 from datetime import datetime
 import json
 
 
-class GroupPage(View):
+class GroupPage(View, GroupUserHandler):
     """
     This class manage the present logic of group page.
     """
+    # for GroupUserHandler setting
+    _display_control = True
+
     @method_decorator(
         permission_required_or_403('real_group_membership',
                                    (RealGroup, 'id', 'real_group_id',)),
@@ -62,32 +65,11 @@ class GroupPage(View):
                       'real_group/group_page.html',
                       render_data_dict)
 
-    def _get_html_response(self, request, real_group, template_name):
-        render_data_dict = {
-            'request': request,
-            'real_group': real_group,
-            'user_set': get_users_with_perms(real_group),
-            'display_control': True,
-        }
-        html = render_to_string(template_name,
-                                render_data_dict)
-        return HttpResponse(html)
-
     def _handler_factory(self, request):
         if 'load_manager_list' in request.POST:
             return self._group_manager_list_handler
         elif 'load_member_list' in request.POST:
             return self._group_member_list_handler
-
-    def _group_manager_list_handler(self, request, real_group):
-        return self._get_html_response(request,
-                                       real_group,
-                                       'real_group/manager_list.html')
-
-    def _group_member_list_handler(self, request, real_group):
-        return self._get_html_response(request,
-                                       real_group,
-                                       'real_group/member_list.html')
 
     def post(self, request, real_group_id):
         real_group = get_object_or_404(RealGroup, id=int(real_group_id))
@@ -203,10 +185,16 @@ class GroupListPage(View, ApplyConfirmHandler):
         return handler(request)
 
 
-class GroupManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
+class GroupManagementPage(View, 
+                          ApplyConfirmHandler, 
+                          BasicInfoHandler, 
+                          GroupUserHandler):
     """
     This class manage the process logic of group management page.
     """
+    # for GroupUserHandler setting
+    _display_control = False
+
     @method_decorator(login_required)
     @method_decorator(permission_required_or_403('real_group_management',
                       (RealGroup, 'id', 'real_group_id',)))
@@ -274,26 +262,6 @@ class GroupManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
             return self._group_member_list_handler
         else:
             raise PermissionDenied
-
-    def _get_html_response(self, request, real_group, template_name):
-        render_data_dict = {
-            'request': request,
-            'real_group': real_group,
-            'user_set': get_users_with_perms(real_group),
-        }
-        html = render_to_string(template_name,
-                                render_data_dict)
-        return HttpResponse(html)
-
-    def _group_manager_list_handler(self, request, real_group):
-        return self._get_html_response(request,
-                                       real_group,
-                                       'real_group/manager_list.html')
-
-    def _group_member_list_handler(self, request, real_group):
-        return self._get_html_response(request,
-                                       real_group,
-                                       'real_group/member_list.html')
 
     def _group_name_handler(self, request, real_group):
         return self._basic_info_handler(request,

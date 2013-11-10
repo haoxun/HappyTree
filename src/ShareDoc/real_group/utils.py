@@ -13,6 +13,7 @@ from notification.models import UserInfo_RealGroup_AC
 # form
 # decorator
 # util
+from django.template.loader import render_to_string
 import json
 # python library
 
@@ -100,3 +101,27 @@ class BasicInfoHandler(object):
                 'data': error_dict,
             })
             return HttpResponse(json_data, content_type='application/json')
+
+
+class GroupUserHandler(object):
+
+    def _get_html_response(self, request, real_group, template_name):
+        render_data_dict = {
+            'request': request,
+            'real_group': real_group,
+            'user_set': get_users_with_perms(real_group),
+            'display_control': getattr(self, '_display_control'),
+        }
+        html = render_to_string(template_name,
+                                render_data_dict)
+        return HttpResponse(html)
+
+    def _group_manager_list_handler(self, request, real_group):
+        return self._get_html_response(request,
+                                       real_group,
+                                       'real_group/manager_list.html')
+
+    def _group_member_list_handler(self, request, real_group):
+        return self._get_html_response(request,
+                                       real_group,
+                                       'real_group/member_list.html')
