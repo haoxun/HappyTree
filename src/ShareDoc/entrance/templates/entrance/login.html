@@ -10,6 +10,7 @@
 {% block content %}
 <div id="login">
 	<form method="post" action="{% url 'login_page' %}">
+		{% csrf_token %}
 		<div id="email">
 			<label>email</label>		
 			{{form.email}}

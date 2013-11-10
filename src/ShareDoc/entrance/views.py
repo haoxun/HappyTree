@@ -7,6 +7,7 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
+from django.core.context_processors import csrf
 # auth dependency
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import REDIRECT_FIELD_NAME
@@ -37,6 +38,7 @@ class Login(View):
             'form': form,
             'next': redirect_to,
         }
+        render_data_dict.update(csrf(request))
         return render(request,
                       'entrance/login.html',
                       render_data_dict)

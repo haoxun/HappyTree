@@ -16,6 +16,8 @@ Currently Working On:
 
 
 To Do List:
+# In BasicInfoHandler, It's not necessary to return the sucessfully modified message. Fix it.
+# refactor _get_html_response, _group_manager_list_handler, _group_member_list_handler of GroupPage and GroupManagementPage.
 # Paging on messages.
 # Paging on ac search results.
 # Runtime retriving the messages.
