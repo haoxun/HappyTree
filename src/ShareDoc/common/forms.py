@@ -45,4 +45,4 @@ class SearchUserInfo(BasicSearch):
 
     def _get_user_info_set(self):
         return super(SearchUserInfo, self)._get_target_set()
-    user_info_ser = property(_get_user_info_set)
+    user_info_set = property(_get_user_info_set)

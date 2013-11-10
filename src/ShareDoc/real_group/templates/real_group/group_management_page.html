@@ -100,8 +100,8 @@
 				<form method="post" action={% url 'group_management_page' real_group_id=real_group.id %}>
 					<p class="error"></p>
 					<div class="search_div">
-						{{form_add_user.username.errors}}
-						{{form_add_user.username}}
+						{{form_add_user.name.errors}}
+						{{form_add_user.name}}
 						<input type="submit" name="RTU_submit" value="搜索"/>
 						<input type="button" value="取消"/>
 					</div>
