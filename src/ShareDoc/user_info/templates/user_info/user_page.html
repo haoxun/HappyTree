@@ -25,7 +25,8 @@
 	<div id="left_not_empty">
 			<div id="user_info">
 				<div id="img_container">
-					{% gravatar_img_for_email user_info.email 160 %}
+					<a href="http://gravatar.com/emails/">{% gravatar_img_for_email user_info.email 160 %}</a>
+					<span>去gravatar.com设置头像</span>
 				</div>
 				<div id="info_container">
 					<div id="user_name" class="info">

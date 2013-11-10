@@ -38,6 +38,24 @@
 	width:30%;
 }
 
+#img_container span
+{
+	display:none;
+}
+
+#img_container:hover span
+{
+	display:block;
+	position:absolute;
+	white-space:nowrap;
+	bottom:2%;
+	background:#DDDDED;
+	font-size:0.9vw;
+	width:100%;
+	text-align:center;
+	border-radius:7px;
+}
+
 #info_container
 {
 	padding:0;
