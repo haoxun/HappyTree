@@ -23,28 +23,33 @@ from real_group.models import RealGroup
 from real_group.forms import GroupNameHandlerForm
 from real_group.forms import GroupDescriptionHandlerForm
 from real_group.forms import RTUForm
-from real_group.forms import UTRForm
 from real_group.forms import RTPForm
+from real_group.forms import UTRForm
 # decorator
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 # util
-from ShareDoc.utils import url_with_querystring
-from ShareDoc.utils import extract_from_GET
 from real_group.utils import construct_user_real_group_ac
 from real_group.utils import delete_user_from_group
 from real_group.utils import ApplyConfirmHandler
 from real_group.utils import BasicInfoHandler
-from real_group.utils import GroupUserHandler
+from real_group.utils import POSTHandler
+from real_group.utils import AJAX_GroupPageHandler
+from real_group.utils import AJAX_GroupListPageHandler
+from real_group.utils import NOTAJAX_GroupListPageHandler
+from real_group.utils import AJAX_GroupManagementPageHandler
 # python library
 from datetime import datetime
 import json
 
 
-class GroupPage(View, GroupUserHandler):
+class GroupPage(AJAX_GroupPageHandler, POSTHandler):
     """
     This class manage the present logic of group page.
     """
+    def __init__(self, *args, **kwargs):
+        super(GroupPage, self).__init__(*args, **kwargs)
+
     # for GroupUserHandler setting
     _display_control = True
 
@@ -66,19 +71,14 @@ class GroupPage(View, GroupUserHandler):
                       'real_group/group_page.html',
                       render_data_dict)
 
-    def _handler_factory(self, request):
-        if 'load_manager_list' in request.POST:
-            return self._group_manager_list_handler
-        elif 'load_member_list' in request.POST:
-            return self._group_member_list_handler
-
     def post(self, request, real_group_id):
         real_group = get_object_or_404(RealGroup, id=int(real_group_id))
-        handler = self._handler_factory(request)
-        return handler(request, real_group)
+        return self._handler(request, real_group)
 
 
-class GroupListPage(View, ApplyConfirmHandler):
+class GroupListPage(NOTAJAX_GroupListPageHandler,
+                    AJAX_GroupListPageHandler,
+                    POSTHandler):
     """
     This class manage the process logic of presenting groups, including
     1. links to groups.
@@ -108,88 +108,12 @@ class GroupListPage(View, ApplyConfirmHandler):
                       'real_group/group_list_page.html',
                       render_data_dict)
 
-    def _handler_factory(self, request):
-        if 'UTR_submit' in request.POST:
-            return self._user_apply_to_real_group
-        elif 'create_group_submit' in request.POST:
-            return self._create_group
-
-    def _add_group_generator(self, form, user_info):
-        add_group_set = {}
-        for real_group in form.real_group_set:
-            if user_info.user.has_perm('real_group_membership', real_group):
-                # user already in group
-                continue
-            keywords = {'user_info_id': user_info.id,
-                        'real_group_id': real_group.id}
-            add_group_set[real_group.name] = reverse(
-                'user_apply_to_real_group',
-                kwargs=keywords,
-            )
-        return add_group_set
-
-    def _user_apply_to_real_group(self, request):
-        return self._apply_confirm_handler(request,
-                                           request.user.userinfo,
-                                           UTRForm,
-                                           self._add_group_generator)
-
-    def _create_group(self, request):
-        form_group_name = GroupNameHandlerForm(request.POST)
-        form_group_description = GroupDescriptionHandlerForm(request.POST)
-        if form_group_name.is_valid() and form_group_description.is_valid():
-            # create group
-            name = form_group_name.cleaned_data['name']
-            description = \
-                    form_group_description.cleaned_data['description']
-            # use user name + created time as group name
-            unique_name = (
-                '[real]',
-                request.user.username,
-                unicode(datetime.now()),
-            )
-            unique_name = "".join(unique_name)
-            group = Group.objects.create(name=unique_name)
-            # create related group info to handle group information
-            real_group = RealGroup.objects.create(name=name,
-                                                  description=description,
-                                                  group=group)
-            # set group's management permission to user
-            assign_perm('real_group_ownership', request.user, real_group)
-            assign_perm('real_group_management', request.user, real_group)
-            assign_perm('real_group_membership', request.user, real_group)
-            # relate user to group
-            group.user_set.add(request.user)
-            # response json data.
-            keywords = {'real_group_id': real_group.id}
-            json_data = json.dumps({
-                'error': False,
-                'url': reverse('group_page',
-                               kwargs=keywords),
-            })
-            return HttpResponse(json_data, content_type='application/json')
-        else:
-            error_dict = dict(form_group_name.errors)
-            error_dict.update(form_group_description.errors)
-            error_list = []
-            for key, value in error_dict.items():
-                error_dict[key] = "; ".join(value)
-                error_list.append(key + ":" + error_dict[key])
-            json_data = json.dumps({
-                'error': "; ".join(error_list),
-                'url': None,
-            })
-            return HttpResponse(json_data, content_type='application/json')
-
     def post(self, request):
-        handler = self._handler_factory(request)
-        return handler(request)
+        return self._handler(request)
 
 
-class BasicGroupManagementPage(View, 
-                               ApplyConfirmHandler, 
-                               BasicInfoHandler, 
-                               GroupUserHandler):
+class BasicGroupManagementPage(AJAX_GroupManagementPageHandler, 
+                               POSTHandler):
     """
     This class manage the process logic of group management page.
     """
@@ -213,62 +137,9 @@ class BasicGroupManagementPage(View,
                       'real_group/group_management_page.html',
                       render_data_dict)
 
-    def _add_user_generator(self, form_add_user, real_group):
-        add_user_info_set = {}
-        for user_info in form_add_user.user_info_set:
-            if user_info.user.has_perm('real_group_membership', real_group):
-                # already in group, not display
-                continue
-            keywords = {'real_group_id': real_group.id,
-                        'user_info_id': user_info.id}
-            add_user_info_set[user_info.name] = reverse(
-                'invite_user_to_real_group',
-                kwargs=keywords
-            )
-        return add_user_info_set
-
-    def _add_project_set(self, form_apply_to_project, real_group):
-        add_project_set = {}
-        for project in form_apply_to_project.project_set:
-            if project.real_groups.filter(id=real_group.id):
-                # real group already in project
-                continue
-            keywords = {'real_group_id': real_group.id,
-                        'project_id': project.id}
-            add_project_set[project.name] = reverse(
-                'real_group_apply_to_project',
-                kwargs=keywords
-            )
-        return add_project_set
-
-    def _group_name_handler(self, request, real_group):
-        return self._basic_info_handler(request,
-                                        real_group,
-                                        GroupNameHandlerForm,
-                                        'name')
-
-    def _group_description_handler(self, request, real_group):
-        return self._basic_info_handler(request,
-                                        real_group,
-                                        GroupDescriptionHandlerForm,
-                                        'description')
-
-    def _real_group_apply_to_user_handler(self, request, real_group):
-        return self._apply_confirm_handler(request,
-                                           real_group,
-                                           RTUForm,
-                                           self._add_user_generator)
-
-    def _real_group_apply_to_project_handler(self, request, real_group):
-        return self._apply_confirm_handler(request,
-                                           real_group,
-                                           RTPForm,
-                                           self._add_project_set)
-
     def post(self, request, real_group_id):
         real_group = get_object_or_404(RealGroup, id=int(real_group_id))
-        handler = self._handler_factory(request)
-        return handler(request, real_group)
+        return self._handler(request, real_group)
 
 
 class GroupManagementPageOfManager(BasicGroupManagementPage):
@@ -282,22 +153,6 @@ class GroupManagementPageOfManager(BasicGroupManagementPage):
         return super(GroupManagementPageOfManager, self).dispatch(*args,
                                                                   **kwargs)
 
-    def _handler_factory(self, request):
-        if "group_name_submit" in request.POST:
-            return self._group_name_handler
-        elif "group_description_submit" in request.POST:
-            return self._group_description_handler
-        elif "RTU_submit" in request.POST:
-            return self._real_group_apply_to_user_handler
-        elif "RTP_submit" in request.POST:
-            return self._real_group_apply_to_project_handler
-        elif "load_manager_list" in request.POST:
-            return self._group_manager_list_handler
-        elif "load_member_list" in request.POST:
-            return self._group_member_list_handler
-        else:
-            raise PermissionDenied
-
 
 class GroupManagementPageOfMember(BasicGroupManagementPage):
     # for GroupUserHandler setting
@@ -309,22 +164,6 @@ class GroupManagementPageOfMember(BasicGroupManagementPage):
     def dispatch(self, *args, **kwargs):
         return super(GroupManagementPageOfMember, self).dispatch(*args,
                                                                  **kwargs)
-
-    def _handler_factory(self, request):
-        if "group_name_submit" in request.POST:
-            raise PermissionDenied
-        elif "group_description_submit" in request.POST:
-            raise PermissionDenied
-        elif "RTU_submit" in request.POST:
-            raise PermissionDenied
-        elif "RTP_submit" in request.POST:
-            raise PermissionDenied
-        elif "load_manager_list" in request.POST:
-            return self._group_manager_list_handler
-        elif "load_member_list" in request.POST:
-            return self._group_member_list_handler
-        else:
-            raise PermissionDenied
 
 
 @permission_required_or_403('real_group_management',
