@@ -19,7 +19,7 @@ var set_message_list_button = function(common_ancestor, hide) {
 $(function() {
 	$('#message_container').load('.', {'load_message_list': null}, function() {
 		set_widget_trigger(
-			'div.message',
+			'div.user_post_message',
 			'a.posted_message_widget_trigger',
 			'div.display_message, a.posted_message_widget_trigger',
 			set_message_list_button

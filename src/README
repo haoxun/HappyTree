@@ -10,13 +10,12 @@ ShareDoc:
 
 
 Currently Working On:
-# Allow a projcet manager to remove a group of user from the project.
+# Allow a projcet\group manager to remove a group of user\remove a single user\transfer ownership. 
 # Add style to all page.[50%]
 # Replace user gravater/name from plain text to link, with changing the preseting style.[50%]
 
 
 To Do List:
-# In BasicInfoHandler, It's not necessary to return the sucessfully modified message. Fix it.
 # Paging on messages.
 # Paging on ac search results.
 # Runtime retriving the messages.
@@ -27,6 +26,7 @@ Shelved:
 # Create registration page.[shelved]
 # Fix bug on md5 extraction on client side.[shelved]
 # Add notification for project/group removing a user or changing sth.[shelved]
+# In BasicInfoHandler, It's not necessary to return the sucessfully modified message. Fix it.[shelved]
 
 
 Finished:
