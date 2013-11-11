@@ -19,7 +19,9 @@
 			<a href="{% url 'group_page' real_group_id=real_group.id %}">成员</a>
 			{% get_obj_perms request.user for real_group as "perms" %}
 			{% if "real_group_management" in perms %}
-				<a href={% url 'group_management_page' real_group_id=real_group.id %}>管理</a>
+				<a href="{% url 'group_management_page_of_manager' real_group_id=real_group.id %}">管理</a>
+			{% else %}
+				<a href="{% url 'group_management_page_of_member' real_group_id=real_group.id %}">管理</a>
 			{% endif %}
 		</div>
 	</div>

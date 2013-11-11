@@ -8,7 +8,7 @@
 		<p>{{user.userinfo.name}}
 		{% if not display_control %}
 		<a href="{% url 'process_user_permission' real_group_id=real_group.id user_info_id=user.userinfo.id decision='True' %}">[设为管理员]</a> 
-		<a href="{% url 'delete_user_from_group' real_group_id=real_group.id user_info_id=user.userinfo.id %}">[踢出]</a>
+		<a href="{% url 'manager_delete_user_from_group' real_group_id=real_group.id user_info_id=user.userinfo.id %}">[踢出]</a>
 		{% endif %}
 		</p>
 	</div>	

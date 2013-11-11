@@ -197,4 +197,20 @@
 	text-decoration:none;
 }
 
+#quit
+{
+	display: block;
+	margin:20px 5px;
+	padding:1em;
+	background-color:#F6F5FA;
+	border-radius:7px;
+}
 
+#quit a
+{
+	display:block;
+	line-height:30px;
+	min-height:30px;
+	text-align:center;
+	text-decoration:none;
+}

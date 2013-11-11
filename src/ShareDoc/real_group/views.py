@@ -32,6 +32,7 @@ from django.contrib.auth.decorators import login_required
 from ShareDoc.utils import url_with_querystring
 from ShareDoc.utils import extract_from_GET
 from real_group.utils import construct_user_real_group_ac
+from real_group.utils import delete_user_from_group
 from real_group.utils import ApplyConfirmHandler
 from real_group.utils import BasicInfoHandler
 from real_group.utils import GroupUserHandler
@@ -185,21 +186,13 @@ class GroupListPage(View, ApplyConfirmHandler):
         return handler(request)
 
 
-class GroupManagementPage(View, 
-                          ApplyConfirmHandler, 
-                          BasicInfoHandler, 
-                          GroupUserHandler):
+class BasicGroupManagementPage(View, 
+                               ApplyConfirmHandler, 
+                               BasicInfoHandler, 
+                               GroupUserHandler):
     """
     This class manage the process logic of group management page.
     """
-    # for GroupUserHandler setting
-    _display_control = False
-
-    @method_decorator(login_required)
-    @method_decorator(permission_required_or_403('real_group_management',
-                      (RealGroup, 'id', 'real_group_id',)))
-    def dispatch(self, *args, **kwargs):
-        return super(GroupManagementPage, self).dispatch(*args, **kwargs)
 
     def get(self, request, real_group_id):
         real_group = get_object_or_404(RealGroup, id=int(real_group_id))
@@ -214,6 +207,7 @@ class GroupManagementPage(View,
             'form_apply_to_project': form_apply_to_project,
             'form_add_user': form_add_user,
             'real_group': real_group,
+            'is_manager': not getattr(self, '_display_control'),
         }
         return render(request,
                       'real_group/group_management_page.html',
@@ -247,22 +241,6 @@ class GroupManagementPage(View,
             )
         return add_project_set
 
-    def _handler_factory(self, request):
-        if "group_name_submit" in request.POST:
-            return self._group_name_handler
-        elif "group_description_submit" in request.POST:
-            return self._group_description_handler
-        elif "RTU_submit" in request.POST:
-            return self._real_group_apply_to_user_handler
-        elif "RTP_submit" in request.POST:
-            return self._real_group_apply_to_project_handler
-        elif "load_manager_list" in request.POST:
-            return self._group_manager_list_handler
-        elif "load_member_list" in request.POST:
-            return self._group_member_list_handler
-        else:
-            raise PermissionDenied
-
     def _group_name_handler(self, request, real_group):
         return self._basic_info_handler(request,
                                         real_group,
@@ -293,6 +271,62 @@ class GroupManagementPage(View,
         return handler(request, real_group)
 
 
+class GroupManagementPageOfManager(BasicGroupManagementPage):
+    # for GroupUserHandler setting
+    _display_control = False
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required_or_403('real_group_management',
+                      (RealGroup, 'id', 'real_group_id',)))
+    def dispatch(self, *args, **kwargs):
+        return super(GroupManagementPageOfManager, self).dispatch(*args,
+                                                                  **kwargs)
+
+    def _handler_factory(self, request):
+        if "group_name_submit" in request.POST:
+            return self._group_name_handler
+        elif "group_description_submit" in request.POST:
+            return self._group_description_handler
+        elif "RTU_submit" in request.POST:
+            return self._real_group_apply_to_user_handler
+        elif "RTP_submit" in request.POST:
+            return self._real_group_apply_to_project_handler
+        elif "load_manager_list" in request.POST:
+            return self._group_manager_list_handler
+        elif "load_member_list" in request.POST:
+            return self._group_member_list_handler
+        else:
+            raise PermissionDenied
+
+
+class GroupManagementPageOfMember(BasicGroupManagementPage):
+    # for GroupUserHandler setting
+    _display_control = True
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required_or_403('real_group_membership',
+                      (RealGroup, 'id', 'real_group_id',)))
+    def dispatch(self, *args, **kwargs):
+        return super(GroupManagementPageOfMember, self).dispatch(*args,
+                                                                 **kwargs)
+
+    def _handler_factory(self, request):
+        if "group_name_submit" in request.POST:
+            raise PermissionDenied
+        elif "group_description_submit" in request.POST:
+            raise PermissionDenied
+        elif "RTU_submit" in request.POST:
+            raise PermissionDenied
+        elif "RTP_submit" in request.POST:
+            raise PermissionDenied
+        elif "load_manager_list" in request.POST:
+            return self._group_manager_list_handler
+        elif "load_member_list" in request.POST:
+            return self._group_member_list_handler
+        else:
+            raise PermissionDenied
+
+
 @permission_required_or_403('real_group_management',
                             (RealGroup, 'id', 'real_group_id',))
 def invite_user_to_real_group(request, user_info_id, real_group_id):
@@ -308,21 +342,15 @@ def user_apply_to_real_group(request, user_info_id, real_group_id):
 
 @permission_required_or_403('real_group_management',
                             (RealGroup, 'id', 'real_group_id',))
-def delete_user_from_group(request, real_group_id, user_info_id):
-    real_group_id = int(real_group_id)
-    user_info_id = int(user_info_id)
-    # authentication
-    user = get_object_or_404(UserInfo, id=user_info_id).user
-    real_group = get_object_or_404(RealGroup, id=real_group_id)
-    # manager can not be remove from group
-    if user.has_perm('real_group_ownership', real_group) \
-            or user.has_perm('real_group_management', real_group):
-        raise PermissionDenied
-    # delete user
-    real_group.group.user_set.remove(user)
-    remove_perm('real_group_membership', user, real_group)
-    return HttpResponse('OK')
+def manager_delete_user_from_group(request, real_group_id, user_info_id):
+    delete_user_from_group(real_group_id, user_info_id)
+    return redirect('group_list_page')
 
+@permission_required_or_403('real_group_membership',
+                            (RealGroup, 'id', 'real_group_id',))
+def user_quit_from_group(request, real_group_id):
+    delete_user_from_group(real_group_id, request.user.userinfo.id)
+    return redirect('group_list_page')
 
 @permission_required_or_403('real_group_management',
                             (RealGroup, 'id', 'real_group_id',))

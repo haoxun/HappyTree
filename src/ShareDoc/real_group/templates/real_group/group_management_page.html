@@ -2,8 +2,12 @@
 
 {% load staticfiles %}
 {% block js %}
+
+{% if is_manager %}
 <script src="{% static 'management_page.js' %}"></script>
 <script src="{% static 'real_group/group_management.js' %}"></script>
+{% endif %}
+
 {% endblock %}
 
 {% block css %}
@@ -17,11 +21,16 @@
 	<div id="left_empty">
 		<div id=group_navigation>
 			<a href="{% url 'group_page' real_group_id=real_group.id %}">成员</a>
-			<a href="{% url 'group_management_page' real_group_id=real_group.id %}">管理</a>
+			{% if is_manager %}
+				<a href="{% url 'group_management_page_of_manager' real_group_id=real_group.id %}">管理</a>
+			{% else %}
+				<a href="{% url 'group_management_page_of_member' real_group_id=real_group.id %}">管理</a>
+			{% endif %}
 		</div>
 	</div>
 	
 	<div id="left_not_empty">
+		{% if is_manager %}
 		<div>
 			<div class="group_basic_info">
 				<p>群组名称</p>
@@ -31,7 +40,7 @@
 				</div>
 				<div id="modify_group_name">
 					<p class="error"></p>
-					<form method="post" action="{% url 'group_management_page' real_group_id=real_group.id %}">
+					<form method="post" action="{% url 'group_management_page_of_manager' real_group_id=real_group.id %}">
 						<div class="form_div">
 							{{form_group_name.name.errors}}
 							{{form_group_name.name}}
@@ -51,7 +60,7 @@
 				</div>
 				<div id="modify_group_description">
 					<p class="error"></p>
-					<form method="post" action="{% url 'group_management_page' real_group_id=real_group.id %}">
+					<form method="post" action="{% url 'group_management_page_of_manager' real_group_id=real_group.id %}">
 						<div class="form_div">
 							{{form_group_description.description.errors}}
 							{{form_group_description.description}}
@@ -76,7 +85,7 @@
 			</div>
 
 			<div class="apply_confirm">
-				<form method="post" action="{% url 'group_management_page' real_group_id=real_group.id %}">
+				<form method="post" action="{% url 'group_management_page_of_manager' real_group_id=real_group.id %}">
 					<p class="error"></p>
 					<div class="search_div">
 						{{form_apply_to_project.name.errors}}
@@ -91,13 +100,12 @@
 			</div>
 		</div>
 
-
 		<div class="apply_confirm_div">
 			<div class="trigger">
 				<a href="#">邀请用户</a>
 			</div>
 			<div class="apply_confirm">
-				<form method="post" action="{% url 'group_management_page' real_group_id=real_group.id %}">
+				<form method="post" action="{% url 'group_management_page_of_manager' real_group_id=real_group.id %}">
 					<p class="error"></p>
 					<div class="search_div">
 						{{form_add_user.name.errors}}
@@ -110,6 +118,10 @@
 				<div class="search_result">
 				</div>
 			</div>
+		</div>
+		{% endif %}
+		<div id="quit">
+			<a href="{% url 'user_quit_from_group' real_group_id=real_group.id %}">退出群组</a>
 		</div>
 	</div>
 </div>

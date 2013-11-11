@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 # auth dependency
 from guardian.shortcuts import assign_perm
+from guardian.shortcuts import remove_perm
 from guardian.shortcuts import get_users_with_perms
 # model
 from user_info.models import UserInfo
@@ -16,6 +17,18 @@ from notification.models import UserInfo_RealGroup_AC
 from django.template.loader import render_to_string
 import json
 # python library
+
+def delete_user_from_group(real_group_id, user_info_id):
+    # authentication
+    user = get_object_or_404(UserInfo, id=int(user_info_id)).user
+    real_group = get_object_or_404(RealGroup, id=int(real_group_id))
+    # manager can not be remove from group
+    if user.has_perm('real_group_ownership', real_group):
+        raise PermissionDenied
+    # delete user
+    real_group.group.user_set.remove(user)
+    remove_perm('real_group_management', user, real_group)
+    remove_perm('real_group_membership', user, real_group)
 
 
 def construct_user_real_group_ac(user_info_id, real_group_id, direction):
