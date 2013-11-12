@@ -32,7 +32,6 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_GET
 # util
 from django.template.loader import render_to_string
-from message.utils import gen_MD5_of_UploadedFile
 from common.utils import POSTHandler
 from message.utils import AJAX_CreateMessageHandler
 from message.utils import NOTAJAX_CreateMessageHandler

@@ -136,6 +136,8 @@ INSTALLED_APPS = (
     'gravatar',
     # guardian auth
     'guardian',
+    # test page
+    'debug_page',
     # apps
     'user_info',
     'real_group',

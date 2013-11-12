@@ -20,5 +20,5 @@ urlpatterns = patterns('',
 
 if settings.DEBUG:
     urlpatterns += patterns('',
-        url(r'test/$', 'user_info.views.models_page'),
+        url(r'test/$', 'debug_page.views.models_page'),
     )
