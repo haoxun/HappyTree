@@ -100,7 +100,7 @@ var set_widget_trigger = function(common_ancestor_dom, trigger_dom, hide_dom, se
 		var hide = common_ancestor.find(hide_dom);
 		hide.fadeOut('fast');
 		var url = $(this).attr('href');
-		$.get(url, {'load_message': null}, function(data) {
+		$.post(url, {'load_message': null}, function(data) {
 			var widget_loadder = common_ancestor.find('div.widget_loadder');
 			widget_loadder.html(data);
 			widget_action(common_ancestor, hide);
