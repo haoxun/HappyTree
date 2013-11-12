@@ -48,18 +48,22 @@ class MessageBasicHandler(object):
             'form_select_project': form_select_project,
             'form_post_message': form_post_message,
         }
-        return render(request,
-                      'message/message_widget.html',
-                      render_data_dict)
+        return render(
+            request,
+            'message/message_widget.html',
+            render_data_dict,
+        )
 
     def _uploaded_file_list_handler(self, request, message):
         render_data_dict = {
             'request': request,
             'message': message
         }
-        return render(request,
-                      'message/uploaded_file_list.html',
-                      render_data_dict)
+        return render(
+            request,
+            'message/uploaded_file_list.html',
+            render_data_dict,
+        )
 
     def _upload_file_handler(self, request, message):
         uploaded_file = request.FILES.get('uploaded_file', None)
@@ -129,13 +133,11 @@ class AJAX_CreateMessageHandler(MessageBasicHandler):
     def __init__(self, *args, **kwargs):
         super(AJAX_CreateMessageHandler, self).__init__(*args, **kwargs)
 
-        create_message_handler = [
+        self._register_handler([
             ('load_message', self._load_message_handler),
             ('uploaded_file', self._upload_file_handler),
             ('load_file_list', self._uploaded_file_list_handler),
-        ]
-
-        self._register_handler(create_message_handler)
+        ])
 
     def _get_message(self, request):
          # extract current processing message
@@ -169,11 +171,10 @@ class NOTAJAX_CreateMessageHandler(PostMessageHandler):
     
     def __init__(self, *args, **kwargs):
         super(NOTAJAX_CreateMessageHandler, self).__init__(*args, **kwargs)
-        create_message_handler = [
-            ('post_message_submit', self._post_message_handler),
-        ]
 
-        self._register_handler(create_message_handler)
+        self._register_handler([
+            ('post_message_submit', self._post_message_handler),
+        ])
 
 
 class AJAX_ModifyMessageHandler(MessageBasicHandler):
@@ -181,13 +182,11 @@ class AJAX_ModifyMessageHandler(MessageBasicHandler):
     def __init__(self, *args, **kwargs):
         super(AJAX_ModifyMessageHandler, self).__init__(*args, **kwargs)
 
-        create_message_handler = [
+        self._register_handler([
             ('load_message', self._load_message_handler),
             ('uploaded_file', self._upload_file_handler),
             ('load_file_list', self._uploaded_file_list_handler),
-        ]
-
-        self._register_handler(create_message_handler)
+        ])
 
     def _get_message(self, request, message_id):
         message = get_object_or_404(Message, id=int(message_id))
@@ -198,11 +197,10 @@ class NOTAJAX_ModifyMessageHandler(PostMessageHandler):
     
     def __init__(self, *args, **kwargs):
         super(NOTAJAX_ModifyMessageHandler, self).__init__(*args, **kwargs)
-        create_message_handler = [
-            ('post_message_submit', self._post_message_handler),
-        ]
 
-        self._register_handler(create_message_handler)
+        self._register_handler([
+            ('post_message_submit', self._post_message_handler),
+        ])
     
 
 def gen_MD5_of_UploadedFile(file):

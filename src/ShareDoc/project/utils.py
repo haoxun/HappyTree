@@ -39,18 +39,22 @@ class AJAX_ProjectMessagePageHandler(object):
     def __init__(self, *args, **kwargs):
         super(AJAX_ProjectMessagePageHandler, self).__init__(*args, **kwargs)
 
-        project_message_page_handler = [
+        self._register_handler([
             ('load_message_list', self._message_list_handler),
-        ]
+        ])
 
-        self._register_handler(project_message_page_handler)
-    
     def _message_list_handler(self, request, project):
-        message_set = project.messages.filter(post_flag=True).order_by('-post_time')
+        message_set = project.messages.filter(
+            post_flag=True,
+        ).order_by(
+            '-post_time',
+        )
 
-        return render(request,
-                      'message/message_list.html',
-                      {'message_set': message_set})
+        return render(
+            request,
+            'message/message_list.html',
+            {'message_set': message_set},
+        )
 
 
 class AJAX_ProjectListPageHandler(ApplyConfirmHandler):
@@ -58,11 +62,9 @@ class AJAX_ProjectListPageHandler(ApplyConfirmHandler):
     def __init__(self, *args, **kwargs):
         super(AJAX_ProjectListPageHandler, self).__init__(*args, **kwargs)
 
-        project_list_page_handler = [
+        self._register_handler([
             ('UTP_submit', self._user_apply_to_project_handler),
-        ]
-
-        self._register_handler(project_list_page_handler)
+        ])
         
     def _add_project_generator(self, form_add_project, user_info):
         add_project_set = {}
@@ -91,11 +93,9 @@ class NOTAJAX_ProjectListPageHandler(ApplyConfirmHandler):
     def __init__(self, *args, **kwargs):
         super(NOTAJAX_ProjectListPageHandler, self).__init__(*args, **kwargs)
 
-        project_list_page_handler = [
+        self._register_handler([
             ('create_project_submit', self._create_project),
-        ]
-
-        self._register_handler(project_list_page_handler)
+        ])
 
     def _create_project(self, request):
         form_project_name = ProjectNameHandlerForm(request.POST)
@@ -158,25 +158,31 @@ class AJAX_ProjectFileListPageHandler(object):
     def __init__(self, *args, **kwargs):
         super(AJAX_ProjectFileListPageHandler, self).__init__(*args, **kwargs)
 
-        project_file_list_handler = [
+        self._register_handler([
             ('load_file_list', self._project_file_list_handler),
-        ]
-
-        self._register_handler(project_file_list_handler)
+        ])
 
     def _project_file_list_handler(self, request, project):
 
-        message_set = project.messages.filter(post_flag=True).order_by('-post_time')
+        message_set = project.messages.filter(
+            post_flag=True,
+        ).order_by(
+            '-post_time',
+        )
+
         file_pointer_set = []
         for message in message_set:
             file_pointer_set.extend(message.file_pointers.all())
+
         render_data_dict = {
             'project': project,
             'file_pointer_set': file_pointer_set,
         }
-        return render(request,
-                      'project/project_file_list.html',
-                      render_data_dict)
+        return render(
+            request,
+            'project/project_file_list.html',
+            render_data_dict,
+        )
 
 class ProjectUserHandler(object):
 
@@ -191,14 +197,18 @@ class ProjectUserHandler(object):
         return HttpResponse(html)
 
     def _manager_list_handler(self, request, project):
-        return self._get_html_response(request,
-                                       project,
-                                       'project/manager_list.html')
+        return self._get_html_response(
+            request,
+            project,
+            'project/manager_list.html',
+        )
 
     def _member_list_handler(self, request, project):
-        return self._get_html_response(request,
-                                       project,
-                                       'project/member_list.html')
+        return self._get_html_response(
+            request,
+            project,
+            'project/member_list.html',
+        )
 
 
 
@@ -209,7 +219,7 @@ class AJAX_ProjectManagementPageHandler(ProjectUserHandler,
     def __init__(self, *args, **kwargs):
         super(AJAX_ProjectManagementPageHandler, self).__init__(*args, **kwargs)
 
-        project_management_page_handler = [
+        self._register_handler([
             ('load_manager_list', self._manager_list_handler),
             ('load_member_list', self._member_list_handler),
             ('load_default_perm', self._default_perm_handler),
@@ -217,8 +227,7 @@ class AJAX_ProjectManagementPageHandler(ProjectUserHandler,
             ('project_description_submit', self._project_description_handler),
             ('PTR_submit', self._project_apply_to_real_group_handler),
             ('PTU_submit', self._project_apply_to_user_handler),
-        ]
-        self._register_handler(project_management_page_handler)
+        ])
 
     def _add_user_generator(self, form_add_user, project):
         add_user_info_set = {}

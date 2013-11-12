@@ -105,12 +105,10 @@ class AJAX_GroupPageHandler(GroupUserHandler):
     def __init__(self, *args, **kwargs):
         super(AJAX_GroupPageHandler, self).__init__(*args, **kwargs)
 
-        group_page_handler = [
+        self._register_handler([
             ('load_manager_list', self._group_manager_list_handler),
             ('load_member_list', self._group_member_list_handler),
-        ]
-        self._register_handler(group_page_handler)
-
+        ])
 
 
 class AJAX_GroupListPageHandler(ApplyConfirmHandler):
@@ -118,10 +116,9 @@ class AJAX_GroupListPageHandler(ApplyConfirmHandler):
     def __init__(self, *args, **kwargs):
         super(AJAX_GroupListPageHandler, self).__init__(*args, **kwargs)
 
-        group_list_page_handler = [
+        self._register_handler([
             ('UTR_submit', self._user_apply_to_real_group),
-        ]
-        self._register_handler(group_list_page_handler)
+        ])
 
     def _add_group_generator(self, form, user_info):
         add_group_set = {}
@@ -151,10 +148,9 @@ class NOTAJAX_GroupListPageHandler(object):
     def __init__(self, *args, **kwargs):
         super(NOTAJAX_GroupListPageHandler, self).__init__(*args, **kwargs)
 
-        group_list_page_handler = [
+        self._register_handler([
             ('create_group_submit', self._create_group),
-        ]
-        self._register_handler(group_list_page_handler)
+        ])
 
     def _create_group(self, request):
         form_group_name = GroupNameHandlerForm(request.POST)
@@ -211,15 +207,14 @@ class AJAX_GroupManagementPageHandler(ApplyConfirmHandler,
     def __init__(self, *args, **kwargs):
         super(AJAX_GroupManagementPageHandler, self).__init__(*args, **kwargs)
 
-        group_management_page_handler = [
+        self._register_handler([
             ('group_name_submit', self._group_name_handler),
             ('group_description_submit', self._group_description_handler),
             ('RTU_submit', self._real_group_apply_to_user_handler),
             ('RTP_submit', self._real_group_apply_to_project_handler),
             ('load_manager_list', self._group_manager_list_handler),
             ('load_member_list', self._group_member_list_handler),
-        ]
-        self._register_handler(group_management_page_handler)
+        ])
 
     def _add_user_generator(self, form_add_user, real_group):
         add_user_info_set = {}
