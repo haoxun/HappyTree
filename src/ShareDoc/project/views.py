@@ -32,14 +32,15 @@ from project.forms import UTPForm
 # decorator
 from django.utils.decorators import method_decorator
 # util
-from django.template.loader import render_to_string
+from common.utils import POSTHandler
+from project.utils import AJAX_ProjectMessagePageHandler
+from project.utils import AJAX_ProjectListPageHandler
+from project.utils import NOTAJAX_ProjectListPageHandler
+from project.utils import AJAX_ProjectFileListPageHandler
+from project.utils import AJAX_ProjectManagementPageHandler
 from project.utils import construct_user_project_ac
 from project.utils import construct_real_group_project_ac
-from real_group.utils import ApplyConfirmHandler
-from real_group.utils import BasicInfoHandler
 # python library
-from datetime import datetime
-import json
 
 
 project_permissions = []
@@ -47,7 +48,7 @@ for permission, description in Project._meta.permissions:
     project_permissions.append(permission)
 
 
-class ProjectMessagePage(View):
+class ProjectMessagePage(AJAX_ProjectMessagePageHandler, POSTHandler):
     @method_decorator(
         permission_required_or_403('project.project_membership',
                                    (Project, 'id', 'project_id')),
@@ -64,14 +65,12 @@ class ProjectMessagePage(View):
     
     def post(self, request, project_id):
         project = get_object_or_404(Project, id=int(project_id))
-        message_set = project.messages.filter(post_flag=True).order_by('-post_time')
-
-        return render(request,
-                      'message/message_list.html',
-                      {'message_set': message_set})
+        return self._handler(request, project)
 
 
-class ProjectListPage(View, ApplyConfirmHandler):
+class ProjectListPage(AJAX_ProjectListPageHandler,
+                      NOTAJAX_ProjectListPageHandler,
+                      POSTHandler):
     """
     This class handle the process of project list page, including
     1. presenting links to projects.
@@ -99,91 +98,12 @@ class ProjectListPage(View, ApplyConfirmHandler):
                       'project/project_list_page.html',
                       render_data_dict)
 
-    def _add_project_generator(self, form_add_project, user_info):
-        add_project_set = {}
-        for project in form_add_project.project_set:
-            if user_info.user.has_perm('project_membership', project):
-                # already in proejct, not display
-                continue
-            keywords = {'project_id': project.id,
-                        'user_info_id': user_info.id}
-            add_project_set[project.name] = reverse(
-                'user_apply_to_project',
-                kwargs=keywords,
-            )
-        return add_project_set
-
-    def _handler_factory(self, request):
-        if 'UTP_submit' in request.POST:
-            return self._user_apply_to_project_handler
-        if 'create_project_submit' in request.POST:
-            return self._create_project
-
-    def _user_apply_to_project_handler(self, request):
-        return self._apply_confirm_handler(request,
-                                           request.user.userinfo,
-                                           UTPForm,
-                                           self._add_project_generator)
-
-    def _create_project(self, request):
-        form_project_name = ProjectNameHandlerForm(request.POST)
-        form_project_description = ProjectDescriptionHandlerForm(request.POST)
-        if form_project_name.is_valid() \
-                and form_project_description.is_valid():
-            # extract data
-            name = form_project_name.cleaned_data['name']
-            description = form_project_description.cleaned_data['description']
-            # create project
-            unique_name = (
-                '[project]',
-                request.user.username,
-                unicode(datetime.now()),
-            )
-            unique_name = "".join(unique_name)
-
-            group = Group.objects.create(name=unique_name)
-            project_group = ProjectGroup.objects.create(
-                group=group,
-                download=True,
-                upload=False,
-                delete=False,
-            )
-            project = Project.objects.create(
-                name=name,
-                description=description,
-                project_group=project_group,
-            )
-            # asociate with creator
-            group.user_set.add(request.user)
-            for perm in project_permissions:
-                assign_perm(perm, request.user, project)
-             # response json data.
-            keywords = {'project_id': project.id}
-            json_data = json.dumps({
-                'error': False,
-                'url': reverse('project_message_page',
-                               kwargs=keywords),
-            })
-            return HttpResponse(json_data, content_type='application/json')
-        else:
-            error_dict = dict(form_project_name.errors)
-            error_dict.update(form_project_description.errors)
-            error_list = []
-            for key, value in error_dict.items():
-                error_dict[key] = "; ".join(value)
-                error_list.append(key + ":" + error_dict[key])
-            json_data = json.dumps({
-                'error': "; ".join(error_list),
-                'url': None,
-            })
-            return HttpResponse(json_data, content_type='application/json')
-
     def post(self, request):
-        handler = self._handler_factory(request)
-        return handler(request)
+        return self._handler(request)
 
 
-class ProjectFileListPage(View):
+class ProjectFileListPage(AJAX_ProjectFileListPageHandler,
+                          POSTHandler):
     @method_decorator(login_required)
     @method_decorator(
         permission_required_or_403('project.project_membership',
@@ -203,20 +123,11 @@ class ProjectFileListPage(View):
 
     def post(self, request, project_id):
         project = get_object_or_404(Project, id=int(project_id))
-        message_set = project.messages.filter(post_flag=True).order_by('-post_time')
-        file_pointer_set = []
-        for message in message_set:
-            file_pointer_set.extend(message.file_pointers.all())
-        render_data_dict = {
-            'project': project,
-            'file_pointer_set': file_pointer_set,
-        }
-        return render(request,
-                      'project/project_file_list.html',
-                      render_data_dict)
+        return self._handler(request, project)
 
 
-class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
+class ProjectManagementPage(AJAX_ProjectManagementPageHandler,
+                            POSTHandler):
     """
     This class handle the configuration process of project.
     """
@@ -247,99 +158,6 @@ class ProjectManagementPage(View, ApplyConfirmHandler, BasicInfoHandler):
         return render(request,
                       'project/project_management_page.html',
                       render_data_dict)
-
-    def _add_user_generator(self, form_add_user, project):
-        add_user_info_set = {}
-        for user_info in form_add_user.user_info_set:
-            if user_info.user.has_perm('project_management', project):
-                # already in group, not display
-                continue
-            keywords = {'project_id': project.id,
-                        'user_info_id': user_info.id}
-            add_user_info_set[user_info.name] = reverse(
-                'invite_user_to_project',
-                kwargs=keywords,
-            )
-        return add_user_info_set
-
-    def _add_real_group_generator(self, form_add_real_group, project):
-        add_real_group_set = {}
-        for real_group in form_add_real_group.real_group_set:
-            if project.real_groups.filter(id=real_group.id):
-                # real group already in real_group
-                continue
-            keywords = {'project_id': project.id,
-                        'real_group_id': real_group.id}
-            add_real_group_set[real_group.name] = reverse(
-                'invite_real_group_to_project',
-                kwargs=keywords,
-            )
-        return add_real_group_set
-
-    def _handler_factory(self, request):
-        if 'project_name_submit' in request.POST:
-            return self._project_name_handler
-        elif 'project_description_submit' in request.POST:
-            return self._project_description_handler
-        elif 'PTR_submit' in request.POST:
-            return self._project_apply_to_real_group_handler
-        elif 'PTU_submit' in request.POST:
-            return self._project_apply_to_user_handler
-        elif 'load_manager_list' in request.POST:
-            return self._manager_list_handler
-        elif 'load_member_list' in request.POST:
-            return self._member_list_handler
-        elif 'load_default_perm' in request.POST:
-            return self._default_perm_handler
-    
-    def _get_html_response(self, request, project, template_name):
-        render_data_dict = {
-            'request': request,
-            'project': project,
-            'user_set': get_users_with_perms(project),
-        }
-        html = render_to_string(template_name,
-                                render_data_dict)
-        return HttpResponse(html)
-
-    def _manager_list_handler(self, request, project):
-        return self._get_html_response(request,
-                                       project,
-                                       'project/manager_list.html')
-
-    def _member_list_handler(self, request, project):
-        return self._get_html_response(request,
-                                       project,
-                                       'project/member_list.html')
-
-    def _default_perm_handler(self, request, project):
-        return self._get_html_response(request,
-                                       project,
-                                       'project/default_perm.html')
-
-    def _project_name_handler(self, request, project):
-        return self._basic_info_handler(request,
-                                        project,
-                                        ProjectNameHandlerForm,
-                                        'name')
-
-    def _project_description_handler(self, request, project):
-        return self._basic_info_handler(request,
-                                        project,
-                                        ProjectDescriptionHandlerForm,
-                                        'description')
-
-    def _project_apply_to_user_handler(self, request, project):
-        return self._apply_confirm_handler(request,
-                                           project,
-                                           PTUForm,
-                                           self._add_user_generator)
-
-    def _project_apply_to_real_group_handler(self, request, project):
-        return self._apply_confirm_handler(request,
-                                           project,
-                                           PTRForm,
-                                           self._add_real_group_generator)
 
     def post(self, request, project_id):
         project = get_object_or_404(Project, id=int(project_id))

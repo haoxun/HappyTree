@@ -33,7 +33,7 @@ from real_group.utils import construct_user_real_group_ac
 from real_group.utils import delete_user_from_group
 from real_group.utils import ApplyConfirmHandler
 from real_group.utils import BasicInfoHandler
-from real_group.utils import POSTHandler
+from common.utils import POSTHandler
 from real_group.utils import AJAX_GroupPageHandler
 from real_group.utils import AJAX_GroupListPageHandler
 from real_group.utils import NOTAJAX_GroupListPageHandler
