@@ -34,9 +34,7 @@ from django.views.decorators.http import require_GET
 from django.template.loader import render_to_string
 from common.utils import POSTHandler
 from message.utils import AJAX_CreateMessageHandler
-from message.utils import NOTAJAX_CreateMessageHandler
 from message.utils import AJAX_ModifyMessageHandler
-from message.utils import NOTAJAX_ModifyMessageHandler
 # python library
 import json
 from datetime import datetime
@@ -46,7 +44,6 @@ mimetypes.init()
 
 
 class CreateMessage(AJAX_CreateMessageHandler,
-                    NOTAJAX_CreateMessageHandler,
                     POSTHandler):
     """
     This class handles the process of creating message, including
@@ -91,7 +88,6 @@ class CreateMessage(AJAX_CreateMessageHandler,
    
 
 class ModifyMessage(AJAX_ModifyMessageHandler,
-                    NOTAJAX_ModifyMessageHandler,
                     POSTHandler):
     """
     This class handles the process of modification in posted message.

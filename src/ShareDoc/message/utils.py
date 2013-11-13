@@ -122,13 +122,13 @@ class PostMessageHandler(object):
             message.post_flag = True
             message.save()
             remove_perm('message_processing', request.user, message)
-            return redirect('home_page')
+            return HttpResponse('OK')
         else:
             # should return ERROR msg. Will be implemented later.
             raise PermissionDenied
 
 
-class AJAX_CreateMessageHandler(MessageBasicHandler):
+class AJAX_CreateMessageHandler(MessageBasicHandler, PostMessageHandler):
     
     def __init__(self, *args, **kwargs):
         super(AJAX_CreateMessageHandler, self).__init__(*args, **kwargs)
@@ -137,20 +137,11 @@ class AJAX_CreateMessageHandler(MessageBasicHandler):
             ('load_message', self._load_message_handler),
             ('uploaded_file', self._upload_file_handler),
             ('load_file_list', self._uploaded_file_list_handler),
-        ])
-
-
-class NOTAJAX_CreateMessageHandler(PostMessageHandler):
-    
-    def __init__(self, *args, **kwargs):
-        super(NOTAJAX_CreateMessageHandler, self).__init__(*args, **kwargs)
-
-        self._register_handler([
             ('post_message_submit', self._post_message_handler),
         ])
 
 
-class AJAX_ModifyMessageHandler(MessageBasicHandler):
+class AJAX_ModifyMessageHandler(MessageBasicHandler, PostMessageHandler):
     
     def __init__(self, *args, **kwargs):
         super(AJAX_ModifyMessageHandler, self).__init__(*args, **kwargs)
@@ -159,18 +150,9 @@ class AJAX_ModifyMessageHandler(MessageBasicHandler):
             ('load_message', self._load_message_handler),
             ('uploaded_file', self._upload_file_handler),
             ('load_file_list', self._uploaded_file_list_handler),
-        ])
-
-
-class NOTAJAX_ModifyMessageHandler(PostMessageHandler):
-    
-    def __init__(self, *args, **kwargs):
-        super(NOTAJAX_ModifyMessageHandler, self).__init__(*args, **kwargs)
-
-        self._register_handler([
             ('post_message_submit', self._post_message_handler),
         ])
-    
+
 
 def gen_MD5_of_UploadedFile(file):
     m = hashlib.md5()
