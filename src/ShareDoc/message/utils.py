@@ -139,33 +139,6 @@ class AJAX_CreateMessageHandler(MessageBasicHandler):
             ('load_file_list', self._uploaded_file_list_handler),
         ])
 
-    def _get_message(self, request):
-         # extract current processing message
-        message = get_objects_for_user(
-            request.user,
-            'message.message_processing',
-        )
-        if message:
-            message = message[0]
-        else:
-            # if no current processing message, init one.
-            project_set = get_objects_for_user(
-                request.user,
-                'project.project_upload',
-            )
-
-            if len(project_set) == 0:
-                # after finish dev, should give some error message about that,
-                # instead of raising PermissionDenied
-                raise PermissionDenied
-
-            message = Message.objects.create(
-                project=project_set[0],
-                owner=request.user.userinfo
-            )
-            assign_perm('message_processing', request.user, message)
-        return message
-
 
 class NOTAJAX_CreateMessageHandler(PostMessageHandler):
     
@@ -187,10 +160,6 @@ class AJAX_ModifyMessageHandler(MessageBasicHandler):
             ('uploaded_file', self._upload_file_handler),
             ('load_file_list', self._uploaded_file_list_handler),
         ])
-
-    def _get_message(self, request, message_id):
-        message = get_object_or_404(Message, id=int(message_id))
-        return message
 
 
 class NOTAJAX_ModifyMessageHandler(PostMessageHandler):

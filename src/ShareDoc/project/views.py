@@ -49,6 +49,7 @@ for permission, description in Project._meta.permissions:
 
 
 class ProjectMessagePage(AJAX_ProjectMessagePageHandler, POSTHandler):
+    @method_decorator(login_required)
     @method_decorator(
         permission_required_or_403('project.project_membership',
                                    (Project, 'id', 'project_id')),

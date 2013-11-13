@@ -88,7 +88,7 @@ class AJAX_ProjectListPageHandler(ApplyConfirmHandler):
             self._add_project_generator
         )
 
-class NOTAJAX_ProjectListPageHandler(ApplyConfirmHandler):
+class NOTAJAX_ProjectListPageHandler(object):
 
     def __init__(self, *args, **kwargs):
         super(NOTAJAX_ProjectListPageHandler, self).__init__(*args, **kwargs)

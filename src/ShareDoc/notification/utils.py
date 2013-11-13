@@ -220,7 +220,7 @@ class ProcessRealGroupProjectAC(BasicACProcessor):
     ac = property(_get_real_group_projce_ac)
 
 
-class ApplyConfirmHandler(object):
+class ApplyConfirmProcessor(object):
 
     def __init__(self, user):
         self.user = user
@@ -314,7 +314,7 @@ class NotificationCenter(object):
         self.user = user
 
     def _get_notification_tuple(self):
-        ac_tuple = ApplyConfirmHandler(self.user).notification_tuple
+        ac_tuple = ApplyConfirmProcessor(self.user).notification_tuple
         return ac_tuple
 
     def _get_notification_html(self):

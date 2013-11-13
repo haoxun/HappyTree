@@ -58,6 +58,33 @@ class CreateMessage(AJAX_CreateMessageHandler,
     def dispatch(self, request, *args, **kwargs):
         return super(CreateMessage, self).dispatch(request, *args, **kwargs)
 
+    def _get_message(self, request):
+         # extract current processing message
+        message = get_objects_for_user(
+            request.user,
+            'message.message_processing',
+        )
+        if message:
+            message = message[0]
+        else:
+            # if no current processing message, init one.
+            project_set = get_objects_for_user(
+                request.user,
+                'project.project_upload',
+            )
+
+            if len(project_set) == 0:
+                # after finish dev, should give some error message about that,
+                # instead of raising PermissionDenied
+                raise PermissionDenied
+
+            message = Message.objects.create(
+                project=project_set[0],
+                owner=request.user.userinfo
+            )
+            assign_perm('message_processing', request.user, message)
+        return message
+
     def post(self, request):
         message = self._get_message(request)
         return self._handler(request, message)
@@ -79,6 +106,10 @@ class ModifyMessage(AJAX_ModifyMessageHandler,
         if request.user.userinfo.id != message.owner.id:
             raise PermissionDenied
         return super(ModifyMessage, self).dispatch(request, *args, **kwargs)
+
+    def _get_message(self, request, message_id):
+        message = get_object_or_404(Message, id=int(message_id))
+        return message
 
     def post(self, request, message_id):
         message = self._get_message(request, message_id)
