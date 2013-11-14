@@ -10,16 +10,18 @@ ShareDoc:
 
 
 Currently Working On:
+# Let AJAX_ class inherit POSTView.
 # Allow a projcet\group manager to remove a group of user\remove a single user\transfer ownership.[50%] 
 # Add style to all page.[50%]
 # Replace user gravater/name from plain text to link, with changing the preseting style.[50%]
 
 
 To Do List:
+# Add commentation function on posted message.
+# Apply django REST framework to project. 
 # Paging on messages.
 # Paging on ac search results.
 # Runtime retriving the messages.
-# Add commentation function on posted message.
 
 Shelved:
 # Replace the transportation machanism from JSON to plain html.[shelved]
