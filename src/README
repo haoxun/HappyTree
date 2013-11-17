@@ -10,6 +10,7 @@ ShareDoc:
 
 
 Currently Working On:
+# Replace the transportation machanism from JSON to plain html.
 # Let AJAX_ class inherit POSTView.
 # Allow a projcet\group manager to remove a group of user\remove a single user\transfer ownership.[50%] 
 # Add style to all page.[50%]
@@ -24,7 +25,6 @@ To Do List:
 # Runtime retriving the messages.
 
 Shelved:
-# Replace the transportation machanism from JSON to plain html.[shelved]
 # Create registration page.[shelved]
 # Fix bug on md5 extraction on client side.[shelved]
 # Add notification for project/group removing a user or changing sth.[shelved]
