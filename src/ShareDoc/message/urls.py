@@ -1,35 +1,21 @@
 from __future__ import unicode_literals
 from django.conf.urls import patterns, include, url
 
-from message.views import CreateMessage
-from message.views import ModifyMessage
 from message.views import AJAX_MessageWidget
+from message.views import AJAX_SingleFile
+from message.views import AJAX_FileList
 
 urlpatterns = patterns('',
-    # modify message
-    url(r'^modify/(?P<message_id>\d+)/$', 
-        ModifyMessage.as_view(),
-        name='modify_message'),
-    # create message
-    url(r'^create/$', 
-        CreateMessage.as_view(),
-        name='create_message'),
-    # delete message
-    url(r'^(?P<message_id>\d+)/delete/$', 
-        'message.views.delete_message', 
-        name='delete_message'),
-    # delete file of message
-    url(r'^delete_file/(?P<file_pointer_id>\d+)/$', 
-        'message.views.delete_file_pointer_from_message', 
-        name='delete_file_pointer_from_message'),
-    # download file
-    url(r'^download_file/(?P<file_pointer_id>\d+)/$', 
-        'message.views.download_file', 
-        name='download_file'),
     # REST message
-    url(r'^rest/$', 
+    url(r'^$', 
         AJAX_MessageWidget.as_view(),
-        name='ajax_mw'),
-    
-
+        name='message_widget'),
+    # REST file of message
+    url(r'^(?P<message_id>\d+)/file/$', 
+        AJAX_SingleFile.as_view(),
+        name='message_file'),
+    # REST file list
+    url(r'^(?P<message_id>\d+)/file_list/$', 
+        AJAX_FileList.as_view(),
+        name='message_list'),
 )

@@ -18,12 +18,6 @@ class Message(models.Model):
     # ForeignKey
     # file_pointers: pointers to files be in the message
 
-    class Meta:
-        # can be held by poster
-        permissions = (
-            ('message_processing', 'owner of the message has not being post'),
-        )
-
     def __unicode__(self):
         return '{}'.format(self.id)
 

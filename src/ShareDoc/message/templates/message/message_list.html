@@ -15,7 +15,7 @@
 	<div class="message">
 		{% if user.userinfo.id == message.owner.id %}
 		<div class="modify_message">
-			<a class="posted_message_widget_trigger" href="{% url 'modify_message' message_id=message.id %}">[修改]</a>
+			<a class="posted_message_widget_trigger" href="{% url 'message_widget' %}?message_id={{message.id}}">[修改]</a>
 			<div class="widget_loadder">
 			</div>
 		</div>
@@ -37,7 +37,7 @@
 					<p class="download">
 					<span class="file_name">{{file_pointer.name}}</span>
 					{% if 'project_download' in perms %}
-					<a href="{% url 'download_file' file_pointer_id=file_pointer.id%}">[download]</a>
+					<a href="{% url 'message_file' message_id=message.id %}?file_pointer_id={{file_pointer.id}}">[download]</a>
 					{% endif %}
 					</p>
 				{% endfor %}

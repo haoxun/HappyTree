@@ -34,9 +34,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_GET
 # util
 from django.template.loader import render_to_string
-from common.utils import POSTHandler
-from message.utils import AJAX_CreateMessageHandler
-from message.utils import AJAX_ModifyMessageHandler
+from message.utils import gen_MD5_of_UploadedFile
 # python library
 import json
 from datetime import datetime
@@ -46,6 +44,15 @@ mimetypes.init()
 
 
 class AJAX_MessageWidget(APIView):
+
+    def _get_message(self, request):
+        # request method other than GET
+        message_id = request.DATA.get('message_id', None)
+        # GET method
+        message_id = message_id or request.GET.get('message_id', None)
+        if message_id is None:
+            raise PermissionDenied
+        return get_object_or_404(Message, id=int(message_id))
 
     def _get_message_widget(self, request, message):
         project_set = get_objects_for_user(request.user,
@@ -73,21 +80,9 @@ class AJAX_MessageWidget(APIView):
             render_data_dict,
         )
 
-    def _get_message(self, request):
-        # request method other than GET
-        message_id = request.DATA.get('message_id', None)
-        # GET method
-        message_id = message_id or request.GET.get('message_id', None)
-        if message_id is None:
-            raise PermissionDenied
-        return get_object_or_404(Message, id=int(message_id))
-
     def _init_message(self, request):
          # extract current processing message
-        message = get_objects_for_user(
-            request.user,
-            'message.message_processing',
-        )
+        message = request.user.userinfo.messages.filter(post_flag=False)
         if message:
             message = message[0]
         else:
@@ -106,7 +101,6 @@ class AJAX_MessageWidget(APIView):
                 project=project_set[0],
                 owner=request.user.userinfo
             )
-            assign_perm('message_processing', request.user, message)
         return message
 
     def _post_message(self, request, message):
@@ -118,7 +112,6 @@ class AJAX_MessageWidget(APIView):
         """
         project_set = get_objects_for_user(request.user,
                                            'project.project_upload')
-        print request.DATA
         form_select_project = ProjectChoiceForm(project_set, request.DATA)
         form_post_message = MessageInfoForm(request.DATA)
         if form_post_message.is_valid() and form_select_project.is_valid():
@@ -131,7 +124,6 @@ class AJAX_MessageWidget(APIView):
             # set post
             message.post_flag = True
             message.save()
-            remove_perm('message_processing', request.user, message)
             return Response('OK')
         else:
             # should return ERROR msg. Will be implemented later.
@@ -148,8 +140,6 @@ class AJAX_MessageWidget(APIView):
             # I don't know, might not necessary.
             if unique_file.file_pointers.count() == 0:
                 unique_file.delete()
-        # safe
-        remove_perm('message_processing', request.user, message)
         message.delete()
 
     # get message widget
@@ -174,135 +164,121 @@ class AJAX_MessageWidget(APIView):
         return Response('OK')
 
 
-class CreateMessage(AJAX_CreateMessageHandler,
-                    POSTHandler):
-    """
-    This class handles the process of creating message, including
-    1. init a message.
-    2. handle the basic info of the message.
-    3. handle the uploading file.
-    """
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super(CreateMessage, self).dispatch(request, *args, **kwargs)
+class AJAX_SingleFile(APIView):
 
-    def _get_message(self, request):
-         # extract current processing message
-        message = get_objects_for_user(
-            request.user,
-            'message.message_processing',
-        )
-        if message:
-            message = message[0]
+    def _get_file_pointer(self, request):
+        file_pointer_id = request.DATA.get('file_pointer_id', None)
+        file_pointer_id = file_pointer_id\
+            or request.GET.get('file_pointer_id', None)
+        if file_pointer_id is None:
+            raise PermissionDenied
+        return get_object_or_404(FilePointer, id=int(file_pointer_id))
+
+    def _upload_file(self, request, message):
+        uploaded_file = request.FILES.get('uploaded_file', None)
+        if uploaded_file:
+            # get or calculate MD5
+            # https://github.com/marcu87/hashme
+            md5 = request.POST.get('md5', None)
+            if md5 is None:
+                md5 = gen_MD5_of_UploadedFile(uploaded_file)
+            # get unique file
+            unique_file = UniqueFile.objects.filter(md5=md5)
+            if not unique_file:
+                # create unique file
+                unique_file = UniqueFile.objects.create(md5=md5)
+                # save md5 as its filename
+                unique_file.file.save(md5, uploaded_file)
+            else:
+                unique_file = unique_file[0]
+            # gen file pointer
+            file_pointer = FilePointer.objects.create(
+                name=uploaded_file.name,
+                unique_file=unique_file,
+                message=message,
+            )
+
+            keywords = {'file_pointer_id': file_pointer.id}
+            json_data = {
+                'url': "{0}?{1}".format(
+                    reverse('message_file', kwargs={'message_id': message.id}),
+                    urlencode(keywords),
+                )
+            }
+            return Response(json_data)
         else:
-            # if no current processing message, init one.
-            project_set = get_objects_for_user(
-                request.user,
-                'project.project_upload',
-            )
+            return Response("NOT OK")
 
-            if len(project_set) == 0:
-                # after finish dev, should give some error message about that,
-                # instead of raising PermissionDenied
-                raise PermissionDenied
-
-            message = Message.objects.create(
-                project=project_set[0],
-                owner=request.user.userinfo
-            )
-            assign_perm('message_processing', request.user, message)
-        return message
-
-    def post(self, request):
-        message = self._get_message(request)
-        return self._handler(request, message)
-   
-
-class ModifyMessage(AJAX_ModifyMessageHandler,
-                    POSTHandler):
-    """
-    This class handles the process of modification in posted message.
-    """
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        # manually check permission
-        message_id = kwargs.get('message_id', None)
-        if message_id is None:
+    def _download_file(self, request, file_pointer):
+        project = file_pointer.message.project
+        if not request.user.has_perm('project_download', project):
             raise PermissionDenied
-        message = get_object_or_404(Message, id=int(message_id))
-        if request.user.userinfo.id != message.owner.id:
-            raise PermissionDenied
-        return super(ModifyMessage, self).dispatch(request, *args, **kwargs)
-
-    def _get_message(self, request, message_id):
-        message = get_object_or_404(Message, id=int(message_id))
-        return message
-
-    def post(self, request, message_id):
-        message = self._get_message(request, message_id)
-        return self._handler(request, message)
-
-
-@login_required
-def delete_message(request, message_id):
-    message = get_object_or_404(Message, id=int(message_id))
-    if request.user.userinfo != message.owner:
-        raise PermissionDenied
-    for file_pointer in message.file_pointers.all():
         unique_file = file_pointer.unique_file
+        file_wrapper = FileWrapper(unique_file.file)
+        # get content type
+        # http://blog.robotshell.org/2012/deal-with-http-header-encoding-for-file-download/
+        file_name = file_pointer.name
+        # ugly code
+        encode_file_name = urlencode(((file_name, ''),)).rstrip('=')
+    
+        content_type = os.path.splitext(file_name)[-1]
+        content_type = mimetypes.types_map.get(content_type,
+                                               'application/octet-stream')
+        response = HttpResponse(file_wrapper,
+                                content_type=content_type)
+        content_disposition = "attachment; filename={0}; filename*=utf-8''{0}"
+        response['Content-Disposition'] = content_disposition.format(encode_file_name)
+        response['Content-Length'] = unique_file.file.size
+        return response
+
+    def _delete_file(self, request, file_pointer):
+        unique_file = file_pointer.unique_file
+        message = file_pointer.message
+        project = message.project
+    
+        if message.owner.user.id == request.user.id:
+            pass
+        elif not request.user.has_perm('project_delete', project):
+            raise PermissionDenied
+    
+        # delete file pointer
         file_pointer.delete()
+        # smart pointer, still I don't know...
         if unique_file.file_pointers.count() == 0:
             unique_file.delete()
-    remove_perm('message_processing', request.user, message)
-    message.delete()
-    return HttpResponse('OK')
+        return HttpResponse('OK')
+
+    # download file
+    def get(self, request, message_id):
+        message = get_object_or_404(Message, id=int(message_id))
+        file_pointer = self._get_file_pointer(request)
+        return self._download_file(request, file_pointer)
+
+    # upload file
+    def post(self, request, message_id):
+        message = get_object_or_404(Message, id=int(message_id))
+        return self._upload_file(request, message)
+
+    # delete file
+    def delete(self, request, message_id):
+        message = get_object_or_404(Message, id=int(message_id))
+        file_pointer = self._get_file_pointer(request)
+        return self._delete_file(request, file_pointer)
 
 
-@require_GET
-@login_required
-def delete_file_pointer_from_message(request, file_pointer_id):
-    file_pointer = get_object_or_404(FilePointer, id=int(file_pointer_id))
-    unique_file = file_pointer.unique_file
-    message = file_pointer.message
-    project = message.project
+class AJAX_FileList(APIView):
 
-    if message.owner.user.id == request.user.id:
-        pass
-    elif not request.user.has_perm('project_delete', project):
-        raise PermissionDenied
+    def _get_file_list(self, request, message):
+        render_data_dict = {
+            'request': request,
+            'message': message
+        }
+        return render(
+            request,
+            'message/uploaded_file_list.html',
+            render_data_dict,
+        )
 
-    reverse_url = request.GET.get('next', None)
-    if reverse_url is None:
-        raise PermissionDenied
-
-    # delete file pointer
-    file_pointer.delete()
-    # smart pointer
-    if unique_file.file_pointers.count() == 0:
-        unique_file.delete()
-    return HttpResponse('OK')
-
-
-@login_required
-def download_file(request, file_pointer_id):
-    file_pointer = get_object_or_404(FilePointer, id=int(file_pointer_id))
-    project = file_pointer.message.project
-    if not request.user.has_perm('project_download', project):
-        raise PermissionDenied
-    unique_file = file_pointer.unique_file
-    file_wrapper = FileWrapper(unique_file.file)
-    # get content type
-    # http://blog.robotshell.org/2012/deal-with-http-header-encoding-for-file-download/
-    file_name = file_pointer.name
-    # ugly code
-    encode_file_name = urlencode(((file_name, ''),)).rstrip('=')
-
-    content_type = os.path.splitext(file_name)[-1]
-    content_type = mimetypes.types_map.get(content_type,
-                                           'application/octet-stream')
-    response = HttpResponse(file_wrapper,
-                            content_type=content_type)
-    content_disposition = "attachment; filename={0}; filename*=utf-8''{0}"
-    response['Content-Disposition'] = content_disposition.format(encode_file_name)
-    response['Content-Length'] = unique_file.file.size
-    return response
+    def get(self, request, message_id):
+        message = get_object_or_404(Message, id=int(message_id))
+        return self._get_file_list(request, message)

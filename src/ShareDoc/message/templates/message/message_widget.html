@@ -1,13 +1,13 @@
-<div class="file_list" href="{{request.path}}">
+<div class="file_list" href="{% url 'message_list' message_id=message.id %}">
 </div>
 <div class="file_upload">
 	<div class="uploading_list"></div>
-	<form enctype="multipart/form-data" method="post" action="{{request.path}}">
+	<form enctype="multipart/form-data" method="post" action="{% url 'message_file' message_id=message.id %}">
 		<input class="id_uploaded_file" type="file" name="uploaded_file" />
 	</form>	
 </div>
 <div class="post_message">
-	<form method="post" action="{{request.path}}">
+	<form method="post" action="{% url 'message_widget' %}?message_id={{message.id}}">
 		{% csrf_token %}
 		<div class="form_div">
 			{{form_post_message.title.errors}}
@@ -28,7 +28,7 @@
 		</div>
 		<div class="final_operation" class="form_div">
 			<input type="submit" name="post_message_submit" value="发布" disabled="" />
-			<input class="delete_button" type="button" value="删除" href="{% url 'delete_message' message_id=message.id %}" />
+			<input class="delete_button" type="button" value="删除" href="{% url 'message_widget' %}?message_id={{message.id}}" />
 			<input class="cancel_button" type="button" value="取消" />
 		</div>
 	</form>	

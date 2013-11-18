@@ -11,9 +11,9 @@
 <script src="{% static 'message/jquery.iframe-transport.js' %}"></script>
 <script src="{% static 'message/jquery.fileupload.js' %}"></script>
 
+<script src="{% static 'message/message_widget.js' %}"></script>
 <script src="{% static 'message/create_message.js' %}"></script>
 <script src="{% static 'message/message_list.js' %}"></script>
-<script src="{% static 'message/message_widget.js' %}"></script>
 <script src="{% static 'user_info/home.js' %}"></script>
 {% endblock %}
 
@@ -30,7 +30,7 @@
 	</div>
 	<div id="left_not_empty">
 		<div id="create_message">
-			<a class="message_widget_trigger" href="{% url 'create_message' %}">创建信息</a>
+			<a class="message_widget_trigger" href="{% url 'message_widget' %}">创建信息</a>
 			<div class="widget_loadder">
 			</div>
 		</div>
