@@ -98,13 +98,14 @@ var set_widget_trigger = function(common_ancestor_dom, trigger_dom, hide_dom, se
 		event.preventDefault();
 		var common_ancestor = $(this).parents(common_ancestor_dom);
 		var hide = common_ancestor.find(hide_dom);
-		hide.fadeOut('fast');
 		var url = $(this).attr('href');
 		$.post(url, {'load_message': null}, function(data) {
 			var widget_loadder = common_ancestor.find('div.widget_loadder');
 			widget_loadder.html(data);
 			widget_action(common_ancestor, hide);
 			set_button(common_ancestor, hide);
+
+			hide.fadeOut('fast');
 			widget_loadder.slideDown('fast');
 		});
 	});

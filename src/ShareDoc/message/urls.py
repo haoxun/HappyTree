@@ -3,6 +3,7 @@ from django.conf.urls import patterns, include, url
 
 from message.views import CreateMessage
 from message.views import ModifyMessage
+from message.views import AJAX_MessageWidget
 
 urlpatterns = patterns('',
     # modify message
@@ -25,5 +26,10 @@ urlpatterns = patterns('',
     url(r'^download_file/(?P<file_pointer_id>\d+)/$', 
         'message.views.download_file', 
         name='download_file'),
+    # REST message
+    url(r'^rest/$', 
+        AJAX_MessageWidget.as_view(),
+        name='ajax_mw'),
+    
 
 )

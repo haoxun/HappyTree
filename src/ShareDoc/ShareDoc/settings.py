@@ -132,6 +132,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     # enable object level permission
+    'rest_framework',
     # gravatar tags
     'gravatar',
     # guardian auth

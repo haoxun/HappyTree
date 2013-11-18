@@ -9,6 +9,8 @@ from django.core.exceptions import PermissionDenied
 from django.core.servers.basehttp import FileWrapper
 from django.utils.http import urlencode
 from django.views.generic.base import View
+from rest_framework.views import APIView
+from rest_framework.response import Response
 # auth dependency
 from django.contrib.auth.decorators import login_required
 from guardian.decorators import permission_required_or_403
@@ -41,6 +43,135 @@ from datetime import datetime
 import os
 import mimetypes
 mimetypes.init()
+
+
+class AJAX_MessageWidget(APIView):
+
+    def _get_message_widget(self, request, message):
+        project_set = get_objects_for_user(request.user,
+                                           'project.project_upload')
+        # set content for posted message, which is safe to newly
+        # created message.
+        form_select_project = ProjectChoiceForm(
+            project_set, 
+            initial={'project_id': message.project.id},
+        )
+        form_post_message = MessageInfoForm(initial={
+            'title': message.title,
+            'description': message.description,
+        })
+
+        render_data_dict = {
+            'request': request,
+            'message': message,
+            'form_select_project': form_select_project,
+            'form_post_message': form_post_message,
+        }
+        return render(
+            request,
+            'message/message_widget.html',
+            render_data_dict,
+        )
+
+    def _get_message(self, request):
+        # request method other than GET
+        message_id = request.DATA.get('message_id', None)
+        # GET method
+        message_id = message_id or request.GET.get('message_id', None)
+        if message_id is None:
+            raise PermissionDenied
+        return get_object_or_404(Message, id=int(message_id))
+
+    def _init_message(self, request):
+         # extract current processing message
+        message = get_objects_for_user(
+            request.user,
+            'message.message_processing',
+        )
+        if message:
+            message = message[0]
+        else:
+            # if no current processing message, init one.
+            project_set = get_objects_for_user(
+                request.user,
+                'project.project_upload',
+            )
+
+            if len(project_set) == 0:
+                # after finish dev, should give some error message about that,
+                # instead of raising PermissionDenied
+                raise PermissionDenied
+
+            message = Message.objects.create(
+                project=project_set[0],
+                owner=request.user.userinfo
+            )
+            assign_perm('message_processing', request.user, message)
+        return message
+
+    def _post_message(self, request, message):
+        """
+        Handle two kinds of message:
+        1. newly created message.
+        2. posted message.
+        It's safe to have the same operation with both kinds.
+        """
+        project_set = get_objects_for_user(request.user,
+                                           'project.project_upload')
+        print request.DATA
+        form_select_project = ProjectChoiceForm(project_set, request.DATA)
+        form_post_message = MessageInfoForm(request.DATA)
+        if form_post_message.is_valid() and form_select_project.is_valid():
+            # set message info
+            message.title = form_post_message.cleaned_data['title']
+            message.description = form_post_message.cleaned_data['description']
+            # target project
+            project_id = form_select_project.cleaned_data['project_id']
+            message.project = get_object_or_404(Project, id=int(project_id))
+            # set post
+            message.post_flag = True
+            message.save()
+            remove_perm('message_processing', request.user, message)
+            return Response('OK')
+        else:
+            # should return ERROR msg. Will be implemented later.
+            raise PermissionDenied
+
+    def _delete_message(self, request, message):
+        # only the owner of message can delete message.
+        if request.user.userinfo != message.owner:
+            raise PermissionDenied
+        # cancel file_pointer
+        for file_pointer in message.file_pointers.all():
+            unique_file = file_pointer.unique_file
+            file_pointer.delete()
+            # I don't know, might not necessary.
+            if unique_file.file_pointers.count() == 0:
+                unique_file.delete()
+        # safe
+        remove_perm('message_processing', request.user, message)
+        message.delete()
+
+    # get message widget
+    def get(self, request):
+        message = self._get_message(request)
+        return self._get_message_widget(request, message)
+
+    # create message widget
+    def post(self, request):
+        message = self._init_message(request)
+        return Response(message.id)
+
+    # post/modify message
+    def put(self, request):
+        message = self._get_message(request)
+        return self._post_message(request, message)
+
+    # delete message
+    def delete(self, request):
+        message = self._get_message(request)
+        self._delete_message(request, message)
+        return Response('OK')
 
 
 class CreateMessage(AJAX_CreateMessageHandler,

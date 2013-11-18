@@ -109,6 +109,7 @@ class PostMessageHandler(object):
         """
         project_set = get_objects_for_user(request.user,
                                            'project.project_upload')
+        print request.POST
         form_select_project = ProjectChoiceForm(project_set, request.POST)
         form_post_message = MessageInfoForm(request.POST)
         if form_post_message.is_valid() and form_select_project.is_valid():
