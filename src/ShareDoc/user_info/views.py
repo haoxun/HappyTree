@@ -23,15 +23,13 @@ from real_group.models import RealGroup
 # decorator
 from django.utils.decorators import method_decorator
 from common.utils import POSTHandler
-from user_info.utils import AJAX_HomePageHandler
-from user_info.utils import AJAX_UserPageHandler
 # util
 # python library
 import operator
 import re
 
 
-class HomePage(AJAX_HomePageHandler, POSTHandler):
+class HomePage(View):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(HomePage, self).dispatch(*args, **kwargs)
@@ -39,12 +37,9 @@ class HomePage(AJAX_HomePageHandler, POSTHandler):
     def get(self, request):
         return render(request,
                       'user_info/home.html')
-                      
-    def post(self, request):
-        return self._handler(request)
 
 
-class UserPage(AJAX_UserPageHandler, POSTHandler):
+class UserPage(View):
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(UserPage, self).dispatch(*args, **kwargs)
@@ -54,7 +49,3 @@ class UserPage(AJAX_UserPageHandler, POSTHandler):
         return render(request,
                       'user_info/user_page.html',
                       {'user_info': user_info})
-
-    def post(self, request, user_info_id):
-        user_info = get_object_or_404(UserInfo, id=int(user_info_id))
-        return self._handler(request, user_info)

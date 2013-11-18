@@ -56,7 +56,8 @@ var set_message_list_button = function(common_ancestor, hide) {
 }
 
 var load_message_list = function() {
-	$('#message_container').load('.', {'load_message_list': null}, function() {
+	var url = $('#message_container').attr('href');
+	$('#message_container').load(url, function() {
 		set_modify_trigger(
 			'div.user_post_message',
 			'a.posted_message_widget_trigger',

@@ -34,29 +34,6 @@ from datetime import datetime
 import json
 
 
-class AJAX_ProjectMessagePageHandler(object):
-
-    def __init__(self, *args, **kwargs):
-        super(AJAX_ProjectMessagePageHandler, self).__init__(*args, **kwargs)
-
-        self._register_handler([
-            ('load_message_list', self._message_list_handler),
-        ])
-
-    def _message_list_handler(self, request, project):
-        message_set = project.messages.filter(
-            post_flag=True,
-        ).order_by(
-            '-post_time',
-        )
-
-        return render(
-            request,
-            'message/message_list.html',
-            {'message_set': message_set},
-        )
-
-
 class AJAX_ProjectListPageHandler(ApplyConfirmHandler):
 
     def __init__(self, *args, **kwargs):

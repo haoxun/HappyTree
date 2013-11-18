@@ -22,6 +22,7 @@ from guardian.shortcuts import get_objects_for_user
 # model
 from guardian.models import User
 from guardian.models import Group
+from user_info.models import UserInfo
 from message.models import Message
 from project.models import Project
 from message.models import UniqueFile
@@ -45,6 +46,12 @@ mimetypes.init()
 
 class AJAX_MessageWidget(APIView):
 
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(AJAX_MessageWidget, self).dispatch(request,
+                                                        *args,
+                                                        **kwargs)
+
     def _get_message(self, request):
         # request method other than GET
         message_id = request.DATA.get('message_id', None)
@@ -52,11 +59,22 @@ class AJAX_MessageWidget(APIView):
         message_id = message_id or request.GET.get('message_id', None)
         if message_id is None:
             raise PermissionDenied
-        return get_object_or_404(Message, id=int(message_id))
+
+        message = get_object_or_404(Message, id=int(message_id))
+        # check perm
+        if request.user.userinfo.id != message.owner.id:
+            raise PermissionDenied
+        
+        return message
 
     def _get_message_widget(self, request, message):
         project_set = get_objects_for_user(request.user,
                                            'project.project_upload')
+        if len(project_set) == 0:
+            # after finish dev, should give some error message about that,
+            # instead of raising PermissionDenied
+            raise PermissionDenied
+
         # set content for posted message, which is safe to newly
         # created message.
         form_select_project = ProjectChoiceForm(
@@ -164,7 +182,79 @@ class AJAX_MessageWidget(APIView):
         return Response('OK')
 
 
+class MessageListBasic(object):
+
+    def _get_message_list(self, request, message_set):
+        return render(
+            request,
+            'message/message_list.html',
+            {'message_set': message_set},
+        )
+
+
+class AJAX_HomePageMessageList(MessageListBasic, APIView):
+
+    @method_decorator(login_required)
+    def get(self, request):
+        project_set = get_objects_for_user(request.user,
+                                           'project.project_membership')
+        message_set = []
+        for project in project_set:
+            message_set.extend(project.messages.filter(post_flag=True))
+        message_set = sorted(
+            message_set,
+            key=lambda x: x.post_time,
+            reverse=True
+        )
+        return self._get_message_list(request, message_set)
+
+
+class AJAX_UserPageMessageList(MessageListBasic, APIView):
+
+    @method_decorator(login_required)
+    def get(self, request):
+        user_info_id = request.GET.get('user_info_id', None)
+        if user_info_id is None:
+            raise PermissionDenied
+        user_info = get_object_or_404(UserInfo, id=int(user_info_id))
+
+        message_set = user_info.messages.filter(
+            post_flag=True,
+        ).order_by(
+            '-post_time',
+        )
+        return self._get_message_list(request, message_set)
+
+
+class AJAX_ProjectPageMessageList(MessageListBasic, APIView):
+
+    @method_decorator(login_required)
+    @method_decorator(
+        permission_required_or_403('project.project_membership',
+                                   (Project, 'id', 'project_id')),
+    )
+    def get(self, request):
+
+        project_id = request.GET.get('project_id', None)
+        if project_id is None:
+            raise PermissionDenied
+
+        project = get_object_or_404(Project, id=int(project_id))
+
+        message_set = project.messages.filter(
+            post_flag=True,
+        ).order_by(
+            '-post_time',
+        )
+        return self._get_message_list(request, message_set)
+
 class AJAX_SingleFile(APIView):
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(AJAX_SingleFile, self).dispatch(request,
+                                                     *args,
+                                                     **kwargs)
 
     def _get_file_pointer(self, request):
         file_pointer_id = request.DATA.get('file_pointer_id', None)
@@ -279,6 +369,9 @@ class AJAX_FileList(APIView):
             render_data_dict,
         )
 
+    @method_decorator(login_required)
     def get(self, request, message_id):
         message = get_object_or_404(Message, id=int(message_id))
+        if message.owner.user.id != request.user.id:
+            raise PermissionDenied
         return self._get_file_list(request, message)
