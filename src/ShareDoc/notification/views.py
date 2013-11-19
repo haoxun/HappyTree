@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 from django.http import HttpResponse
 from django.views.generic.base import View
 from django.shortcuts import render
+from rest_framework.views import APIView
+from rest_framework.response import Response
 # auth dependency
 from django.contrib.auth.decorators import login_required
 from guardian.decorators import permission_required_or_403

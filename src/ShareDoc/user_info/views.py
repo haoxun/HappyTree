@@ -30,20 +30,16 @@ import re
 
 
 class HomePage(View):
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(HomePage, self).dispatch(*args, **kwargs)
 
+    @method_decorator(login_required)
     def get(self, request):
         return render(request,
                       'user_info/home.html')
 
 
 class UserPage(View):
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(UserPage, self).dispatch(*args, **kwargs)
 
+    @method_decorator(login_required)
     def get(self, request, user_info_id):
         user_info = get_object_or_404(UserInfo, id=int(user_info_id))
         return render(request,
