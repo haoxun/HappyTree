@@ -7,7 +7,6 @@ from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from django.core.servers.basehttp import FileWrapper
-from django.utils.http import urlencode
 from django.views.generic.base import View
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -37,6 +36,7 @@ from django.views.decorators.http import require_GET
 from django.template.loader import render_to_string
 from message.utils import gen_MD5_of_UploadedFile
 # python library
+from django.utils.http import urlencode
 import json
 from datetime import datetime
 import os

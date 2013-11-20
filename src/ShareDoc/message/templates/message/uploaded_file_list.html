@@ -1,5 +1,5 @@
 {% for file_pointer in message.file_pointers.all %}
 				<p class="remove">{{file_pointer.name}}
-					[<a href="{% url 'message_file' message_id=message.id %}?file_pointer_id={{file_pointer.id}}">remove</a>]
+					[<a href="{% url 'message_file' message_id=message.id %}" file_pointer_id={{file_pointer.id}} >remove</a>]
 				</p>
 {% endfor %}

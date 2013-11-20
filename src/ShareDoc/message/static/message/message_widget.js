@@ -3,9 +3,11 @@ var set_remove = function(common_ancestor, file_list) {
 		event.preventDefault();
 		var file_item = $(this).parent();
 		var url = $(this).attr('href');
+		var file_pointer_id = $(this).attr('file_pointer_id');
 		$.ajax({
 			type: 'DELETE',
-			url: url
+			url: url,
+		    data: {file_pointer_id: file_pointer_id}
 		}).success(function() {
 			file_item.fadeOut('fast', function() {
 				file_item.remove();
